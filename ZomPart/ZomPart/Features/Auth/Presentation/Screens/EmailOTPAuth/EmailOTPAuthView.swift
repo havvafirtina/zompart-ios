@@ -1,115 +1,132 @@
-//
-//  EmailOTPAuthView.swift
-//  ZomPart
-//
-//  Created by Havva Fırtına on 2026-05-16.
-//
-
 import SwiftUI
+import SBDesignSystem
 
 struct EmailOTPAuthView: View {
 
-    @State private var viewModel: EmailOTPAuthViewModel
+  let viewModel: EmailOTPAuthViewModel
 
-    @State private var email = ""
-    @State private var firstName = ""
-    @State private var lastName = ""
-    @State private var intent: AuthOTPIntent = .signup
+  @State private var email = ""
+  @State private var firstName = ""
+  @State private var lastName = ""
+  @State private var intent: AuthOTPIntent = .signup
 
-    init(viewModel: EmailOTPAuthViewModel) {
-        _viewModel = State(wrappedValue: viewModel)
+  var body: some View {
+    ScrollView {
+      VStack {
+        header
+        intentPicker
+        fields
+        sendButton
+        errorMessage
+      }
+      .sbPadding(.large)
     }
+    .background(Color.sbSurfacePrimary)
+    .disabled(viewModel.state == .loading)
+  }
 
-    var body: some View {
-        NavigationStack {
-            Form {
-                intentSection
-                fieldsSection
-                sendButton
-                stateOverlay
-            }
-            .navigationTitle("Sign In")
-            .disabled(viewModel.state == .loading)
-        }
-        .onAppear {
-            #if DEBUG
-            print(DefaultEnvironment.debugDescription())
-            #endif
-        }
+  private var header: some View {
+    VStack {
+      Image(systemName: "key.fill")
+        .font(.system(size: 48))
+        .foregroundStyle(Color.sbAccentPrimary)
+
+      Text(Localized.Auth.title.localizedKey)
+        .font(.sbTitleSemiboldXLarge)
+        .foregroundStyle(Color.sbTextPrimary)
+
+      Text(Localized.Auth.subtitle.localizedKey)
+        .font(.sbBodyRegularDefault)
+        .foregroundStyle(Color.sbTextSecondary)
+        .multilineTextAlignment(.center)
     }
-}
+    .sbVerticalPadding(.xLarge)
+  }
 
-// MARK: - Subviews
-
-private extension EmailOTPAuthView {
-
-    var intentSection: some View {
-        Picker("Intent", selection: $intent) {
-            Text("Sign Up").tag(AuthOTPIntent.signup)
-            Text("Log In").tag(AuthOTPIntent.login)
-        }
-        .pickerStyle(.segmented)
+  private var intentPicker: some View {
+    Picker("", selection: $intent) {
+      Text(Localized.Auth.intentSignup.localizedKey)
+        .tag(AuthOTPIntent.signup)
+      Text(Localized.Auth.intentLogin.localizedKey)
+        .tag(AuthOTPIntent.login)
     }
+    .pickerStyle(.segmented)
+    .sbVerticalPadding(.medium)
+  }
 
-    var fieldsSection: some View {
-        Section {
-            TextField("Email", text: $email)
-                .textContentType(.emailAddress)
-                .keyboardType(.emailAddress)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
+  private var fields: some View {
+    VStack {
+      TextField(Localized.Auth.emailPlaceholder.localized, text: $email)
+        .textContentType(.emailAddress)
+        .keyboardType(.emailAddress)
+        .autocorrectionDisabled()
+        .textInputAutocapitalization(.never)
+        .font(.sbBodyRegularDefault)
+        .sbPadding(.medium)
+        .background(Color.sbSurfaceSecondary)
+        .sbCornerRadius(.medium)
 
-            if intent == .signup {
-                TextField("First Name", text: $firstName)
-                    .textContentType(.givenName)
+      if intent == .signup {
+        TextField(Localized.Auth.firstNamePlaceholder.localized, text: $firstName)
+          .textContentType(.givenName)
+          .font(.sbBodyRegularDefault)
+          .sbPadding(.medium)
+          .background(Color.sbSurfaceSecondary)
+          .sbCornerRadius(.medium)
 
-                TextField("Last Name", text: $lastName)
-                    .textContentType(.familyName)
-            }
-        }
+        TextField(Localized.Auth.lastNamePlaceholder.localized, text: $lastName)
+          .textContentType(.familyName)
+          .font(.sbBodyRegularDefault)
+          .sbPadding(.medium)
+          .background(Color.sbSurfaceSecondary)
+          .sbCornerRadius(.medium)
+      }
     }
+  }
 
-    var sendButton: some View {
-        Section {
-            Button {
-                Task {
-                    await viewModel.sendOTP(
-                        email: email,
-                        intent: intent,
-                        firstName: intent == .signup ? firstName : nil,
-                        lastName: intent == .signup ? lastName : nil
-                    )
-                }
-            } label: {
-                HStack {
-                    Spacer()
-                    if viewModel.state == .loading {
-                        ProgressView()
-                    } else {
-                        Text("Send OTP")
-                    }
-                    Spacer()
-                }
-            }
-            .disabled(email.isEmpty)
+  private var sendButton: some View {
+    Button {
+      Task {
+        await viewModel.sendOTP(
+          email: email,
+          intent: intent,
+          firstName: intent == .signup ? firstName : nil,
+          lastName: intent == .signup ? lastName : nil
+        )
+      }
+    } label: {
+      Group {
+        if viewModel.state == .loading {
+          ProgressView()
+            .tint(Color.sbTextOnAccent)
+        } else {
+          Text(Localized.Auth.sendOTP.localizedKey)
         }
+      }
+      .font(.sbBodySemiboldDefault)
+      .foregroundStyle(Color.sbTextOnAccent)
+      .frame(maxWidth: .infinity)
+      .sbControlHeight(.regular)
+      .background(Color.sbAccentPrimary)
+      .sbCornerRadius(.default)
     }
+    .disabled(email.isEmpty)
+    .sbVerticalPadding(.large)
+  }
 
-    @ViewBuilder
-    var stateOverlay: some View {
-        switch viewModel.state {
-        case .success:
-            Section {
-                Label("OTP sent! Check your email.", systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-            }
-        case .error(let message):
-            Section {
-                Label(message, systemImage: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.red)
-            }
-        default:
-            EmptyView()
-        }
+  @ViewBuilder
+  private var errorMessage: some View {
+    if case .error(let message) = viewModel.state {
+      HStack {
+        Image(systemName: "exclamationmark.triangle.fill")
+        Text(message)
+      }
+      .font(.sbBodyRegularSmall)
+      .foregroundStyle(Color.sbStatusError)
+      .sbPadding(.medium)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .background(Color.sbStatusErrorSubtle)
+      .sbCornerRadius(.medium)
     }
+  }
 }

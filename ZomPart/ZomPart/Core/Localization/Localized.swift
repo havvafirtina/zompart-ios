@@ -25,4 +25,25 @@ enum Localized {
     case unknown = "error.unknown"
     case tokenExpired = "error.tokenExpired"
   }
+
+  enum Auth: String, LocalizableContent, CaseIterable {
+    case title = "auth.title"
+    case subtitle = "auth.subtitle"
+    case emailPlaceholder = "auth.email.placeholder"
+    case firstNamePlaceholder = "auth.firstName.placeholder"
+    case lastNamePlaceholder = "auth.lastName.placeholder"
+    case intentSignup = "auth.intent.signup"
+    case intentLogin = "auth.intent.login"
+    case sendOTP = "auth.sendOTP"
+    case otpTitle = "auth.otp.title"
+    case otpSubtitle = "auth.otp.subtitle"
+    case otpPlaceholder = "auth.otp.placeholder"
+    case otpVerify = "auth.otp.verify"
+    case errorValidation = "auth.error.validation"
+    case errorEmailRegistered = "auth.error.emailRegistered"
+    case errorEmailNotRegistered = "auth.error.emailNotRegistered"
+    case errorOtpInvalid = "auth.error.otpInvalid"
+    case errorNetwork = "auth.error.network"
+    case errorUnknown = "auth.error.unknown"
+  }
 }

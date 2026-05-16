@@ -41,7 +41,7 @@ struct RootView: View {
     if let email = pendingVerifyEmail {
       OTPVerifyView(
         viewModel: AuthModule.makeOTPVerifyViewModel(
-          httpClient: env.httpClient,
+          env: env,
           email: email,
           onVerified: { session in
             env.tokenProvider.updateTokens(
@@ -56,7 +56,7 @@ struct RootView: View {
     } else {
       EmailOTPAuthView(
         viewModel: AuthModule.makeEmailOTPAuthViewModel(
-          httpClient: env.httpClient,
+          env: env,
           onOTPSent: { email in
             pendingVerifyEmail = email
           }
