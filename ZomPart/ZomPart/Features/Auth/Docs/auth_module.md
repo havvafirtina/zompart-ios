@@ -24,7 +24,7 @@
   - `AuthRefreshEndpoint` — POST `/functions/v1/auth-refresh`
   - `AuthLogoutEndpoint` — POST `/functions/v1/auth-logout`
   - `AuthDeleteRequestEndpoint` — POST `/functions/v1/auth-delete-request`
-  - `AuthDeleteConfirmEndpoint` — POST `/functions/v1/auth-delete-confirm`
+  - `AuthDeleteConfirmEndpoint` — POST `/functions/v1/auth-delete-confirm` (body: `email`, `token`, `type`)
 - Networking:
   - Uses SBNetworking `HTTPClient` with base URL and `apikey` header injected at app level via `ZomPartAuthTokenProvider`.
   - Bearer token automatically added by `ZomPartAuthTokenProvider` for authenticated endpoints.
@@ -48,19 +48,22 @@ ContentView (main app)
 
 ## Error Handling
 
-`AuthError` maps `HTTPClientError` by status code:
+`AuthError` maps `HTTPClientError` cases. `HTTPClient` uses dedicated cases for 401 (`.unauthorized`),
+404 (`.notFound`), and 500+ (`.serverError`); other 4xx arrive as `.clientError(statusCode:)`.
+Repositories also validate `envelope.success` and `envelope.data != nil` before calling `toModel()`.
 
 | Case | Trigger |
 |---|---|
 | `.validationFailed` | 400 on OTP send |
 | `.emailAlreadyRegistered` | 409 on signup |
+| `.emailNotRegistered` | 404 (`.notFound`) on OTP send |
 | `.otpInvalid` | 4xx on verify |
-| `.tokenExpired` | 401 on refresh/logout/delete |
-| `.noPendingDeletionRequest` | 400 on delete confirm |
+| `.tokenExpired` | 401 (`.unauthorized`) on refresh/logout/delete |
+| `.noPendingDeletionRequest` | 4xx on delete confirm |
 | `.deletionRequestExpired` | 410 on delete confirm |
-| `.deletionFailed` | 500 on delete confirm |
+| `.deletionFailed` | 500 (`.serverError`) on delete confirm |
 | `.network` | No connectivity |
-| `.emptyResponse` | Nil envelope |
+| `.emptyResponse` | Nil envelope or `success: false` |
 | `.unknown` | All other errors |
 
 > **Note:** Detailed error-code parsing from the response body is not yet supported
@@ -76,9 +79,14 @@ ContentView (main app)
 
 - No analytics events defined for this scope.
 
+## DTOs
+
+- `AuthSessionDataDTO` is shared between `auth-verify` and `auth-refresh` (both return the same `{ access_token, refresh_token, expires_in }` shape).
+
 ## Persistence
 
 - Tokens are stored in `ZomPartAuthTokenProvider` (in-memory).
+- `clearTokens()` resets both tokens to nil (used on logout).
 - Keychain persistence for tokens is not yet implemented.
 
 ## Open Questions / TODO

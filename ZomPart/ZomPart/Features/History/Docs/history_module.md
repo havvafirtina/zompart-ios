@@ -59,16 +59,17 @@ func fetchHistory(vehicleId: String?, limit: Int, offset: Int) async throws -> H
 
 ## Error Handling
 
-`HistoryError` maps `HTTPClientError` by status code:
+`HistoryError` maps `HTTPClientError` cases. `HTTPClient` uses a dedicated `.notFound` case for 404.
+Repositories also validate `envelope.success` and `envelope.data != nil` before calling `toModel()`.
 
 | Case | Trigger |
 |---|---|
 | `.invalidUUID` | 400 — invalid scanId or vehicle_id |
-| `.scanNotFound` | 404 — scan not found or not owned (single mode) |
+| `.scanNotFound` | 404 (`.notFound`) — scan not found or not owned (single mode) |
 | `.invalidPagination` | 400 — negative or non-integer limit/offset (history mode) |
 | `.rateLimitExceeded` | 429 |
 | `.network` | No connectivity |
-| `.emptyResponse` | Nil envelope |
+| `.emptyResponse` | Nil envelope or `success: false` |
 | `.unknown` | All other errors |
 
 ## Ownership / Cross-user behavior

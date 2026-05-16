@@ -36,16 +36,17 @@
 
 ## Error Handling
 
-`OfferError` maps `HTTPClientError` by status code:
+`OfferError` maps `HTTPClientError` cases. `HTTPClient` uses a dedicated `.notFound` case for 404.
+Repositories also validate `envelope.success` and `envelope.data != nil` before calling `toModel()`.
 
 | Case | Trigger |
 |---|---|
 | `.invalidUUID` | 400 — missing/invalid UUID |
-| `.scanNotFound` | 404 on scan-offers |
-| `.offerNotFound` | 404 on offers-click |
+| `.scanNotFound` | 404 (`.notFound`) on scan-offers |
+| `.offerNotFound` | 404 (`.notFound`) on offers-click |
 | `.rateLimitExceeded` | 429 |
 | `.network` | No connectivity |
-| `.emptyResponse` | Nil envelope |
+| `.emptyResponse` | Nil envelope or `success: false` |
 | `.unknown` | All other errors |
 
 ## Empty Offers

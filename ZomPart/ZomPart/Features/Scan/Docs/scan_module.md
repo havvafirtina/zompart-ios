@@ -61,13 +61,15 @@ Only `SELECT_PART` is production-ready. `ANSWER_QUESTION`, `WRONG_RESULT`, and
 
 ## Error Handling
 
-`ScanError` maps `HTTPClientError` by status code per endpoint context:
+`ScanError` maps `HTTPClientError` cases per endpoint context. `HTTPClient` uses dedicated cases
+for 404 (`.notFound`) and 429 (`.clientError(statusCode: 429)`).
+Repositories also validate `envelope.success` and `envelope.data != nil` before calling `toModel()`.
 
 | Case | Trigger |
 |---|---|
 | `.invalidUUID` | 400 — missing/invalid UUID |
-| `.vehicleNotFound` | 404 on scan-start |
-| `.scanNotFound` | 404 on all other endpoints |
+| `.vehicleNotFound` | 404 (`.notFound`) on scan-start |
+| `.scanNotFound` | 404 (`.notFound`) on all other endpoints |
 | `.invalidScanType` | 400 — upload on TEXT scan |
 | `.invalidMimeType` | 400 — unsupported content_type |
 | `.photoLimitReached` | 400 — > 8 photos |
@@ -78,7 +80,7 @@ Only `SELECT_PART` is production-ready. `ANSWER_QUESTION`, `WRONG_RESULT`, and
 | `.conflict` | 409 — concurrent processing |
 | `.rateLimitExceeded` | 429 |
 | `.network` | No connectivity |
-| `.emptyResponse` | Nil envelope |
+| `.emptyResponse` | Nil envelope or `success: false` |
 | `.unknown` | All other errors |
 
 ## Constraints

@@ -61,7 +61,8 @@ TRIM and ENGINE are optional; passing `nil` skips them (stored as null).
 
 ## Error Handling
 
-`VehicleError` maps `HTTPClientError` by status code:
+`VehicleError` maps `HTTPClientError` cases. `HTTPClient` uses a dedicated `.notFound` case for 404.
+Repositories also validate `envelope.success` and `envelope.data != nil` before calling `toModel()`.
 
 | Case | Trigger |
 |---|---|
@@ -69,12 +70,12 @@ TRIM and ENGINE are optional; passing `nil` skips them (stored as null).
 | `.invalidPlate` | 400 on PLATE resolve |
 | `.invalidCountryCode` | 400 country_code validation |
 | `.invalidStep` | 400 on MANUAL step |
-| `.invalidSession` | 400 on MANUAL session_id mismatch |
-| `.vehicleNotFound` | 404 |
+| `.invalidSession` | 400 on MANUAL session_id mismatch (enum-only; not yet produced by mappers) |
+| `.vehicleNotFound` | 404 (`.notFound`) on resolve, list, and MANUAL |
 | `.rateLimitExceeded` | 429 |
 | `.providerUnavailable` | 503 |
 | `.network` | No connectivity |
-| `.emptyResponse` | Nil envelope |
+| `.emptyResponse` | Nil envelope or `success: false` |
 | `.unknown` | All other errors |
 
 ## Analytics
