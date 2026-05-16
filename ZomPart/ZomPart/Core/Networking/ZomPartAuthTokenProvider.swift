@@ -21,8 +21,11 @@ final class ZomPartAuthTokenProvider: AuthTokenProvider, @unchecked Sendable {
     var accessToken: String? { lock.withLock { $0.accessToken } }
     var refreshToken: String? { lock.withLock { $0.refreshToken } }
 
+    var hasStoredTokens: Bool { accessToken != nil }
+
     private let lock = OSAllocatedUnfairLock(initialState: TokenState())
     private let urlSession: URLSession
+    private let tokenPersistence: TokenPersistence
 
     private static let supabasePublishableKey: String = {
         PlistReader.value(for: "SUPABASE_PUBLISHABLE_KEY")
@@ -36,8 +39,20 @@ final class ZomPartAuthTokenProvider: AuthTokenProvider, @unchecked Sendable {
         PlistReader.value(for: "SUPABASE_URL")
     }()
 
-    init(urlSession: URLSession = .shared) {
+    init(
+        tokenPersistence: TokenPersistence = KeychainTokenStore(),
+        urlSession: URLSession = .shared
+    ) {
+        self.tokenPersistence = tokenPersistence
         self.urlSession = urlSession
+
+        if let storedAccess = tokenPersistence.loadAccessToken(),
+           let storedRefresh = tokenPersistence.loadRefreshToken() {
+            self.lock.withLock {
+                $0.accessToken = storedAccess
+                $0.refreshToken = storedRefresh
+            }
+        }
     }
 
     func updateTokens(accessToken: String, refreshToken: String) {
@@ -45,6 +60,7 @@ final class ZomPartAuthTokenProvider: AuthTokenProvider, @unchecked Sendable {
             $0.accessToken = accessToken
             $0.refreshToken = refreshToken
         }
+        tokenPersistence.save(accessToken: accessToken, refreshToken: refreshToken)
     }
 
     func clearTokens() {
@@ -52,6 +68,7 @@ final class ZomPartAuthTokenProvider: AuthTokenProvider, @unchecked Sendable {
             $0.accessToken = nil
             $0.refreshToken = nil
         }
+        tokenPersistence.clear()
     }
 
     func refresh() async throws {
