@@ -1,18 +1,54 @@
-//
-//  VehicleModule.swift
-//  ZomPart
-//
-//  Created by Havva Fırtına on 2026-05-16.
-//
-
 import Foundation
+import SwiftUI
 import SBNetworking
 
-/// Static factory that wires Vehicle feature dependencies.
-/// Called from the composition root; no state of its own.
 enum VehicleModule {
 
-    static func makeVehicleRepository(httpClient: HTTPClient) -> VehicleRepositoryProtocol {
-        VehicleRepository(client: httpClient)
-    }
+  static func makeVehicleRepository(httpClient: HTTPClient) -> VehicleRepositoryProtocol {
+    VehicleRepository(client: httpClient)
+  }
+
+  @MainActor
+  static func makeGarageListViewModel(env: AppEnvironment) -> GarageListViewModel {
+    GarageListViewModel(
+      vehicleRepository: makeVehicleRepository(httpClient: env.httpClient)
+    )
+  }
+
+  @MainActor
+  static func makeVINScannerViewModel(
+    env: AppEnvironment,
+    onVehicleAdded: @escaping () -> Void
+  ) -> VINScannerViewModel {
+    VINScannerViewModel(
+      vehicleRepository: makeVehicleRepository(httpClient: env.httpClient),
+      ocrService: VisionOCRService(),
+      cameraPermission: CameraPermissionManager(),
+      onVehicleAdded: onVehicleAdded
+    )
+  }
+
+  @MainActor
+  static func makePlateScannerViewModel(
+    env: AppEnvironment,
+    onVehicleAdded: @escaping () -> Void
+  ) -> PlateScannerViewModel {
+    PlateScannerViewModel(
+      vehicleRepository: makeVehicleRepository(httpClient: env.httpClient),
+      ocrService: VisionOCRService(),
+      cameraPermission: CameraPermissionManager(),
+      onVehicleAdded: onVehicleAdded
+    )
+  }
+
+  @MainActor
+  static func makeManualWizardViewModel(
+    env: AppEnvironment,
+    onVehicleAdded: @escaping () -> Void
+  ) -> ManualWizardViewModel {
+    ManualWizardViewModel(
+      vehicleRepository: makeVehicleRepository(httpClient: env.httpClient),
+      onVehicleAdded: onVehicleAdded
+    )
+  }
 }

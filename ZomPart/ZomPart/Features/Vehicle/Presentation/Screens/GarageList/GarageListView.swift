@@ -1,0 +1,113 @@
+import SwiftUI
+import SBDesignSystem
+
+struct GarageListView: View {
+
+  let viewModel: GarageListViewModel
+  var onAddVehicle: () -> Void
+  var onVehicleTap: (VehicleDomain) -> Void
+
+  var body: some View {
+    Group {
+      switch viewModel.state {
+      case .idle, .loading:
+        ProgressView()
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+      case .empty:
+        emptyState
+
+      case .loaded:
+        vehicleList
+
+      case .error(let message):
+        errorState(message: message)
+      }
+    }
+    .background(Color.sbSurfacePrimary)
+    .navigationTitle(Localized.Tab.garage.localized)
+    .toolbar {
+      ToolbarItem(placement: .primaryAction) {
+        Button {
+          onAddVehicle()
+        } label: {
+          Image(systemName: "plus")
+        }
+      }
+    }
+    .task {
+      if viewModel.state == .idle {
+        await viewModel.loadVehicles()
+      }
+    }
+    .refreshable {
+      await viewModel.loadVehicles()
+    }
+  }
+
+  private var emptyState: some View {
+    VStack {
+      Image(systemName: "car.fill")
+        .font(.system(size: 64))
+        .foregroundStyle(Color.sbAccentPrimary)
+
+      Text(Localized.Garage.emptyTitle.localizedKey)
+        .font(.sbTitleSemiboldLarge)
+        .foregroundStyle(Color.sbTextPrimary)
+
+      Text(Localized.Garage.emptySubtitle.localizedKey)
+        .font(.sbBodyRegularDefault)
+        .foregroundStyle(Color.sbTextSecondary)
+        .multilineTextAlignment(.center)
+
+      Button {
+        onAddVehicle()
+      } label: {
+        Text(Localized.Garage.addVehicle.localizedKey)
+          .font(.sbBodySemiboldDefault)
+          .foregroundStyle(Color.sbTextOnAccent)
+          .sbHorizontalPadding(.xLarge)
+          .sbControlHeight(.regular)
+          .background(Color.sbAccentPrimary)
+          .sbCornerRadius(.default)
+      }
+      .sbVerticalPadding(.large)
+    }
+    .sbPadding(.xLarge)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+  }
+
+  private var vehicleList: some View {
+    ScrollView {
+      LazyVStack {
+        ForEach(viewModel.vehicles, id: \.id) { vehicle in
+          VehicleCardView(vehicle: vehicle) {
+            onVehicleTap(vehicle)
+          }
+        }
+      }
+      .sbPadding(.large)
+    }
+  }
+
+  private func errorState(message: String) -> some View {
+    VStack {
+      Image(systemName: "wifi.slash")
+        .font(.system(size: 48))
+        .foregroundStyle(Color.sbTextTertiary)
+
+      Text(message)
+        .font(.sbBodyRegularDefault)
+        .foregroundStyle(Color.sbTextSecondary)
+        .multilineTextAlignment(.center)
+
+      Button(Localized.Common.retry.localized) {
+        Task { await viewModel.loadVehicles() }
+      }
+      .font(.sbBodySemiboldDefault)
+      .foregroundStyle(Color.sbAccentPrimary)
+    }
+    .sbPadding(.xLarge)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+  }
+}

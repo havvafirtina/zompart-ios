@@ -13,13 +13,13 @@ struct OnboardingPageView: View {
         .font(.system(size: 80))
         .foregroundStyle(Color.sbAccentPrimary)
 
-      Text(LocalizedStringKey(page.titleKey))
+      Text(page.title.localizedKey)
         .font(.sbTitleSemiboldXLarge)
         .foregroundStyle(Color.sbTextPrimary)
         .multilineTextAlignment(.center)
         .sbVerticalPadding(.medium)
 
-      Text(LocalizedStringKey(page.subtitleKey))
+      Text(page.subtitle.localizedKey)
         .font(.sbBodyRegularDefault)
         .foregroundStyle(Color.sbTextSecondary)
         .multilineTextAlignment(.center)

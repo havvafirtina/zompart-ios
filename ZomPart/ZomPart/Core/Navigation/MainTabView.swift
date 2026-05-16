@@ -5,6 +5,8 @@ struct MainTabView: View {
 
   @Bindable var router: AppRouter
   let env: AppEnvironment
+  @State private var garageViewModel: GarageListViewModel?
+  @State private var showAddVehicle = false
 
   var body: some View {
     TabView(selection: $router.selectedTab) {
@@ -17,7 +19,7 @@ struct MainTabView: View {
       .tag(AppRouter.Tab.scan)
 
       NavigationStack(path: $router.garagePath) {
-        GarageTabPlaceholderView()
+        garageTab
       }
       .tabItem {
         Label(Localized.Tab.garage.localized, systemImage: "car.fill")
@@ -33,5 +35,24 @@ struct MainTabView: View {
       .tag(AppRouter.Tab.profile)
     }
     .tint(Color.sbAccentPrimary)
+    .sheet(isPresented: $showAddVehicle) {
+      AddVehicleSheetView(env: env) {
+        Task { await garageViewModel?.onVehicleAdded() }
+      }
+    }
+  }
+
+  private var garageTab: some View {
+    let vm = garageViewModel ?? {
+      let created = VehicleModule.makeGarageListViewModel(env: env)
+      Task { @MainActor in garageViewModel = created }
+      return created
+    }()
+
+    return GarageListView(
+      viewModel: vm,
+      onAddVehicle: { showAddVehicle = true },
+      onVehicleTap: { _ in }
+    )
   }
 }

@@ -1,0 +1,21 @@
+//
+//  LocalDevice.xcconfig
+//  ZomPart
+//
+//  Created by Havva Fırtına on 2026-05-17.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+#include "Base.xcconfig"
+
+// SBNetworking: enable HTTP logging (runtime; see HTTPClientLoggingPolicy.swift)
+SBNetworkingHTTPLogEnabled = YES
+
+APP_ENV = LOCAL_DEVICE
+
+SUPABASE_API_SCHEME = http
+// ipconfig getifaddr en1 get ip address before running
+SUPABASE_URL = 192.168.68.50:54321
+SUPABASE_PUBLISHABLE_KEY = sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH

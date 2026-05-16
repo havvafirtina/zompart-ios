@@ -9,18 +9,18 @@ final class OnboardingViewModel {
   let pages: [OnboardingPage] = [
     OnboardingPage(
       symbol: "camera.viewfinder",
-      titleKey: "onboarding.page1.title",
-      subtitleKey: "onboarding.page1.subtitle"
+      title: Localized.Onboarding.page1Title,
+      subtitle: Localized.Onboarding.page1Subtitle
     ),
     OnboardingPage(
       symbol: "sparkles",
-      titleKey: "onboarding.page2.title",
-      subtitleKey: "onboarding.page2.subtitle"
+      title: Localized.Onboarding.page2Title,
+      subtitle: Localized.Onboarding.page2Subtitle
     ),
     OnboardingPage(
       symbol: "tag.fill",
-      titleKey: "onboarding.page3.title",
-      subtitleKey: "onboarding.page3.subtitle"
+      title: Localized.Onboarding.page3Title,
+      subtitle: Localized.Onboarding.page3Subtitle
     )
   ]
 
@@ -49,6 +49,6 @@ final class OnboardingViewModel {
 
 struct OnboardingPage {
   let symbol: String
-  let titleKey: String
-  let subtitleKey: String
+  let title: Localized.Onboarding
+  let subtitle: Localized.Onboarding
 }

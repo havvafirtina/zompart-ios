@@ -26,6 +26,41 @@ enum Localized {
     case tokenExpired = "error.tokenExpired"
   }
 
+  enum Onboarding: String, LocalizableContent, CaseIterable {
+    case page1Title = "onboarding.page1.title"
+    case page1Subtitle = "onboarding.page1.subtitle"
+    case page2Title = "onboarding.page2.title"
+    case page2Subtitle = "onboarding.page2.subtitle"
+    case page3Title = "onboarding.page3.title"
+    case page3Subtitle = "onboarding.page3.subtitle"
+  }
+
+  enum Garage: String, LocalizableContent, CaseIterable {
+    case emptyTitle = "garage.empty.title"
+    case emptySubtitle = "garage.empty.subtitle"
+    case addVehicle = "garage.addVehicle"
+    case scanVIN = "garage.scanVIN"
+    case scanVINSubtitle = "garage.scanVIN.subtitle"
+    case scanVINDescription = "garage.scanVIN.description"
+    case scanPlate = "garage.scanPlate"
+    case scanPlateSubtitle = "garage.scanPlate.subtitle"
+    case scanPlateDescription = "garage.scanPlate.description"
+    case manualEntry = "garage.manualEntry"
+    case manualEntrySubtitle = "garage.manualEntry.subtitle"
+    case vinPlaceholder = "garage.vin.placeholder"
+    case platePlaceholder = "garage.plate.placeholder"
+    case enterManually = "garage.enterManually"
+    case openCamera = "garage.openCamera"
+    case resolveVehicle = "garage.resolveVehicle"
+    case vehicleAdded = "garage.vehicleAdded"
+    case selectYear = "garage.wizard.selectYear"
+    case selectMake = "garage.wizard.selectMake"
+    case selectModel = "garage.wizard.selectModel"
+    case selectTrim = "garage.wizard.selectTrim"
+    case selectEngine = "garage.wizard.selectEngine"
+    case vehicleAlreadyExists = "garage.vehicleAlreadyExists"
+  }
+
   enum Auth: String, LocalizableContent, CaseIterable {
     case title = "auth.title"
     case subtitle = "auth.subtitle"

@@ -4,6 +4,10 @@
 <dict>
 	<key>APP_ENV</key>
 	<string>$(APP_ENV)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>ZomPart uses the camera to scan VIN numbers, license plates, and vehicle parts.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ZomPart needs access to your photos to select images of vehicle parts.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
