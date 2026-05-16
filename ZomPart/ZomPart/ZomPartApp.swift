@@ -1,57 +1,21 @@
-//
-//  ZomPartApp.swift
-//  ZomPart
-//
-//  Created by Havva Fırtına on 2026-05-16.
-//
-
 import SwiftUI
-import SBNetworking
+import SBDesignSystem
 
 @main
 struct ZomPartApp: App {
 
-    private let tokenProvider: ZomPartAuthTokenProvider
-    private let httpClient: HTTPClient
+  private let env: AppEnvironment
 
-    @State private var pendingVerifyEmail: String? = nil
-    @State private var isAuthenticated = false
+  init() {
+    self.env = AppEnvironment.build()
+    SBDesignSystemManager.shared.updateTheme(.crimson)
+  }
 
-    init() {
-        let tp = ZomPartAuthTokenProvider()
-        let environment = DefaultEnvironment(authTokenProvider: tp)
-        self.tokenProvider = tp
-        self.httpClient = HTTPClient(client: environment)
+  var body: some Scene {
+    WindowGroup {
+      SBDesignSystemProvider {
+        RootView(env: env)
+      }
     }
-
-    var body: some Scene {
-        WindowGroup {
-            if isAuthenticated {
-                ContentView()
-            } else if let email = pendingVerifyEmail {
-                OTPVerifyView(
-                    viewModel: AuthModule.makeOTPVerifyViewModel(
-                        httpClient: httpClient,
-                        email: email,
-                        onVerified: { session in
-                            tokenProvider.updateTokens(
-                                accessToken: session.accessToken,
-                                refreshToken: session.refreshToken
-                            )
-                            isAuthenticated = true
-                        }
-                    )
-                )
-            } else {
-                EmailOTPAuthView(
-                    viewModel: AuthModule.makeEmailOTPAuthViewModel(
-                        httpClient: httpClient,
-                        onOTPSent: { email in
-                            pendingVerifyEmail = email
-                        }
-                    )
-                )
-            }
-        }
-    }
+  }
 }
