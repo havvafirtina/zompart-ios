@@ -64,9 +64,10 @@ Repositories also validate `envelope.success` and `envelope.data != nil` before 
 
 | Case | Trigger |
 |---|---|
-| `.invalidUUID` | 400 — invalid scanId or vehicle_id |
+| `.invalidUUID` | 400 — `INVALID_UUID` error code |
 | `.scanNotFound` | 404 (`.notFound`) — scan not found or not owned (single mode) |
 | `.invalidPagination` | 400 — negative or non-integer limit/offset (history mode) |
+| `.tokenExpired` | 401 — Bearer token expired (after refresh failure) |
 | `.rateLimitExceeded` | 429 |
 | `.network` | No connectivity |
 | `.emptyResponse` | Nil envelope or `success: false` |

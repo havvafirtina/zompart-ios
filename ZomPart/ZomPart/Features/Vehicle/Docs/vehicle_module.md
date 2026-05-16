@@ -66,12 +66,15 @@ Repositories also validate `envelope.success` and `envelope.data != nil` before 
 
 | Case | Trigger |
 |---|---|
-| `.invalidVIN` | 400 on VIN resolve |
-| `.invalidPlate` | 400 on PLATE resolve |
-| `.invalidCountryCode` | 400 country_code validation |
-| `.invalidStep` | 400 on MANUAL step |
-| `.invalidSession` | 400 on MANUAL session_id mismatch (enum-only; not yet produced by mappers) |
+| `.invalidVIN` | 400 — `INVALID_VIN` on VIN resolve |
+| `.invalidPlate` | 400 — `INVALID_PLATE` on PLATE resolve |
+| `.invalidPersonNumber` | 400 — `INVALID_PERSON_NUMBER` on PERSON resolve |
+| `.invalidOrganizationNumber` | 400 — `INVALID_ORGANIZATION_NUMBER` on COMPANY resolve |
+| `.invalidCountryCode` | 400 — `INVALID_COUNTRY_CODE` on any resolve |
+| `.invalidStep` | 400 — `INVALID_STEP` on MANUAL step |
+| `.invalidSession` | 400 — `INVALID_SESSION` on MANUAL session_id mismatch |
 | `.vehicleNotFound` | 404 (`.notFound`) on resolve, list, and MANUAL |
+| `.tokenExpired` | 401 — Bearer token expired (after refresh failure) |
 | `.rateLimitExceeded` | 429 |
 | `.providerUnavailable` | 503 |
 | `.network` | No connectivity |
@@ -85,6 +88,12 @@ Repositories also validate `envelope.success` and `envelope.data != nil` before 
 ## Persistence
 
 - No local persistence; vehicles fetched from backend on demand.
+
+## Domain Models (Architecture Note)
+
+`VehicleResolutionDomain` is the domain-layer representation of resolution metadata. It replaced
+the direct usage of `VehicleResolutionDTO` inside `VehicleResponseDomain`, ensuring the Data layer
+never leaks DTO types into domain code.
 
 ## Open Questions / TODO
 

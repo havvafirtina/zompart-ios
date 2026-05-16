@@ -41,9 +41,10 @@ Repositories also validate `envelope.success` and `envelope.data != nil` before 
 
 | Case | Trigger |
 |---|---|
-| `.invalidUUID` | 400 — missing/invalid UUID |
+| `.invalidUUID` | 400 — `INVALID_UUID` error code |
 | `.scanNotFound` | 404 (`.notFound`) on scan-offers |
 | `.offerNotFound` | 404 (`.notFound`) on offers-click |
+| `.tokenExpired` | 401 — Bearer token expired (after refresh failure) |
 | `.rateLimitExceeded` | 429 |
 | `.network` | No connectivity |
 | `.emptyResponse` | Nil envelope or `success: false` |

@@ -12,10 +12,13 @@ import Foundation
 enum VehicleError: Error, Equatable {
     case invalidVIN
     case invalidPlate
+    case invalidPersonNumber
+    case invalidOrganizationNumber
     case invalidCountryCode
     case invalidStep
     case invalidSession
     case vehicleNotFound
+    case tokenExpired
     case rateLimitExceeded
     case providerUnavailable
     case network

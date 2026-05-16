@@ -48,9 +48,14 @@ actor OfferRepository: OfferRepositoryProtocol {
 
     private static func mapListError(_ e: HTTPClientError) -> OfferError {
         switch e {
-        case .clientError(statusCode: 400): return .invalidUUID
         case .notFound: return .scanNotFound
-        case .clientError(statusCode: 429): return .rateLimitExceeded
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidUUID: return .invalidUUID
+            default: return .invalidUUID
+            }
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -58,9 +63,14 @@ actor OfferRepository: OfferRepositoryProtocol {
 
     private static func mapClickError(_ e: HTTPClientError) -> OfferError {
         switch e {
-        case .clientError(statusCode: 400): return .invalidUUID
         case .notFound: return .offerNotFound
-        case .clientError(statusCode: 429): return .rateLimitExceeded
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidUUID: return .invalidUUID
+            default: return .invalidUUID
+            }
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }

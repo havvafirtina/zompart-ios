@@ -13,6 +13,7 @@ enum OfferError: Error, Equatable {
     case invalidUUID
     case scanNotFound
     case offerNotFound
+    case tokenExpired
     case rateLimitExceeded
     case network
     case emptyResponse

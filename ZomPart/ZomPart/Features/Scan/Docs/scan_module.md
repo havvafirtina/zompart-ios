@@ -67,17 +67,18 @@ Repositories also validate `envelope.success` and `envelope.data != nil` before 
 
 | Case | Trigger |
 |---|---|
-| `.invalidUUID` | 400 — missing/invalid UUID |
+| `.invalidUUID` | 400 — `INVALID_UUID` error code |
 | `.vehicleNotFound` | 404 (`.notFound`) on scan-start |
 | `.scanNotFound` | 404 (`.notFound`) on all other endpoints |
-| `.invalidScanType` | 400 — upload on TEXT scan |
-| `.invalidMimeType` | 400 — unsupported content_type |
-| `.photoLimitReached` | 400 — > 8 photos |
-| `.noPhotosUploaded` | 400 — PHOTO scan with no artifacts |
-| `.invalidState` | 400 — wrong state for operation |
-| `.invalidPart` | 400 — partCandidateId not in scan |
-| `.invalidAction` | 400 — unknown feedback action |
+| `.invalidScanType` | 400 — `INVALID_SCAN_TYPE` on upload |
+| `.invalidMimeType` | 400 — `INVALID_MIME_TYPE` on upload |
+| `.photoLimitReached` | 400 — `PHOTO_LIMIT_REACHED` on upload |
+| `.noPhotosUploaded` | 400 — `NO_PHOTOS_UPLOADED` on process |
+| `.invalidState` | 400 — `INVALID_STATE` on process/feedback |
+| `.invalidPart` | 400 — `INVALID_PART` on feedback |
+| `.invalidAction` | 400 — `INVALID_ACTION` on feedback |
 | `.conflict` | 409 — concurrent processing |
+| `.tokenExpired` | 401 — Bearer token expired (after refresh failure) |
 | `.rateLimitExceeded` | 429 |
 | `.network` | No connectivity |
 | `.emptyResponse` | Nil envelope or `success: false` |
@@ -102,5 +103,3 @@ Repositories also validate `envelope.success` and `envelope.data != nil` before 
 ## Open Questions / TODO
 
 - Implement `ANSWER_QUESTION` feedback once backend is production-ready.
-- Add scan history retrieval (scan-get) when History module is built.
-- Parse error response bodies for granular 400 distinction once SBNetworking supports it.

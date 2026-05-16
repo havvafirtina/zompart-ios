@@ -15,6 +15,7 @@ enum AuthError: Error, Equatable {
     case emailNotRegistered
     case otpInvalid
     case tokenExpired
+    case rateLimitExceeded
     case noPendingDeletionRequest
     case deletionRequestExpired
     case deletionFailed

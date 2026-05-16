@@ -8,7 +8,9 @@
       "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Features/Auth/Data/DTOs\")",
       "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Features/Auth/Data/Endpoints\")",
       "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Features/Auth/Data/Repositories\")",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(swift build *)",
+      "Bash(swiftlint lint *)"
     ]
   }
 }

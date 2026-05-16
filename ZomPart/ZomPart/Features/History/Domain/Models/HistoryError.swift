@@ -13,6 +13,7 @@ enum HistoryError: Error, Equatable {
     case invalidUUID
     case scanNotFound
     case invalidPagination
+    case tokenExpired
     case rateLimitExceeded
     case network
     case emptyResponse

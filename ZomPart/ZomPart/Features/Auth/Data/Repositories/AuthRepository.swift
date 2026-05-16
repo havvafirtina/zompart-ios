@@ -123,9 +123,15 @@ actor AuthRepository: AuthRepositoryProtocol {
 
     private static func mapOTPError(_ error: HTTPClientError) -> AuthError {
         switch error {
-        case .clientError(statusCode: 409): return .emailAlreadyRegistered
+        case .clientError(statusCode: 409, _): return .emailAlreadyRegistered
         case .notFound: return .emailNotRegistered
-        case .clientError: return .validationFailed
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidIntent, .missingFields, .signupMetadataRequired: return .validationFailed
+            default: return .validationFailed
+            }
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -133,7 +139,9 @@ actor AuthRepository: AuthRepositoryProtocol {
 
     private static func mapVerifyError(_ error: HTTPClientError) -> AuthError {
         switch error {
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
         case .clientError: return .otpInvalid
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -142,6 +150,7 @@ actor AuthRepository: AuthRepositoryProtocol {
     private static func mapRefreshError(_ error: HTTPClientError) -> AuthError {
         switch error {
         case .unauthorized: return .tokenExpired
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -150,6 +159,7 @@ actor AuthRepository: AuthRepositoryProtocol {
     private static func mapTokenError(_ error: HTTPClientError) -> AuthError {
         switch error {
         case .unauthorized: return .tokenExpired
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -157,9 +167,16 @@ actor AuthRepository: AuthRepositoryProtocol {
 
     private static func mapDeleteConfirmError(_ error: HTTPClientError) -> AuthError {
         switch error {
-        case .clientError(statusCode: 410): return .deletionRequestExpired
+        case .clientError(statusCode: 410, _): return .deletionRequestExpired
         case .serverError(statusCode: 500, _): return .deletionFailed
-        case .clientError: return .noPendingDeletionRequest
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .requestExpired: return .deletionRequestExpired
+            case .noPendingRequest: return .noPendingDeletionRequest
+            default: return .noPendingDeletionRequest
+            }
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }

@@ -95,9 +95,14 @@ actor ScanRepository: ScanRepositoryProtocol {
 
     private static func mapStartError(_ e: HTTPClientError) -> ScanError {
         switch e {
-        case .clientError(statusCode: 400): return .invalidUUID
         case .notFound: return .vehicleNotFound
-        case .clientError(statusCode: 429): return .rateLimitExceeded
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidUUID: return .invalidUUID
+            default: return .invalidUUID
+            }
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -105,9 +110,17 @@ actor ScanRepository: ScanRepositoryProtocol {
 
     private static func mapUploadError(_ e: HTTPClientError) -> ScanError {
         switch e {
-        case .clientError(statusCode: 400): return .invalidScanType
         case .notFound: return .scanNotFound
-        case .clientError(statusCode: 429): return .rateLimitExceeded
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidScanType: return .invalidScanType
+            case .invalidMimeType: return .invalidMimeType
+            case .photoLimitReached: return .photoLimitReached
+            case .invalidUUID: return .invalidUUID
+            default: return .invalidScanType
+            }
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -115,10 +128,17 @@ actor ScanRepository: ScanRepositoryProtocol {
 
     private static func mapProcessError(_ e: HTTPClientError) -> ScanError {
         switch e {
-        case .clientError(statusCode: 400): return .invalidState
         case .notFound: return .scanNotFound
-        case .clientError(statusCode: 409): return .conflict
-        case .clientError(statusCode: 429): return .rateLimitExceeded
+        case .clientError(statusCode: 409, _): return .conflict
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidState: return .invalidState
+            case .noPhotosUploaded: return .noPhotosUploaded
+            case .invalidUUID: return .invalidUUID
+            default: return .invalidState
+            }
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -126,9 +146,17 @@ actor ScanRepository: ScanRepositoryProtocol {
 
     private static func mapFeedbackError(_ e: HTTPClientError) -> ScanError {
         switch e {
-        case .clientError(statusCode: 400): return .invalidState
         case .notFound: return .scanNotFound
-        case .clientError(statusCode: 429): return .rateLimitExceeded
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidPart: return .invalidPart
+            case .invalidAction: return .invalidAction
+            case .invalidState: return .invalidState
+            case .invalidUUID: return .invalidUUID
+            default: return .invalidState
+            }
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -136,9 +164,14 @@ actor ScanRepository: ScanRepositoryProtocol {
 
     private static func mapCommonError(_ e: HTTPClientError) -> ScanError {
         switch e {
-        case .clientError(statusCode: 400): return .invalidUUID
         case .notFound: return .scanNotFound
-        case .clientError(statusCode: 429): return .rateLimitExceeded
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidUUID: return .invalidUUID
+            default: return .invalidUUID
+            }
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }

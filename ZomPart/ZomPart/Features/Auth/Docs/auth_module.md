@@ -54,20 +54,20 @@ Repositories also validate `envelope.success` and `envelope.data != nil` before 
 
 | Case | Trigger |
 |---|---|
-| `.validationFailed` | 400 on OTP send |
+| `.validationFailed` | 400 on OTP send (`MISSING_FIELDS`, `INVALID_INTENT`, `SIGNUP_METADATA_REQUIRED`) |
 | `.emailAlreadyRegistered` | 409 on signup |
 | `.emailNotRegistered` | 404 (`.notFound`) on OTP send |
 | `.otpInvalid` | 4xx on verify |
-| `.tokenExpired` | 401 (`.unauthorized`) on refresh/logout/delete |
-| `.noPendingDeletionRequest` | 4xx on delete confirm |
-| `.deletionRequestExpired` | 410 on delete confirm |
+| `.tokenExpired` | 401 (`.unauthorized`) on any endpoint |
+| `.rateLimitExceeded` | 429 on any endpoint |
+| `.noPendingDeletionRequest` | 400 on delete confirm (`NO_PENDING_REQUEST`) |
+| `.deletionRequestExpired` | 410 on delete confirm (`REQUEST_EXPIRED`) |
 | `.deletionFailed` | 500 (`.serverError`) on delete confirm |
 | `.network` | No connectivity |
 | `.emptyResponse` | Nil envelope or `success: false` |
 | `.unknown` | All other errors |
 
-> **Note:** Detailed error-code parsing from the response body is not yet supported
-> because `HTTPClientError.clientError` does not carry the response data.
+Error response bodies are parsed via `APIErrorParser` for granular 400 distinction.
 
 ## Backend Error Codes (from Supabase, for reference)
 
@@ -83,15 +83,20 @@ Repositories also validate `envelope.success` and `envelope.data != nil` before 
 
 - `AuthSessionDataDTO` is shared between `auth-verify` and `auth-refresh` (both return the same `{ access_token, refresh_token, expires_in }` shape).
 
+## Token Refresh
+
+`ZomPartAuthTokenProvider.refresh()` is called automatically by `HTTPClient` on 401 responses.
+It calls `POST /functions/v1/auth-refresh` directly via `URLSession` (bypassing `HTTPClient`
+to avoid circular dependency). On success, tokens are updated transparently and the original
+request is retried. On failure, tokens are cleared and `.unauthorized` is thrown.
+
 ## Persistence
 
 - Tokens are stored in `ZomPartAuthTokenProvider` (in-memory).
-- `clearTokens()` resets both tokens to nil (used on logout).
+- `clearTokens()` resets both tokens to nil (used on logout and on refresh failure).
 - Keychain persistence for tokens is not yet implemented.
 
 ## Open Questions / TODO
 
 - Persist tokens in Keychain after successful verification.
 - Add account deletion UI screens.
-- Parse error response bodies once SBNetworking supports it.
-- Add token auto-refresh logic when access token expires during app session.

@@ -126,7 +126,7 @@ actor VehicleRepository: VehicleRepositoryProtocol {
         }
     }
 
-    private static func extractSession(from resolution: VehicleResolutionDTO?) -> VehicleManualSessionDomain? {
+    private static func extractSession(from resolution: VehicleResolutionDomain?) -> VehicleManualSessionDomain? {
         guard let r = resolution,
               !r.isResolved,
               let sessionId = r.sessionId,
@@ -139,7 +139,7 @@ actor VehicleRepository: VehicleRepositoryProtocol {
             nextStep: nextStep,
             nextStepIsOptional: r.nextStepIsOptional ?? nextStep.isOptional,
             options: r.options ?? [],
-            completedSteps: (r.completedSteps ?? []).map { $0.toModel() }
+            completedSteps: r.completedSteps
         )
     }
 
@@ -147,10 +147,19 @@ actor VehicleRepository: VehicleRepositoryProtocol {
 
     private static func mapResolveError(_ error: HTTPClientError, on400 error400: VehicleError) -> VehicleError {
         switch error {
-        case .clientError(statusCode: 400): return error400
         case .notFound: return .vehicleNotFound
-        case .clientError(statusCode: 429): return .rateLimitExceeded
-        case .clientError(statusCode: 503): return .providerUnavailable
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 503, _): return .providerUnavailable
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidVIN: return .invalidVIN
+            case .invalidPlate: return .invalidPlate
+            case .invalidPersonNumber: return .invalidPersonNumber
+            case .invalidOrganizationNumber: return .invalidOrganizationNumber
+            case .invalidCountryCode: return .invalidCountryCode
+            default: return error400
+            }
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -158,10 +167,17 @@ actor VehicleRepository: VehicleRepositoryProtocol {
 
     private static func mapCommonError(_ error: HTTPClientError) -> VehicleError {
         switch error {
-        case .clientError(statusCode: 400): return .invalidVIN
         case .notFound: return .vehicleNotFound
-        case .clientError(statusCode: 429): return .rateLimitExceeded
-        case .clientError(statusCode: 503): return .providerUnavailable
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 503, _): return .providerUnavailable
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidVIN: return .invalidVIN
+            case .invalidPlate: return .invalidPlate
+            case .invalidCountryCode: return .invalidCountryCode
+            default: return .unknown
+            }
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -169,10 +185,17 @@ actor VehicleRepository: VehicleRepositoryProtocol {
 
     private static func mapManualError(_ error: HTTPClientError) -> VehicleError {
         switch error {
-        case .clientError(statusCode: 400): return .invalidStep
         case .notFound: return .vehicleNotFound
-        case .clientError(statusCode: 429): return .rateLimitExceeded
-        case .clientError(statusCode: 503): return .providerUnavailable
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 503, _): return .providerUnavailable
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidStep: return .invalidStep
+            case .invalidSession: return .invalidSession
+            case .invalidCountryCode: return .invalidCountryCode
+            default: return .invalidStep
+            }
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }

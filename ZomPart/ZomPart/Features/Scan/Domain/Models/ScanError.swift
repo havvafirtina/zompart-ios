@@ -21,6 +21,7 @@ enum ScanError: Error, Equatable {
     case invalidPart
     case invalidAction
     case conflict
+    case tokenExpired
     case rateLimitExceeded
     case network
     case emptyResponse

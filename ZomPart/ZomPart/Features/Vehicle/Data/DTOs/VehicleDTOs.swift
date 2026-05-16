@@ -88,6 +88,19 @@ struct VehicleResolutionDTO: Decodable, Sendable {
         case resolveType       = "resolve_type"
         case options
     }
+
+    func toModel() -> VehicleResolutionDomain {
+        VehicleResolutionDomain(
+            resolveType: resolveType,
+            isResolved: isResolved,
+            isNew: isNew,
+            sessionId: sessionId,
+            nextStep: nextStep,
+            nextStepIsOptional: nextStepIsOptional,
+            options: options,
+            completedSteps: (completedSteps ?? []).map { $0.toModel() }
+        )
+    }
 }
 
 // MARK: - Top-level data envelope DTO
@@ -103,7 +116,7 @@ struct VehicleResolveDataDTO: ResponseProtocol {
     func toModel() -> VehicleResponseDomain {
         VehicleResponseDomain(
             vehicles: vehicles.map { $0.toModel() },
-            resolution: resolution
+            resolution: resolution?.toModel()
         )
     }
 }
@@ -113,5 +126,5 @@ struct VehicleResolveDataDTO: ResponseProtocol {
 /// Carries the raw parsed response before the repository extracts the specific return value.
 struct VehicleResponseDomain: Sendable {
     let vehicles: [VehicleDomain]
-    let resolution: VehicleResolutionDTO?
+    let resolution: VehicleResolutionDomain?
 }
