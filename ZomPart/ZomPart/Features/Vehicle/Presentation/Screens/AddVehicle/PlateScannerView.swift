@@ -4,13 +4,13 @@ import SBDesignSystem
 struct PlateScannerView: View {
 
   @Bindable var viewModel: PlateScannerViewModel
-  @State private var showCamera = false
+  @State private var showScanner = false
 
   var body: some View {
     ScrollView {
       VStack {
         headerSection
-        cameraButton
+        scanButton
         manualInputSection
         resolveButton
         statusSection
@@ -19,13 +19,8 @@ struct PlateScannerView: View {
     }
     .background(Color.sbSurfacePrimary)
     .navigationTitle(Localized.Garage.scanPlate.localized)
-    .fullScreenCover(isPresented: $showCamera) {
-      CameraPickerView { image in
-        showCamera = false
-        guard let image else { return }
-        Task { await viewModel.processImage(image) }
-      }
-      .ignoresSafeArea()
+    .fullScreenCover(isPresented: $showScanner) {
+      scannerOverlay
     }
   }
 
@@ -43,11 +38,11 @@ struct PlateScannerView: View {
     .sbVerticalPadding(.large)
   }
 
-  private var cameraButton: some View {
+  private var scanButton: some View {
     Button {
       Task {
         let granted = await viewModel.requestCameraAccess()
-        if granted { showCamera = true }
+        if granted { showScanner = true }
       }
     } label: {
       HStack {
@@ -60,6 +55,38 @@ struct PlateScannerView: View {
       .sbControlHeight(.regular)
       .background(Color.sbAccentPrimary)
       .sbCornerRadius(.default)
+    }
+  }
+
+  private var scannerOverlay: some View {
+    ZStack(alignment: .topTrailing) {
+      if LiveTextScannerView.isDeviceSupported {
+        LiveTextScannerView { recognizedText in
+          let cleaned = recognizedText.replacingOccurrences(of: " ", with: "").uppercased()
+          viewModel.manualPlate = cleaned
+          showScanner = false
+        } onDismiss: {
+          showScanner = false
+        }
+        .ignoresSafeArea()
+      } else {
+        CameraPickerView { image in
+          showScanner = false
+          guard let image else { return }
+          Task { await viewModel.processImage(image) }
+        }
+        .ignoresSafeArea()
+      }
+
+      Button {
+        showScanner = false
+      } label: {
+        Image(systemName: "xmark.circle.fill")
+          .font(.title)
+          .foregroundStyle(.white)
+          .shadow(radius: 4)
+      }
+      .padding()
     }
   }
 
