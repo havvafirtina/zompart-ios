@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6D838FF42FB91C1200B0F295 /* SBAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 6D838FF32FB91C1200B0F295 /* SBAnalytics */; };
+		6D838FF62FB91C1200B0F295 /* SBDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 6D838FF52FB91C1200B0F295 /* SBDesignSystem */; };
 		6DED93602FB7DD8C0061CBC0 /* SBNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 6DED93612FB7DD8C0061CBC0 /* SBNetworking */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +43,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D838FF62FB91C1200B0F295 /* SBDesignSystem in Frameworks */,
+				6D838FF42FB91C1200B0F295 /* SBAnalytics in Frameworks */,
 				6DED93602FB7DD8C0061CBC0 /* SBNetworking in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -48,10 +52,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6D838FF22FB91C1200B0F295 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		6DED933F2FB7DD8A0061CBC0 = {
 			isa = PBXGroup;
 			children = (
 				6DED934A2FB7DD8A0061CBC0 /* ZomPart */,
+				6D838FF22FB91C1200B0F295 /* Frameworks */,
 				6DED93492FB7DD8A0061CBC0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,6 +97,8 @@
 			name = ZomPart;
 			packageProductDependencies = (
 				6DED93612FB7DD8C0061CBC0 /* SBNetworking */,
+				6D838FF32FB91C1200B0F295 /* SBAnalytics */,
+				6D838FF52FB91C1200B0F295 /* SBDesignSystem */,
 			);
 			productName = ZomPart;
 			productReference = 6DED93482FB7DD8A0061CBC0 /* ZomPart.app */;
@@ -493,6 +507,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		6D838FF32FB91C1200B0F295 /* SBAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6D5B90382FB7EBA20075EFB2 /* XCRemoteSwiftPackageReference "SBAnalytics" */;
+			productName = SBAnalytics;
+		};
+		6D838FF52FB91C1200B0F295 /* SBDesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6DA2D4272FB91AF900E9303A /* XCRemoteSwiftPackageReference "SBDesignSystem" */;
+			productName = SBDesignSystem;
+		};
 		6DED93612FB7DD8C0061CBC0 /* SBNetworking */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 6DED93622FB7DD8C0061CBC0 /* XCRemoteSwiftPackageReference "SBNetworking" */;
