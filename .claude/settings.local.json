@@ -7,7 +7,8 @@
       "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Core/Utils\")",
       "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Features/Auth/Data/DTOs\")",
       "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Features/Auth/Data/Endpoints\")",
-      "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Features/Auth/Data/Repositories\")"
+      "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Features/Auth/Data/Repositories\")",
+      "Bash(git *)"
     ]
   }
 }

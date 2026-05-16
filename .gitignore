@@ -1,11 +1,6 @@
-# macOS
+# Xcode
 .DS_Store
-
-# Xcode user state & derived data
-*.xcuserstate
-xcuserdata/
-DerivedData/
-*.moved-aside
+/build/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -14,25 +9,52 @@ DerivedData/
 !default.mode2v3
 *.perspectivev3
 !default.perspectivev3
+**/xcuserdata/
+*.xcuserstate
+*.moved-aside
+**/DerivedData/
+.idea/
+*.swp
+*.swo
+.gcda
+.gcno
+*.orig
+*.bcsymbolmap
+Carthage/
+clonedSourcePackagesDirectory/
+SourcePackages/
+Archives/
+output/
+.xcode.env.local
+
+# IDE
+.vscode/*
 
 # Swift Package Manager
 .build/
-SourcePackages/
 
 # CocoaPods
 Pods/
 Podfile.lock
 
-# SPM resolved (keep Package.resolved, ignore local overrides)
-# .package.resolved  <- intentionally tracked
-
 # Fastlane
+fastlane/logs/*
 fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots/**/*.png
+fastlane/temp/*
+fastlane/BetaReleaseNote.txt
+fastlane/.env.default
 fastlane/test_output
 
-# Env / secrets
+# Ruby (Fastlane gems)
+vendor/bundle
+.bundle/
+
+# Testing
+xctest/
+*.coverage.txt
+flank.jar
+
+# Secrets
+*.p8
 .env
 .env.local
-*.p8
