@@ -25,7 +25,7 @@ struct AuthRefreshRequest: RequestProtocol {
 /// Transport-level endpoint for POST `/functions/v1/auth-refresh`.
 /// Does not require a valid Bearer token — uses the refresh token in the body.
 struct AuthRefreshEndpoint: Endpoint {
-    typealias ResponseType = APIEnvelope<AuthRefreshDataDTO>
+    typealias ResponseType = APIEnvelope<AuthSessionDataDTO>
 
     let refreshToken: String
 

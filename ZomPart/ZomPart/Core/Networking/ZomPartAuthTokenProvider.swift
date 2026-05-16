@@ -34,6 +34,13 @@ final class ZomPartAuthTokenProvider: AuthTokenProvider, @unchecked Sendable {
         }
     }
 
+    func clearTokens() {
+        lock.withLock {
+            $0.accessToken = nil
+            $0.refreshToken = nil
+        }
+    }
+
     private struct TokenState {
         var accessToken: String?
         var refreshToken: String?

@@ -32,7 +32,9 @@ struct EmailOTPAuthView: View {
             .disabled(viewModel.state == .loading)
         }
         .onAppear {
+            #if DEBUG
             print(DefaultEnvironment.debugDescription())
+            #endif
         }
     }
 }

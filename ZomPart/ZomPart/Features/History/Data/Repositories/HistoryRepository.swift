@@ -24,7 +24,7 @@ actor HistoryRepository: HistoryRepositoryProtocol {
         do {
             let request = ScanGetSingleRequest(scanId: scanId)
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw HistoryError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw HistoryError.emptyResponse }
             return envelope.toModel()
         } catch let e as HistoryError { throw e
         } catch let e as HTTPClientError { throw Self.mapSingleError(e)
@@ -37,7 +37,7 @@ actor HistoryRepository: HistoryRepositoryProtocol {
         do {
             let request = ScanGetHistoryRequest(vehicleId: vehicleId, limit: limit, offset: offset)
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw HistoryError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw HistoryError.emptyResponse }
             return envelope.toModel()
         } catch let e as HistoryError { throw e
         } catch let e as HTTPClientError { throw Self.mapHistoryError(e)
@@ -49,7 +49,7 @@ actor HistoryRepository: HistoryRepositoryProtocol {
     private static func mapSingleError(_ e: HTTPClientError) -> HistoryError {
         switch e {
         case .clientError(statusCode: 400): return .invalidUUID
-        case .clientError(statusCode: 404): return .scanNotFound
+        case .notFound: return .scanNotFound
         case .clientError(statusCode: 429): return .rateLimitExceeded
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown

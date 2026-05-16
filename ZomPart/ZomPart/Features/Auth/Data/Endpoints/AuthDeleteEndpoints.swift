@@ -30,29 +30,33 @@ struct AuthDeleteRequestEndpoint: Endpoint {
 struct AuthDeleteConfirmRequest: RequestProtocol {
     typealias EndpointType = AuthDeleteConfirmEndpoint
 
+    let email: String
     let token: String
 
     func toEndpoint() -> AuthDeleteConfirmEndpoint {
-        AuthDeleteConfirmEndpoint(token: token)
+        AuthDeleteConfirmEndpoint(email: email, token: token)
     }
 }
 
-/// Transport-level endpoint for POST `/functions/v1/auth-delete-confirm`. Requires Bearer token.
+/// Transport-level endpoint for POST `/functions/v1/auth-delete-confirm`.
 struct AuthDeleteConfirmEndpoint: Endpoint {
     typealias ResponseType = APIEnvelope<AuthDeleteConfirmDataDTO>
 
+    let email: String
     let token: String
 
     var path: String { "/functions/v1/auth-delete-confirm" }
     var method: HTTPMethod { .post }
 
     var payload: Encodable? {
-        AuthDeleteConfirmRequestBody(token: token)
+        AuthDeleteConfirmRequestBody(email: email, token: token)
     }
 }
 
 // MARK: - Request Body
 
 private struct AuthDeleteConfirmRequestBody: Encodable {
+    let email: String
     let token: String
+    let type: String = "email"
 }

@@ -24,7 +24,7 @@ actor OfferRepository: OfferRepositoryProtocol {
         do {
             let request = ScanOffersRequest(scanId: scanId, sort: sort)
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw OfferError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw OfferError.emptyResponse }
             return envelope.toModel()
         } catch let e as OfferError { throw e
         } catch let e as HTTPClientError { throw Self.mapListError(e)
@@ -37,7 +37,7 @@ actor OfferRepository: OfferRepositoryProtocol {
         do {
             let request = OffersClickRequest(offerId: offerId, scanId: scanId)
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw OfferError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw OfferError.emptyResponse }
             return envelope.toModel()
         } catch let e as OfferError { throw e
         } catch let e as HTTPClientError { throw Self.mapClickError(e)
@@ -49,7 +49,7 @@ actor OfferRepository: OfferRepositoryProtocol {
     private static func mapListError(_ e: HTTPClientError) -> OfferError {
         switch e {
         case .clientError(statusCode: 400): return .invalidUUID
-        case .clientError(statusCode: 404): return .scanNotFound
+        case .notFound: return .scanNotFound
         case .clientError(statusCode: 429): return .rateLimitExceeded
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
@@ -59,7 +59,7 @@ actor OfferRepository: OfferRepositoryProtocol {
     private static func mapClickError(_ e: HTTPClientError) -> OfferError {
         switch e {
         case .clientError(statusCode: 400): return .invalidUUID
-        case .clientError(statusCode: 404): return .offerNotFound
+        case .notFound: return .offerNotFound
         case .clientError(statusCode: 429): return .rateLimitExceeded
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown

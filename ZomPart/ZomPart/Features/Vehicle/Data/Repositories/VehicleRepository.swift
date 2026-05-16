@@ -23,7 +23,7 @@ actor VehicleRepository: VehicleRepositoryProtocol {
     func listVehicles() async throws -> [VehicleDomain] {
         do {
             let envelope = try await client.submitRequest(request: VehicleListRequest())
-            guard let envelope else { throw VehicleError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw VehicleError.emptyResponse }
             return envelope.toModel().vehicles
         } catch let error as VehicleError {
             throw error
@@ -61,7 +61,7 @@ actor VehicleRepository: VehicleRepositoryProtocol {
     func fetchManualSession() async throws -> VehicleManualSessionDomain? {
         do {
             let envelope = try await client.submitRequest(request: VehicleManualLookupRequest())
-            guard let envelope else { throw VehicleError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw VehicleError.emptyResponse }
             let response = envelope.toModel()
             return Self.extractSession(from: response.resolution)
         } catch let error as VehicleError {
@@ -81,7 +81,7 @@ actor VehicleRepository: VehicleRepositoryProtocol {
         do {
             let endpoint = VehicleManualStepEndpoint(value: value, sessionId: sessionId, countryCode: countryCode)
             let envelope = try await client.submitRequest(endpoint: endpoint)
-            guard let envelope else { throw VehicleError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw VehicleError.emptyResponse }
             let response = envelope.toModel()
 
             if let vehicle = response.vehicles.first,
@@ -112,7 +112,7 @@ actor VehicleRepository: VehicleRepositoryProtocol {
     where R.EndpointType.ResponseType == APIEnvelope<VehicleResolveDataDTO> {
         do {
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw VehicleError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw VehicleError.emptyResponse }
             let response = envelope.toModel()
             guard let vehicle = response.vehicles.first else { throw VehicleError.vehicleNotFound }
             let isNew = response.resolution?.isNew ?? true
@@ -148,7 +148,7 @@ actor VehicleRepository: VehicleRepositoryProtocol {
     private static func mapResolveError(_ error: HTTPClientError, on400 error400: VehicleError) -> VehicleError {
         switch error {
         case .clientError(statusCode: 400): return error400
-        case .clientError(statusCode: 404): return .vehicleNotFound
+        case .notFound: return .vehicleNotFound
         case .clientError(statusCode: 429): return .rateLimitExceeded
         case .clientError(statusCode: 503): return .providerUnavailable
         case .notConnectedToInternet, .networkConnectionLost: return .network
@@ -159,10 +159,9 @@ actor VehicleRepository: VehicleRepositoryProtocol {
     private static func mapCommonError(_ error: HTTPClientError) -> VehicleError {
         switch error {
         case .clientError(statusCode: 400): return .invalidVIN
-        case .clientError(statusCode: 404): return .vehicleNotFound
+        case .notFound: return .vehicleNotFound
         case .clientError(statusCode: 429): return .rateLimitExceeded
         case .clientError(statusCode: 503): return .providerUnavailable
-        case .clientError:                  return .invalidVIN
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -171,6 +170,7 @@ actor VehicleRepository: VehicleRepositoryProtocol {
     private static func mapManualError(_ error: HTTPClientError) -> VehicleError {
         switch error {
         case .clientError(statusCode: 400): return .invalidStep
+        case .notFound: return .vehicleNotFound
         case .clientError(statusCode: 429): return .rateLimitExceeded
         case .clientError(statusCode: 503): return .providerUnavailable
         case .notConnectedToInternet, .networkConnectionLost: return .network

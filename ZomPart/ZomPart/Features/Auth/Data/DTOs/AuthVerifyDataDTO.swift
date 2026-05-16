@@ -1,5 +1,5 @@
 //
-//  AuthVerifyDataDTO.swift
+//  AuthVerifyDataDTO.swift → AuthSessionDataDTO.swift
 //  ZomPart
 //
 //  Created by Havva Fırtına on 2026-05-16.
@@ -8,8 +8,8 @@
 import Foundation
 import SBNetworking
 
-/// DTO for the `data` field inside the auth-verify success envelope.
-struct AuthVerifyDataDTO: ResponseProtocol {
+/// Shared DTO for the `data` field inside auth-verify and auth-refresh success envelopes.
+struct AuthSessionDataDTO: ResponseProtocol {
     typealias ModelType = AuthSessionDomain
 
     let accessToken: String

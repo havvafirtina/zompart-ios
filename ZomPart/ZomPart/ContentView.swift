@@ -15,11 +15,15 @@ struct ContentView: View {
                 .foregroundStyle(.tint)
             Text("Hello, world!")
 
+            #if DEBUG
             Text(DefaultEnvironment.debugDescription())
+            #endif
         }
         .padding()
         .onAppear {
+            #if DEBUG
             print(DefaultEnvironment.debugDescription())
+            #endif
         }
     }
 }

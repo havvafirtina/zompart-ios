@@ -14,7 +14,6 @@ struct DefaultEnvironment: HttpClientProtocol {
         struct Supabase {
             static let scheme = "SUPABASE_API_SCHEME"
             static let url = "SUPABASE_URL"
-            static let publishableKey = "SUPABASE_PUBLISHABLE_KEY"
         }
 
         static let appEnvironment = "APP_ENV"
@@ -28,14 +27,6 @@ struct DefaultEnvironment: HttpClientProtocol {
         PlistReader.value(for: Keys.Supabase.url)
     }()
 
-    private static let publishableKey: String = {
-        PlistReader.value(for: Keys.Supabase.publishableKey)
-    }()
-
-    private static let appEnvironment: String = {
-        PlistReader.value(for: Keys.appEnvironment)
-    }()
-
     let environment: HTTPClientEnvironment
     let authTokenProvider: AuthTokenProvider?
 
@@ -47,12 +38,14 @@ struct DefaultEnvironment: HttpClientProtocol {
         self.authTokenProvider = authTokenProvider
     }
 
+    #if DEBUG
     static func debugDescription() -> String {
+        let appEnv: String = PlistReader.value(for: Keys.appEnvironment)
         return """
-        \(Keys.appEnvironment): \(appEnvironment)
+        \(Keys.appEnvironment): \(appEnv)
         \(Keys.Supabase.scheme): \(scheme)
         \(Keys.Supabase.url): \(baseURL)
-        \(Keys.Supabase.publishableKey): \(publishableKey)
         """
     }
+    #endif
 }

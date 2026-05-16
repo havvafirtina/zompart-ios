@@ -25,5 +25,5 @@ protocol AuthRepositoryProtocol: Sendable {
 
     func requestAccountDeletion() async throws -> AuthDeleteRequestDomain
 
-    func confirmAccountDeletion(token: String) async throws
+    func confirmAccountDeletion(email: String, token: String) async throws
 }

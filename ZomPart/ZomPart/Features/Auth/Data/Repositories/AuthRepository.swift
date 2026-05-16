@@ -29,7 +29,7 @@ actor AuthRepository: AuthRepositoryProtocol {
         do {
             let request = AuthOTPRequest(email: email, intent: intent, firstName: firstName, lastName: lastName)
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw AuthError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
             return envelope.toModel()
         } catch let error as AuthError {
             throw error
@@ -46,7 +46,7 @@ actor AuthRepository: AuthRepositoryProtocol {
         do {
             let request = AuthVerifyRequest(email: email, token: token)
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw AuthError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
             return envelope.toModel()
         } catch let error as AuthError {
             throw error
@@ -63,7 +63,7 @@ actor AuthRepository: AuthRepositoryProtocol {
         do {
             let request = AuthRefreshRequest(refreshToken: refreshToken)
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw AuthError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
             return envelope.toModel()
         } catch let error as AuthError {
             throw error
@@ -95,7 +95,7 @@ actor AuthRepository: AuthRepositoryProtocol {
         do {
             let request = AuthDeleteRequestRequest()
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw AuthError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
             return envelope.toModel()
         } catch let error as AuthError {
             throw error
@@ -106,9 +106,9 @@ actor AuthRepository: AuthRepositoryProtocol {
         }
     }
 
-    func confirmAccountDeletion(token: String) async throws {
+    func confirmAccountDeletion(email: String, token: String) async throws {
         do {
-            let request = AuthDeleteConfirmRequest(token: token)
+            let request = AuthDeleteConfirmRequest(email: email, token: token)
             _ = try await client.submitRequest(request: request)
         } catch let error as AuthError {
             throw error
@@ -124,7 +124,7 @@ actor AuthRepository: AuthRepositoryProtocol {
     private static func mapOTPError(_ error: HTTPClientError) -> AuthError {
         switch error {
         case .clientError(statusCode: 409): return .emailAlreadyRegistered
-        case .clientError(statusCode: 404): return .emailNotRegistered
+        case .notFound: return .emailNotRegistered
         case .clientError: return .validationFailed
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
@@ -141,7 +141,7 @@ actor AuthRepository: AuthRepositoryProtocol {
 
     private static func mapRefreshError(_ error: HTTPClientError) -> AuthError {
         switch error {
-        case .clientError(statusCode: 401): return .tokenExpired
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -149,7 +149,7 @@ actor AuthRepository: AuthRepositoryProtocol {
 
     private static func mapTokenError(_ error: HTTPClientError) -> AuthError {
         switch error {
-        case .clientError(statusCode: 401): return .tokenExpired
+        case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -158,7 +158,7 @@ actor AuthRepository: AuthRepositoryProtocol {
     private static func mapDeleteConfirmError(_ error: HTTPClientError) -> AuthError {
         switch error {
         case .clientError(statusCode: 410): return .deletionRequestExpired
-        case .clientError(statusCode: 500): return .deletionFailed
+        case .serverError(statusCode: 500, _): return .deletionFailed
         case .clientError: return .noPendingDeletionRequest
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown

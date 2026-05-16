@@ -34,7 +34,7 @@ actor ScanRepository: ScanRepositoryProtocol {
                 startOver: startOver
             )
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw ScanError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw ScanError.emptyResponse }
             return envelope.toModel()
         } catch let e as ScanError { throw e
         } catch let e as HTTPClientError { throw Self.mapStartError(e)
@@ -47,7 +47,7 @@ actor ScanRepository: ScanRepositoryProtocol {
         do {
             let request = ScanUploadUrlRequest(scanId: scanId, contentTypes: contentTypes)
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw ScanError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw ScanError.emptyResponse }
             return envelope.toModel()
         } catch let e as ScanError { throw e
         } catch let e as HTTPClientError { throw Self.mapUploadError(e)
@@ -60,7 +60,7 @@ actor ScanRepository: ScanRepositoryProtocol {
         do {
             let request = ScanProcessRequest(scanId: scanId)
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw ScanError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw ScanError.emptyResponse }
             return envelope.toModel()
         } catch let e as ScanError { throw e
         } catch let e as HTTPClientError { throw Self.mapProcessError(e)
@@ -73,7 +73,7 @@ actor ScanRepository: ScanRepositoryProtocol {
         do {
             let request = ScanSelectPartRequest(scanId: scanId, partCandidateId: partCandidateId)
             let envelope = try await client.submitRequest(request: request)
-            guard let envelope else { throw ScanError.emptyResponse }
+            guard let envelope, envelope.success, envelope.data != nil else { throw ScanError.emptyResponse }
             return envelope.toModel()
         } catch let e as ScanError { throw e
         } catch let e as HTTPClientError { throw Self.mapFeedbackError(e)
@@ -96,7 +96,7 @@ actor ScanRepository: ScanRepositoryProtocol {
     private static func mapStartError(_ e: HTTPClientError) -> ScanError {
         switch e {
         case .clientError(statusCode: 400): return .invalidUUID
-        case .clientError(statusCode: 404): return .vehicleNotFound
+        case .notFound: return .vehicleNotFound
         case .clientError(statusCode: 429): return .rateLimitExceeded
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
@@ -106,7 +106,7 @@ actor ScanRepository: ScanRepositoryProtocol {
     private static func mapUploadError(_ e: HTTPClientError) -> ScanError {
         switch e {
         case .clientError(statusCode: 400): return .invalidScanType
-        case .clientError(statusCode: 404): return .scanNotFound
+        case .notFound: return .scanNotFound
         case .clientError(statusCode: 429): return .rateLimitExceeded
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
@@ -116,7 +116,7 @@ actor ScanRepository: ScanRepositoryProtocol {
     private static func mapProcessError(_ e: HTTPClientError) -> ScanError {
         switch e {
         case .clientError(statusCode: 400): return .invalidState
-        case .clientError(statusCode: 404): return .scanNotFound
+        case .notFound: return .scanNotFound
         case .clientError(statusCode: 409): return .conflict
         case .clientError(statusCode: 429): return .rateLimitExceeded
         case .notConnectedToInternet, .networkConnectionLost: return .network
@@ -127,7 +127,7 @@ actor ScanRepository: ScanRepositoryProtocol {
     private static func mapFeedbackError(_ e: HTTPClientError) -> ScanError {
         switch e {
         case .clientError(statusCode: 400): return .invalidState
-        case .clientError(statusCode: 404): return .scanNotFound
+        case .notFound: return .scanNotFound
         case .clientError(statusCode: 429): return .rateLimitExceeded
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
@@ -137,7 +137,7 @@ actor ScanRepository: ScanRepositoryProtocol {
     private static func mapCommonError(_ e: HTTPClientError) -> ScanError {
         switch e {
         case .clientError(statusCode: 400): return .invalidUUID
-        case .clientError(statusCode: 404): return .scanNotFound
+        case .notFound: return .scanNotFound
         case .clientError(statusCode: 429): return .rateLimitExceeded
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown

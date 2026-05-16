@@ -25,7 +25,7 @@ struct AuthVerifyRequest: RequestProtocol {
 
 /// Transport-level endpoint for POST `/functions/v1/auth-verify`.
 struct AuthVerifyEndpoint: Endpoint {
-    typealias ResponseType = APIEnvelope<AuthVerifyDataDTO>
+    typealias ResponseType = APIEnvelope<AuthSessionDataDTO>
 
     let email: String
     let token: String
