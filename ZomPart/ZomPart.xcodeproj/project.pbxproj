@@ -117,7 +117,7 @@
 			packageReferences = (
 				6DED93622FB7DD8C0061CBC0 /* XCRemoteSwiftPackageReference "SBNetworking" */,
 				6D5B90382FB7EBA20075EFB2 /* XCRemoteSwiftPackageReference "SBAnalytics" */,
-				6D5B90392FB7EBD30075EFB2 /* XCRemoteSwiftPackageReference "SBDesignSystem" */,
+				6DA2D4272FB91AF900E9303A /* XCRemoteSwiftPackageReference "SBDesignSystem" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6DED93492FB7DD8A0061CBC0 /* Products */;
@@ -474,7 +474,7 @@
 				kind = branch;
 			};
 		};
-		6D5B90392FB7EBD30075EFB2 /* XCRemoteSwiftPackageReference "SBDesignSystem" */ = {
+		6DA2D4272FB91AF900E9303A /* XCRemoteSwiftPackageReference "SBDesignSystem" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:sametberberoglu01/SBDesignSystem.git";
 			requirement = {
