@@ -12,6 +12,7 @@ import Foundation
 enum AuthError: Error, Equatable {
     case validationFailed
     case emailAlreadyRegistered
+    case emailNotRegistered
     case otpInvalid
     case tokenExpired
     case noPendingDeletionRequest

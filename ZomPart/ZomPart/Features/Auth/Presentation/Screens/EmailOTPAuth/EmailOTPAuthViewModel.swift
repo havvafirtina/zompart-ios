@@ -61,6 +61,8 @@ final class EmailOTPAuthViewModel {
             return "Please check the entered information and try again."
         case .emailAlreadyRegistered:
             return "This email is already registered. Please log in instead."
+        case .emailNotRegistered:
+            return "No account found with this email. Please sign up first."
         case .network:
             return "No internet connection. Please try again later."
         case .emptyResponse:

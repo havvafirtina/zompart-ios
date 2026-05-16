@@ -124,6 +124,7 @@ actor AuthRepository: AuthRepositoryProtocol {
     private static func mapOTPError(_ error: HTTPClientError) -> AuthError {
         switch error {
         case .clientError(statusCode: 409): return .emailAlreadyRegistered
+        case .clientError(statusCode: 404): return .emailNotRegistered
         case .clientError: return .validationFailed
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown

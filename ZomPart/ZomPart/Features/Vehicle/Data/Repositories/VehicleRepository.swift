@@ -38,22 +38,22 @@ actor VehicleRepository: VehicleRepositoryProtocol {
 
     func resolveByVIN(_ vin: String, countryCode: String) async throws -> VehicleResolveResultDomain {
         let request = VehicleResolveVINRequest(vin: vin, countryCode: countryCode)
-        return try await resolveAndExtract(request: request)
+        return try await resolveAndExtract(request: request, on400: .invalidVIN)
     }
 
     func resolveByPlate(_ plate: String, countryCode: String) async throws -> VehicleResolveResultDomain {
         let request = VehicleResolvePlateRequest(plate: plate, countryCode: countryCode)
-        return try await resolveAndExtract(request: request)
+        return try await resolveAndExtract(request: request, on400: .invalidPlate)
     }
 
     func resolveByPersonNumber(_ personNumber: String, countryCode: String) async throws -> VehicleResolveResultDomain {
         let request = VehicleResolvePersonRequest(personNumber: personNumber, countryCode: countryCode)
-        return try await resolveAndExtract(request: request)
+        return try await resolveAndExtract(request: request, on400: .invalidCountryCode)
     }
 
     func resolveByOrganizationNumber(_ orgNumber: String, countryCode: String) async throws -> VehicleResolveResultDomain {
         let request = VehicleResolveCompanyRequest(organizationNumber: orgNumber, countryCode: countryCode)
-        return try await resolveAndExtract(request: request)
+        return try await resolveAndExtract(request: request, on400: .invalidCountryCode)
     }
 
     // MARK: - Manual flow
@@ -106,7 +106,8 @@ actor VehicleRepository: VehicleRepositoryProtocol {
     // MARK: - Private helpers
 
     private func resolveAndExtract<R: RequestProtocol>(
-        request: R
+        request: R,
+        on400 error400: VehicleError
     ) async throws -> VehicleResolveResultDomain
     where R.EndpointType.ResponseType == APIEnvelope<VehicleResolveDataDTO> {
         do {
@@ -119,7 +120,7 @@ actor VehicleRepository: VehicleRepositoryProtocol {
         } catch let error as VehicleError {
             throw error
         } catch let httpError as HTTPClientError {
-            throw Self.mapCommonError(httpError)
+            throw Self.mapResolveError(httpError, on400: error400)
         } catch {
             throw VehicleError.unknown
         }
@@ -143,6 +144,17 @@ actor VehicleRepository: VehicleRepositoryProtocol {
     }
 
     // MARK: - Error mapping
+
+    private static func mapResolveError(_ error: HTTPClientError, on400 error400: VehicleError) -> VehicleError {
+        switch error {
+        case .clientError(statusCode: 400): return error400
+        case .clientError(statusCode: 404): return .vehicleNotFound
+        case .clientError(statusCode: 429): return .rateLimitExceeded
+        case .clientError(statusCode: 503): return .providerUnavailable
+        case .notConnectedToInternet, .networkConnectionLost: return .network
+        default: return .unknown
+        }
+    }
 
     private static func mapCommonError(_ error: HTTPClientError) -> VehicleError {
         switch error {
