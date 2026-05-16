@@ -1,0 +1,33 @@
+{
+  "originHash" : "f50facb29f8d1018f1153cab65bc737ac12c91a8bbeef3c9f97b8576f598b276",
+  "pins" : [
+    {
+      "identity" : "sbanalytics",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:sametberberoglu01/SBAnalytics.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "2b07d484c2aca128c374df8fab9e95fa07803a0b"
+      }
+    },
+    {
+      "identity" : "sbdesignsystem",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:sametberberoglu01/SBDesignSystem.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "6738354ded49ac264c14cb68e19a22aa18dac605"
+      }
+    },
+    {
+      "identity" : "sbnetworking",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:berberoglus/SBNetworking.git",
+      "state" : {
+        "revision" : "6363290d636b3ea2896f0cd3b102cb790f09cbbb",
+        "version" : "1.0.5"
+      }
+    }
+  ],
+  "version" : 3
+}

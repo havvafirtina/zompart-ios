@@ -1,0 +1,20 @@
+//
+//  Debug.xcconfig
+//  ZomPart
+//
+//  Created by Havva Fırtına on 2026-05-16.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+#include "Base.xcconfig"
+
+// SBNetworking: enable HTTP logging (runtime; see HTTPClientLoggingPolicy.swift)
+SBNetworkingHTTPLogEnabled = YES
+
+APP_ENV = DEBUG
+
+SUPABASE_API_SCHEME = https
+SUPABASE_URL = rmnoogxzxrittywekpqn.supabase.co
+SUPABASE_PUBLISHABLE_KEY = sb_publishable_RXQDOwavlUdLmbyEOrE6JA_3Y-KhYmf

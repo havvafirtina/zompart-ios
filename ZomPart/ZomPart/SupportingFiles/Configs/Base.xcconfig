@@ -1,0 +1,20 @@
+//
+//  Base.xcconfig
+//  ZomPart
+//
+//  Created by Havva Fırtına on 2026-05-16.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+// Shared app settings
+
+PRODUCT_NAME = ZomPart
+// SWIFT_VERSION = 6.0
+
+// These must be overridden per-environment
+APP_ENV = $(inherited)
+SUPABASE_API_SCHEME = $(inherited)
+SUPABASE_URL = $(inherited)
+SUPABASE_PUBLISHABLE_KEY = $(inherited)

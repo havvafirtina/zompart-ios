@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/hfirtina/Desktop/ZomPart/ZomPart/**)",
+      "Read(//Users/hfirtina/Desktop/**)",
+      "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Core/Networking/DTOs\")",
+      "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Core/Utils\")",
+      "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Features/Auth/Data/DTOs\")",
+      "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Features/Auth/Data/Endpoints\")",
+      "Bash(mkdir -p \"/Users/hfirtina/Desktop/ZomPart/ZomPart/zompart-ios/ZomPart/ZomPart/Features/Auth/Data/Repositories\")"
+    ]
+  }
+}
