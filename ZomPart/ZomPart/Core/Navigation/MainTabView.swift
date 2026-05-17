@@ -116,7 +116,9 @@ struct MainTabView: View {
             )
 
         case .offers(let scanId):
-            Text("Offers for \(scanId)")
+            OffersListView(
+                viewModel: OfferModule.makeOffersListViewModel(env: env, scanId: scanId)
+            )
 
         case .history:
             Text("Scan History")
