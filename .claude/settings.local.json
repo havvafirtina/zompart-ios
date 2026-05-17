@@ -15,7 +15,8 @@
       "Bash(grep -v \"^$\")",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(f'{p[\\\\\"identity\\\\\"]}: {p.get\\(\\\\\"version\\\\\",p.get\\(\\\\\"branch\\\\\",\\\\\"?\\\\\"\\)\\)} @ {p[\\\\\"location\\\\\"]}'\\) for p in d['pins']]\")",
       "Bash(xcodebuild -project ZomPart/ZomPart.xcodeproj -scheme ZomPart -sdk iphonesimulator -configuration Debug build)",
-      "Bash(xcodebuild *)"
+      "Bash(xcodebuild *)",
+      "Bash(grep -rn \" $\" /Users/hfirtina/Desktop/workspace/ZomPart/zompart-ios/ZomPart/ZomPart/ --include=\"*.swift\")"
     ]
   }
 }
