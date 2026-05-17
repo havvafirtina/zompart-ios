@@ -20,6 +20,16 @@
     "%lld" : {
 
     },
+    "%lld %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@ %3$@"
+          }
+        }
+      }
+    },
     "%lld/%lld" : {
       "localizations" : {
         "en" : {
@@ -1252,8 +1262,143 @@
         }
       }
     },
-    "History" : {
-
+    "history.detail.inputText" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Description"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beskrivning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Açıklama"
+          }
+        }
+      }
+    },
+    "history.detail.photos" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photos"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foton"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotoğraflar"
+          }
+        }
+      }
+    },
+    "history.detail.status" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durum"
+          }
+        }
+      }
+    },
+    "history.detail.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan Details"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skanningsdetaljer"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarama Detayları"
+          }
+        }
+      }
+    },
+    "history.empty" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No scans yet.\nStart your first scan to see results here."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inga skanningar ännu.\nStarta din första skanning för att se resultat här."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henüz tarama yok.\nSonuçları burada görmek için ilk taramanızı başlatın."
+          }
+        }
+      }
+    },
+    "history.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan History"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skanningshistorik"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarama Geçmişi"
+          }
+        }
+      }
     },
     "offers.cheapest" : {
       "extractionState" : "stale",
@@ -1507,9 +1652,6 @@
           }
         }
       }
-    },
-    "Scan History" : {
-
     },
     "scan.addVehicleFirst" : {
       "extractionState" : "stale",

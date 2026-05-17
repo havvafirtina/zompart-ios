@@ -1,18 +1,31 @@
-//
-//  HistoryModule.swift
-//  ZomPart
-//
-//  Created by Havva Fırtına on 2026-05-16.
-//
-
 import Foundation
 import SBNetworking
 
-/// Static factory that wires History feature dependencies.
-/// Called from the composition root; no state of its own.
 enum HistoryModule {
 
-        static func makeHistoryRepository(httpClient: HTTPClient) -> HistoryRepositoryProtocol {
-                HistoryRepository(client: httpClient)
-        }
+    static func makeHistoryRepository(httpClient: HTTPClient) -> HistoryRepositoryProtocol {
+        HistoryRepository(client: httpClient)
+    }
+
+    @MainActor
+    static func makeHistoryListViewModel(
+        env: AppEnvironment,
+        vehicleId: String? = nil
+    ) -> HistoryListViewModel {
+        HistoryListViewModel(
+            vehicleId: vehicleId,
+            historyRepository: makeHistoryRepository(httpClient: env.httpClient)
+        )
+    }
+
+    @MainActor
+    static func makeScanDetailViewModel(
+        env: AppEnvironment,
+        scanId: String
+    ) -> ScanDetailViewModel {
+        ScanDetailViewModel(
+            scanId: scanId,
+            historyRepository: makeHistoryRepository(httpClient: env.httpClient)
+        )
+    }
 }

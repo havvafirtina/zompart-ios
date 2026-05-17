@@ -41,7 +41,7 @@ struct GarageListView: View {
             }
         }
         .refreshable {
-            await viewModel.loadVehicles()
+            await viewModel.refresh()
         }
     }
 

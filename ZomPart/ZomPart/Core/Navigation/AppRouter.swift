@@ -17,6 +17,7 @@ final class AppRouter {
         case scanResult(scanId: String, partName: String, partNumber: String)
         case offers(scanId: String)
         case history
+        case scanDetail(scanId: String)
     }
 
     enum GarageRoute: Hashable {

@@ -8,6 +8,7 @@ struct MainTabView: View {
     @State private var garageViewModel: GarageListViewModel?
     @State private var scanHomeViewModel: ScanHomeViewModel?
     @State private var showAddVehicle = false
+    @State private var vmCache = ViewModelCache()
 
     var body: some View {
         TabView(selection: $router.selectedTab) {
@@ -24,6 +25,9 @@ struct MainTabView: View {
 
             NavigationStack(path: $router.garagePath) {
                 garageTab
+                    .navigationDestination(for: AppRouter.GarageRoute.self) { route in
+                        garageDestination(for: route)
+                    }
             }
             .tabItem {
                 Label(Localized.Tab.garage.localized, systemImage: "car.fill")
@@ -117,23 +121,36 @@ struct MainTabView: View {
 
         case .offers(let scanId):
             OffersListView(
-                viewModel: OfferModule.makeOffersListViewModel(env: env, scanId: scanId)
+                viewModel: vmCache.offersListVM(env: env, scanId: scanId)
             )
 
         case .history:
-            Text("Scan History")
-                .navigationTitle("History")
+            HistoryListView(
+                viewModel: vmCache.historyListVM(env: env),
+                onScanTap: { scanId in
+                    router.scanPath.append(.scanDetail(scanId: scanId))
+                }
+            )
+
+        case .scanDetail(let scanId):
+            ScanDetailView(
+                viewModel: vmCache.scanDetailVM(env: env, scanId: scanId),
+                onViewOffers: { id in
+                    router.scanPath.append(.offers(scanId: id))
+                }
+            )
         }
     }
 
     private func handleProcessResult(_ result: ScanProcessResultDomain) {
+        vmCache.invalidateHistory()
+
         switch result {
         case .offersReady(let scanId, let part):
             router.scanPath.append(.scanResult(scanId: scanId, partName: part.name, partNumber: part.partNumber))
 
         case .disambiguation(let scanId, let alternatives, _):
             router.scanPath.append(.scanProcessing(scanId: scanId))
-            // Replace with disambiguation route in future
             _ = alternatives
 
         case .failed(_, _):
@@ -153,7 +170,29 @@ struct MainTabView: View {
         return GarageListView(
             viewModel: vm,
             onAddVehicle: { showAddVehicle = true },
-            onVehicleTap: { _ in }
+            onVehicleTap: { vehicle in
+                router.garagePath.append(.vehicleDetail(vehicleId: vehicle.id))
+            }
         )
+    }
+
+    @ViewBuilder
+    private func garageDestination(for route: AppRouter.GarageRoute) -> some View {
+        switch route {
+        case .vehicleDetail(let vehicleId):
+            if let vehicle = garageViewModel?.vehicles.first(where: { $0.id == vehicleId }) {
+                VehicleDetailView(
+                    vehicle: vehicle,
+                    historyViewModel: HistoryModule.makeHistoryListViewModel(env: env, vehicleId: vehicleId),
+                    onScanTap: { scanId in
+                        router.selectedTab = .scan
+                        router.scanPath = [.scanDetail(scanId: scanId)]
+                    },
+                    onStartScan: {
+                        router.selectedTab = .scan
+                    }
+                )
+            }
+        }
     }
 }

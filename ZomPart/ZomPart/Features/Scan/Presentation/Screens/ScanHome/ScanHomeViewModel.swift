@@ -29,6 +29,7 @@ final class ScanHomeViewModel {
             }
             vehiclesState = filtered.isEmpty ? .empty : .loaded(filtered)
         } catch {
+            if Task.isCancelled { return }
             vehiclesState = .error(Localized.Error.network.localized)
         }
     }

@@ -19,6 +19,7 @@ final class GarageListViewModel {
     }
 
     func loadVehicles() async {
+        if !vehicles.isEmpty { return await refresh() }
         state = .loading
         do {
             let all = try await vehicleRepository.listVehicles()
@@ -26,7 +27,19 @@ final class GarageListViewModel {
             vehicles = filtered
             state = filtered.isEmpty ? .empty : .loaded(filtered)
         } catch {
+            if Task.isCancelled { return }
             state = .error(Localized.Error.network.localized)
+        }
+    }
+
+    func refresh() async {
+        do {
+            let all = try await vehicleRepository.listVehicles()
+            let filtered = all.filter { !deletedIds.contains($0.id) }
+            vehicles = filtered
+            state = filtered.isEmpty ? .empty : .loaded(filtered)
+        } catch {
+            // refresh silently fails — keep existing data
         }
     }
 
@@ -42,6 +55,7 @@ final class GarageListViewModel {
             deletedIds.remove(vehicleId)
             UserDefaults.standard.set(Array(deletedIds), forKey: Self.deletedIdsKey)
         }
+        state = .idle
         await loadVehicles()
     }
 }

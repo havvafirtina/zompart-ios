@@ -117,6 +117,15 @@ enum Localized {
         case cancelScanMessage = "scan.cancel.message"
     }
 
+    enum History: String, LocalizableContent, CaseIterable {
+        case title = "history.title"
+        case empty = "history.empty"
+        case detailTitle = "history.detail.title"
+        case status = "history.detail.status"
+        case inputText = "history.detail.inputText"
+        case photos = "history.detail.photos"
+    }
+
     enum Offers: String, LocalizableContent, CaseIterable {
         case recommended = "offers.recommended"
         case cheapest = "offers.cheapest"

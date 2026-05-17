@@ -19,12 +19,20 @@ final class OffersListViewModel {
     }
 
     func loadOffers() async {
+        let previousOffers = offers
         state = .loading
         do {
             let result = try await offerRepository.listOffers(scanId: scanId, sort: selectedSort)
             part = result.part
             offers = result.offers
             state = result.offers.isEmpty ? .empty : .loaded(result)
+        } catch is CancellationError {
+            offers = previousOffers
+            if !previousOffers.isEmpty {
+                state = .loaded(OfferListDomain(scanId: scanId, part: part, offers: previousOffers, sortApplied: selectedSort, totalCount: previousOffers.count))
+            } else {
+                state = .idle
+            }
         } catch {
             state = .error(Localized.Error.network.localized)
         }
