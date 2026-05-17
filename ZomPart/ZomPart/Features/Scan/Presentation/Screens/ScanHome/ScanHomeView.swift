@@ -59,8 +59,6 @@ struct ScanHomeView: View {
 
     private var noVehiclesState: some View {
         VStack {
-            Spacer().frame(height: 80)
-
             Image(systemName: "car.fill")
                 .font(.system(size: 56))
                 .foregroundStyle(Color.sbAccentPrimary)
@@ -81,13 +79,15 @@ struct ScanHomeView: View {
                 Text(Localized.Garage.addVehicle.localizedKey)
                     .font(.sbBodySemiboldDefault)
                     .foregroundStyle(Color.sbTextOnAccent)
-                    .frame(maxWidth: .infinity)
+                    .sbHorizontalPadding(.xLarge)
                     .sbControlHeight(.regular)
                     .background(Color.sbAccentPrimary)
                     .sbCornerRadius(.default)
             }
             .sbVerticalPadding(.large)
         }
+        .sbPadding(.xLarge)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Vehicle Selector

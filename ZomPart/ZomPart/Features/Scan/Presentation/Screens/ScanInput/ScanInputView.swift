@@ -8,19 +8,48 @@ struct ScanInputView: View {
     @State private var showCamera = false
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var showCancelAlert = false
+    @State private var galleryImageForPreview: IdentifiableImage?
+    @FocusState private var isTextFieldFocused: Bool
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading) {
-                photoSection
-                ocrChips
-                textInputSection
-                uploadStatus
-                analyzeButton
+        VStack(spacing: 0) {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        photoSection
+                        ocrChips
+                        textInputSection
+                            .id("textInput")
+                        uploadStatus
+                    }
+                    .sbPadding(.large)
+                }
+                .scrollDismissesKeyboard(.interactively)
+                .onChange(of: isTextFieldFocused) { _, focused in
+                    if focused {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            withAnimation {
+                                proxy.scrollTo("textInput", anchor: .bottom)
+                            }
+                        }
+                    }
+                }
             }
-            .sbPadding(.large)
+
+            if !isTextFieldFocused {
+                analyzeButton
+                    .sbHorizontalPadding(.large)
+                    .sbVerticalPadding(.medium)
+                    .background(Color.sbSurfacePrimary)
+            }
         }
         .background(Color.sbSurfacePrimary)
+        .onTapGesture {
+            UIApplication.shared.sendAction(
+                #selector(UIResponder.resignFirstResponder),
+                to: nil, from: nil, for: nil
+            )
+        }
         .navigationTitle(Localized.Scan.title.localized)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
@@ -35,28 +64,51 @@ struct ScanInputView: View {
         ) {
             Button(Localized.Common.cancel.localized, role: .cancel) {}
             Button(Localized.Common.confirm.localized, role: .destructive) {
-                // TODO: Phase 4 — call scan-start(start_over: true) and pop
+                // TODO: call scan-start(start_over: true) and pop
             }
         } message: {
             Text(Localized.Scan.cancelScanMessage.localizedKey)
         }
         .fullScreenCover(isPresented: $showCamera) {
-            CameraPickerView { image in
-                showCamera = false
-                guard let image else { return }
-                Task { await viewModel.addPhoto(image) }
-            }
-            .ignoresSafeArea()
+            ScanCameraView(
+                maxPhotos: 8,
+                currentPhotoCount: viewModel.photos.count,
+                onPhotosCaptured: { photos in
+                    for photo in photos {
+                        viewModel.addPhoto(photo)
+                    }
+                },
+                onTextRecognized: { text in
+                    viewModel.addOCRText(text)
+                },
+                onDismiss: {
+                    showCamera = false
+                }
+            )
         }
         .onChange(of: selectedPhotoItem) { _, newItem in
             guard let newItem else { return }
             Task {
                 if let data = try? await newItem.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
-                    await viewModel.addPhoto(image)
+                    viewModel.addPhoto(image)
+                    galleryImageForPreview = IdentifiableImage(image: image)
                 }
                 selectedPhotoItem = nil
             }
+        }
+        .fullScreenCover(item: $galleryImageForPreview) { wrapper in
+            PhotoTextPickerView(
+                image: wrapper.image,
+                onTextsSelected: { texts in
+                    for text in texts {
+                        viewModel.addOCRText(text)
+                    }
+                },
+                onDismiss: {
+                    galleryImageForPreview = nil
+                }
+            )
         }
     }
 
@@ -76,7 +128,7 @@ struct ScanInputView: View {
                 }
             }
 
-            HStack {
+            HStack(spacing: 16) {
                 Button {
                     showCamera = true
                 } label: {
@@ -113,13 +165,23 @@ struct ScanInputView: View {
                     .font(.sbBodyRegularSmall)
                     .foregroundStyle(Color.sbTextSecondary)
 
-                FlowLayout(viewModel.ocrTexts) { text in
-                    Text(text)
-                        .font(.sbBodyRegularXSmall)
-                        .foregroundStyle(Color.sbTextPrimary)
-                        .sbPadding(.small)
-                        .background(Color.sbSurfaceSecondary)
-                        .sbCornerRadius(.small)
+                ForEach(Array(viewModel.ocrTexts.enumerated()), id: \.offset) { index, text in
+                    HStack {
+                        Text(text)
+                            .font(.sbBodyRegularSmall)
+                            .foregroundStyle(Color.sbTextPrimary)
+
+                        Button {
+                            viewModel.removeOCRText(at: index)
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.sbBodyRegularXSmall)
+                                .foregroundStyle(Color.sbTextTertiary)
+                        }
+                    }
+                    .sbPadding(.small)
+                    .background(Color.sbSurfaceSecondary)
+                    .sbCornerRadius(.small)
                 }
             }
             .sbVerticalPadding(.small)
@@ -133,6 +195,7 @@ struct ScanInputView: View {
                 text: $viewModel.inputText,
                 axis: .vertical
             )
+            .focused($isTextFieldFocused)
             .font(.sbBodyRegularDefault)
             .lineLimit(3...6)
             .sbPadding(.medium)
@@ -177,25 +240,10 @@ struct ScanInputView: View {
             .sbCornerRadius(.default)
         }
         .disabled(!viewModel.canAnalyze || viewModel.state == .loading)
-        .sbVerticalPadding(.large)
     }
 }
 
-struct FlowLayout<Data: RandomAccessCollection, Content: View>: View where Data.Element: Hashable {
-
-    let data: Data
-    let content: (Data.Element) -> Content
-
-    init(_ data: Data, @ViewBuilder content: @escaping (Data.Element) -> Content) {
-        self.data = data
-        self.content = content
-    }
-
-    var body: some View {
-        LazyVStack(alignment: .leading) {
-            ForEach(Array(data.enumerated()), id: \.offset) { _, item in
-                content(item)
-            }
-        }
-    }
+struct IdentifiableImage: Identifiable {
+    let id = UUID()
+    let image: UIImage
 }

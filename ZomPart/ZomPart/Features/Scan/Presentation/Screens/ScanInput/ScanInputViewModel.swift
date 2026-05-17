@@ -35,19 +35,20 @@ final class ScanInputViewModel {
 
     var totalPhotos: Int { photos.count }
 
-    func addPhoto(_ image: UIImage) async {
+    func addPhoto(_ image: UIImage) {
         guard photos.count < 8 else { return }
         photos.append(image)
+    }
 
-        if let cgImage = image.cgImage {
-            do {
-                let texts = try await ocrService.recognizeText(in: cgImage)
-                let filtered = texts.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-                ocrTexts.append(contentsOf: filtered)
-            } catch {
-                // OCR failed silently
-            }
-        }
+    func addOCRText(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, !ocrTexts.contains(trimmed) else { return }
+        ocrTexts.append(trimmed)
+    }
+
+    func removeOCRText(at index: Int) {
+        guard ocrTexts.indices.contains(index) else { return }
+        ocrTexts.remove(at: index)
     }
 
     func removePhoto(at index: Int) {
