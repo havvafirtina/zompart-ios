@@ -10,7 +10,7 @@ struct AddVehicleSheetView: View {
   }
 
   let env: AppEnvironment
-  let onVehicleAdded: () -> Void
+  let onVehicleAdded: (String) -> Void
   @Environment(\.dismiss) private var dismiss
   @State private var path: [Route] = []
 
@@ -56,22 +56,22 @@ struct AddVehicleSheetView: View {
         switch route {
         case .vinScanner:
           VINScannerView(
-            viewModel: VehicleModule.makeVINScannerViewModel(env: env) {
-              onVehicleAdded()
+            viewModel: VehicleModule.makeVINScannerViewModel(env: env) { vehicleId in
+              onVehicleAdded(vehicleId)
               dismiss()
             }
           )
         case .plateScanner:
           PlateScannerView(
-            viewModel: VehicleModule.makePlateScannerViewModel(env: env) {
-              onVehicleAdded()
+            viewModel: VehicleModule.makePlateScannerViewModel(env: env) { vehicleId in
+              onVehicleAdded(vehicleId)
               dismiss()
             }
           )
         case .manualWizard:
           ManualWizardCoordinatorView(
             viewModel: VehicleModule.makeManualWizardViewModel(env: env) {
-              onVehicleAdded()
+              onVehicleAdded("")
               dismiss()
             }
           )

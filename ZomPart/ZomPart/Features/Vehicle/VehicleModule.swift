@@ -18,7 +18,7 @@ enum VehicleModule {
   @MainActor
   static func makeVINScannerViewModel(
     env: AppEnvironment,
-    onVehicleAdded: @escaping () -> Void
+    onVehicleAdded: @escaping (String) -> Void
   ) -> VINScannerViewModel {
     VINScannerViewModel(
       vehicleRepository: makeVehicleRepository(httpClient: env.httpClient),
@@ -31,7 +31,7 @@ enum VehicleModule {
   @MainActor
   static func makePlateScannerViewModel(
     env: AppEnvironment,
-    onVehicleAdded: @escaping () -> Void
+    onVehicleAdded: @escaping (String) -> Void
   ) -> PlateScannerViewModel {
     PlateScannerViewModel(
       vehicleRepository: makeVehicleRepository(httpClient: env.httpClient),

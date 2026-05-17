@@ -12,13 +12,13 @@ final class VINScannerViewModel {
   private let vehicleRepository: VehicleRepositoryProtocol
   private let ocrService: OCRServiceProtocol
   private let cameraPermission: CameraPermissionManager
-  private let onVehicleAdded: () -> Void
+  private let onVehicleAdded: (String) -> Void
 
   init(
     vehicleRepository: VehicleRepositoryProtocol,
     ocrService: OCRServiceProtocol,
     cameraPermission: CameraPermissionManager,
-    onVehicleAdded: @escaping () -> Void
+    onVehicleAdded: @escaping (String) -> Void
   ) {
     self.vehicleRepository = vehicleRepository
     self.ocrService = ocrService
@@ -59,13 +59,9 @@ final class VINScannerViewModel {
     state = .loading
     do {
       let result = try await vehicleRepository.resolveByVIN(vin, countryCode: "SE")
-      if result.isNew {
-        state = .loaded(result)
-        try? await Task.sleep(for: .seconds(1.5))
-        onVehicleAdded()
-      } else {
-        state = .error(Localized.Garage.vehicleAlreadyExists.localized)
-      }
+      state = .loaded(result)
+      try? await Task.sleep(for: .seconds(1.5))
+      onVehicleAdded(result.vehicle.id)
     } catch {
       state = .error(Localized.Error.network.localized)
     }

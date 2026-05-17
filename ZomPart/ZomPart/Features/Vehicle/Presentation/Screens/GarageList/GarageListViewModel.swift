@@ -37,7 +37,11 @@ final class GarageListViewModel {
     state = vehicles.isEmpty ? .empty : .loaded(vehicles)
   }
 
-  func onVehicleAdded() async {
+  func onVehicleAdded(vehicleId: String? = nil) async {
+    if let vehicleId, deletedIds.contains(vehicleId) {
+      deletedIds.remove(vehicleId)
+      UserDefaults.standard.set(Array(deletedIds), forKey: Self.deletedIdsKey)
+    }
     await loadVehicles()
   }
 }

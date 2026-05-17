@@ -36,8 +36,8 @@ struct MainTabView: View {
     }
     .tint(Color.sbAccentPrimary)
     .sheet(isPresented: $showAddVehicle) {
-      AddVehicleSheetView(env: env) {
-        Task { await garageViewModel?.onVehicleAdded() }
+      AddVehicleSheetView(env: env) { vehicleId in
+        Task { await garageViewModel?.onVehicleAdded(vehicleId: vehicleId) }
       }
     }
   }
