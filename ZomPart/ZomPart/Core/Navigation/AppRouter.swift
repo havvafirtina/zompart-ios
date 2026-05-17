@@ -11,10 +11,12 @@ final class AppRouter {
     }
 
     enum ScanRoute: Hashable {
-        case scanInput(vehicleId: String)
+        case scanInputPhoto(vehicleId: String)
+        case scanInputText(vehicleId: String)
         case scanProcessing(scanId: String)
-        case scanResult(scanId: String)
+        case scanResult(scanId: String, partName: String, partNumber: String)
         case offers(scanId: String)
+        case history
     }
 
     enum GarageRoute: Hashable {
