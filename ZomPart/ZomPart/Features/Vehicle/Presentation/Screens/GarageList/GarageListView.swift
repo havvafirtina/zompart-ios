@@ -78,16 +78,24 @@ struct GarageListView: View {
   }
 
   private var vehicleList: some View {
-    ScrollView {
-      LazyVStack {
-        ForEach(viewModel.vehicles, id: \.id) { vehicle in
-          VehicleCardView(vehicle: vehicle) {
-            onVehicleTap(vehicle)
+    List {
+      ForEach(viewModel.vehicles, id: \.id) { vehicle in
+        VehicleCardView(vehicle: vehicle) {
+          onVehicleTap(vehicle)
+        }
+        .listRowSeparator(.hidden)
+        .listRowBackground(Color.clear)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+          Button(role: .destructive) {
+            viewModel.deleteVehicle(id: vehicle.id)
+          } label: {
+            Label(Localized.Common.delete.localized, systemImage: "trash")
           }
         }
       }
-      .sbPadding(.large)
     }
+    .listStyle(.plain)
+    .scrollContentBackground(.hidden)
   }
 
   private func errorState(message: String) -> some View {
