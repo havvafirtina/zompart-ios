@@ -9,5 +9,5 @@ import Foundation
 
 /// Domain model representing a successful OTP send response.
 struct AuthOTPResultDomain: Equatable, Sendable {
-    let id: String
+        let id: String
 }

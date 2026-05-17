@@ -10,9 +10,9 @@ import SBNetworking
 
 /// DTO for the `data` field inside the auth-delete-confirm success envelope.
 struct AuthDeleteConfirmDataDTO: ResponseProtocol {
-    typealias ModelType = Bool
+        typealias ModelType = Bool
 
-    let deleted: Bool
+        let deleted: Bool
 
-    func toModel() -> Bool { deleted }
+        func toModel() -> Bool { deleted }
 }

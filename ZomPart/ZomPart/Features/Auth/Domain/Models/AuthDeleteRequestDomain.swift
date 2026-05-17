@@ -9,5 +9,5 @@ import Foundation
 
 /// Domain model returned when an account deletion request is initiated.
 struct AuthDeleteRequestDomain: Equatable, Sendable {
-    let expiresInMinutes: Int
+        let expiresInMinutes: Int
 }

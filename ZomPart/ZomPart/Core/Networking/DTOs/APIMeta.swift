@@ -9,11 +9,11 @@ import Foundation
 
 /// Metadata returned by Supabase edge functions alongside every response.
 struct APIMeta: Decodable, Sendable {
-    let requestId: String
-    let timestamp: String
+        let requestId: String
+        let timestamp: String
 
-    private enum CodingKeys: String, CodingKey {
-        case requestId = "request_id"
-        case timestamp
-    }
+        private enum CodingKeys: String, CodingKey {
+                case requestId = "request_id"
+                case timestamp
+        }
 }

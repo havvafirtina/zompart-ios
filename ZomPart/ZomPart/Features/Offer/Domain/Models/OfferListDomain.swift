@@ -8,10 +8,10 @@
 import Foundation
 
 struct OfferListDomain: Equatable, Sendable {
-    let scanId: String
-    /// Nil when the scan has no selected part yet.
-    let part: OfferPartSummaryDomain?
-    let offers: [OfferDomain]
-    let sortApplied: OfferSortDomain
-    let totalCount: Int
+        let scanId: String
+        /// Nil when the scan has no selected part yet.
+        let part: OfferPartSummaryDomain?
+        let offers: [OfferDomain]
+        let sortApplied: OfferSortDomain
+        let totalCount: Int
 }

@@ -15,16 +15,16 @@ import SBNetworking
 /// The envelope itself conforms to `ResponseProtocol` so it can be used
 /// directly as an `Endpoint.ResponseType`.
 struct APIEnvelope<T: ResponseProtocol>: ResponseProtocol {
-    typealias ModelType = T.ModelType
+        typealias ModelType = T.ModelType
 
-    let success: Bool
-    let data: T?
-    let meta: APIMeta?
+        let success: Bool
+        let data: T?
+        let meta: APIMeta?
 
-    func toModel() -> T.ModelType {
-        guard let data else {
-            fatalError("APIEnvelope.toModel() called without data. Check success flag before calling.")
+        func toModel() -> T.ModelType {
+                guard let data else {
+                        fatalError("APIEnvelope.toModel() called without data. Check success flag before calling.")
+                }
+                return data.toModel()
         }
-        return data.toModel()
-    }
 }

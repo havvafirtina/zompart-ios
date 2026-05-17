@@ -77,6 +77,6 @@ Request flow: `RequestProtocol` → `Endpoint` (path/method/payload/ResponseType
 Configured in `.swiftlint.yml` with `only_rules` mode (allowlist). Key settings:
 
 - **Line length**: 150
-- **Indentation**: 2 spaces
+- **Indentation**: 4 spaces
 - Custom rule: `@objcMembers` is forbidden (use individual `@objc`)
 - `identifier_name`, `function_body_length`, `file_length` are intentionally disabled

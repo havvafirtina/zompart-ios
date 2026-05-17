@@ -2,17 +2,17 @@ import Foundation
 
 struct AppConfig: Sendable {
 
-  enum Environment: String, Sendable {
-    case debug
-    case release
-    case local
-  }
+    enum Environment: String, Sendable {
+        case debug
+        case release
+        case local
+    }
 
-  let environment: Environment
+    let environment: Environment
 
-  static func current() -> AppConfig {
-    let envString: String = PlistReader.value(for: "APP_ENV")
-    let env = Environment(rawValue: envString.lowercased()) ?? .debug
-    return AppConfig(environment: env)
-  }
+    static func current() -> AppConfig {
+        let envString: String = PlistReader.value(for: "APP_ENV")
+        let env = Environment(rawValue: envString.lowercased()) ?? .debug
+        return AppConfig(environment: env)
+    }
 }

@@ -12,7 +12,7 @@ import SBNetworking
 /// Called from the composition root; no state of its own.
 enum HistoryModule {
 
-    static func makeHistoryRepository(httpClient: HTTPClient) -> HistoryRepositoryProtocol {
-        HistoryRepository(client: httpClient)
-    }
+        static func makeHistoryRepository(httpClient: HTTPClient) -> HistoryRepositoryProtocol {
+                HistoryRepository(client: httpClient)
+        }
 }

@@ -12,7 +12,7 @@ import SBNetworking
 /// Called from the composition root; no state of its own.
 enum ScanModule {
 
-    static func makeScanRepository(httpClient: HTTPClient) -> ScanRepositoryProtocol {
-        ScanRepository(client: httpClient)
-    }
+        static func makeScanRepository(httpClient: HTTPClient) -> ScanRepositoryProtocol {
+                ScanRepository(client: httpClient)
+        }
 }

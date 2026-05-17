@@ -10,15 +10,15 @@ import SBNetworking
 
 /// DTO for the `data` field inside the auth-delete-request success envelope.
 struct AuthDeleteRequestDataDTO: ResponseProtocol {
-    typealias ModelType = AuthDeleteRequestDomain
+        typealias ModelType = AuthDeleteRequestDomain
 
-    let expiresInMinutes: Int
+        let expiresInMinutes: Int
 
-    private enum CodingKeys: String, CodingKey {
-        case expiresInMinutes = "expires_in_minutes"
-    }
+        private enum CodingKeys: String, CodingKey {
+                case expiresInMinutes = "expires_in_minutes"
+        }
 
-    func toModel() -> AuthDeleteRequestDomain {
-        AuthDeleteRequestDomain(expiresInMinutes: expiresInMinutes)
-    }
+        func toModel() -> AuthDeleteRequestDomain {
+                AuthDeleteRequestDomain(expiresInMinutes: expiresInMinutes)
+        }
 }

@@ -10,13 +10,13 @@ import SBNetworking
 
 /// DTO for the `data` field inside the auth-logout success envelope.
 struct AuthLogoutDataDTO: ResponseProtocol {
-    typealias ModelType = Bool
+        typealias ModelType = Bool
 
-    let loggedOut: Bool
+        let loggedOut: Bool
 
-    private enum CodingKeys: String, CodingKey {
-        case loggedOut = "logged_out"
-    }
+        private enum CodingKeys: String, CodingKey {
+                case loggedOut = "logged_out"
+        }
 
-    func toModel() -> Bool { loggedOut }
+        func toModel() -> Bool { loggedOut }
 }

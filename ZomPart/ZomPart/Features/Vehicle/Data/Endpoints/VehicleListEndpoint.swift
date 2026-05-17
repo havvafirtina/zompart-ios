@@ -11,8 +11,8 @@ import SBNetworking
 // MARK: - RequestProtocol
 
 struct VehicleListRequest: RequestProtocol {
-    typealias EndpointType = VehicleListEndpoint
-    func toEndpoint() -> VehicleListEndpoint { VehicleListEndpoint() }
+        typealias EndpointType = VehicleListEndpoint
+        func toEndpoint() -> VehicleListEndpoint { VehicleListEndpoint() }
 }
 
 // MARK: - Endpoint
@@ -20,9 +20,9 @@ struct VehicleListRequest: RequestProtocol {
 /// GET `/functions/v1/vehicle-resolve` — returns all vehicles in the user's garage.
 /// Requires Bearer token.
 struct VehicleListEndpoint: Endpoint {
-    typealias ResponseType = APIEnvelope<VehicleResolveDataDTO>
+        typealias ResponseType = APIEnvelope<VehicleResolveDataDTO>
 
-    var path: String { "/functions/v1/vehicle-resolve" }
-    var method: HTTPMethod { .get }
-    var payload: Encodable? { nil }
+        var path: String { "/functions/v1/vehicle-resolve" }
+        var method: HTTPMethod { .get }
+        var payload: Encodable? { nil }
 }

@@ -12,7 +12,7 @@ import SBNetworking
 /// Called from the composition root; no state of its own.
 enum OfferModule {
 
-    static func makeOfferRepository(httpClient: HTTPClient) -> OfferRepositoryProtocol {
-        OfferRepository(client: httpClient)
-    }
+        static func makeOfferRepository(httpClient: HTTPClient) -> OfferRepositoryProtocol {
+                OfferRepository(client: httpClient)
+        }
 }
