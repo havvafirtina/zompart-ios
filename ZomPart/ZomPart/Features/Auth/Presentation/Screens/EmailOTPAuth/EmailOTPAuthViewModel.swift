@@ -7,11 +7,11 @@ final class EmailOTPAuthViewModel {
     private(set) var state: ViewState<Bool> = .idle
 
     private let authRepository: AuthRepositoryProtocol
-    private let onOTPSent: (String) -> Void
+    private let onOTPSent: (String, String?) -> Void
 
     init(
         authRepository: AuthRepositoryProtocol,
-        onOTPSent: @escaping (String) -> Void
+        onOTPSent: @escaping (String, String?) -> Void
     ) {
         self.authRepository = authRepository
         self.onOTPSent = onOTPSent
@@ -23,16 +23,18 @@ final class EmailOTPAuthViewModel {
         firstName: String?,
         lastName: String?
     ) async {
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         state = .loading
         do {
             _ = try await authRepository.sendOTP(
-                email: email,
+                email: trimmedEmail,
                 intent: intent,
                 firstName: firstName,
                 lastName: lastName
             )
             state = .loaded(true)
-            onOTPSent(email)
+            let fullName = [firstName, lastName].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " ")
+            onOTPSent(trimmedEmail, fullName.isEmpty ? nil : fullName)
         } catch let error as AuthError {
             state = .error(Self.message(for: error))
         } catch {

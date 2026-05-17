@@ -5,8 +5,10 @@ struct RootView: View {
 
     let env: AppEnvironment
     @State private var authStateManager: AuthStateManager
+    @State private var themeManager = ThemeManager()
     @State private var router = AppRouter()
     @State private var pendingVerifyEmail: String?
+    @State private var pendingUserName: String?
 
     init(env: AppEnvironment) {
         self.env = env
@@ -30,7 +32,7 @@ struct RootView: View {
                 authFlow
 
             case .authenticated:
-                MainTabView(router: router, env: env)
+                MainTabView(router: router, env: env, authStateManager: authStateManager, themeManager: themeManager)
             }
         }
         .animation(.default, value: authStateManager.phase)
@@ -49,7 +51,7 @@ struct RootView: View {
                             refreshToken: session.refreshToken
                         )
                         pendingVerifyEmail = nil
-                        authStateManager.didAuthenticate()
+                        authStateManager.didAuthenticate(email: email, name: pendingUserName ?? "")
                     }
                 )
             )
@@ -57,8 +59,9 @@ struct RootView: View {
             EmailOTPAuthView(
                 viewModel: AuthModule.makeEmailOTPAuthViewModel(
                     env: env,
-                    onOTPSent: { email in
+                    onOTPSent: { email, name in
                         pendingVerifyEmail = email
+                        pendingUserName = name
                     }
                 )
             )

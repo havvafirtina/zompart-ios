@@ -5,6 +5,8 @@ struct MainTabView: View {
 
     @Bindable var router: AppRouter
     let env: AppEnvironment
+    let authStateManager: AuthStateManager
+    let themeManager: ThemeManager
     @State private var garageViewModel: GarageListViewModel?
     @State private var scanHomeViewModel: ScanHomeViewModel?
     @State private var showAddVehicle = false
@@ -35,7 +37,10 @@ struct MainTabView: View {
             .tag(AppRouter.Tab.garage)
 
             NavigationStack(path: $router.profilePath) {
-                ProfileTabPlaceholderView()
+                profileTab
+                    .navigationDestination(for: AppRouter.ProfileRoute.self) { route in
+                        profileDestination(for: route)
+                    }
             }
             .tabItem {
                 Label(Localized.Tab.profile.localized, systemImage: "person.fill")
@@ -153,7 +158,7 @@ struct MainTabView: View {
             router.scanPath.append(.scanProcessing(scanId: scanId))
             _ = alternatives
 
-        case .failed(_, _):
+        case .failed:
             break
         }
     }
@@ -193,6 +198,35 @@ struct MainTabView: View {
                     }
                 )
             }
+        }
+    }
+
+    // MARK: - Profile Tab
+
+    private var profileTab: some View {
+        ProfileMainView(
+            viewModel: ProfileModule.makeProfileMainViewModel(env: env, authStateManager: authStateManager),
+            themeManager: themeManager,
+            onTheme: { router.profilePath.append(.theme) },
+            onLanguage: { router.profilePath.append(.language) },
+            onAbout: { router.profilePath.append(.about) },
+            onDeleteAccount: { router.profilePath.append(.deleteAccount) }
+        )
+    }
+
+    @ViewBuilder
+    private func profileDestination(for route: AppRouter.ProfileRoute) -> some View {
+        switch route {
+        case .theme:
+            ThemePickerView(themeManager: themeManager)
+        case .language:
+            LanguagePickerView()
+        case .about:
+            AboutView()
+        case .deleteAccount:
+            DeleteAccountView(
+                viewModel: ProfileModule.makeDeleteAccountViewModel(env: env, authStateManager: authStateManager)
+            )
         }
     }
 }

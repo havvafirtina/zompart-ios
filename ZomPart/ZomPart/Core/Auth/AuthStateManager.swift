@@ -11,6 +11,8 @@ final class AuthStateManager {
     }
 
     private(set) var phase: AuthPhase
+    private(set) var userEmail: String = ""
+    private(set) var userName: String = ""
 
     private let tokenProvider: ZomPartAuthTokenProvider
     private let featureFlags: FeatureFlagClient
@@ -23,6 +25,9 @@ final class AuthStateManager {
 
         let onboardingCompleted = UserDefaults.standard.bool(forKey: Self.onboardingCompletedKey)
         let onboardingEnabled = featureFlags.bool(for: .onboardingEnabled)
+
+        self.userEmail = UserDefaults.standard.string(forKey: "user_email") ?? ""
+        self.userName = UserDefaults.standard.string(forKey: "user_name") ?? ""
 
         if !onboardingCompleted && onboardingEnabled {
             self.phase = .onboarding
@@ -42,12 +47,24 @@ final class AuthStateManager {
         }
     }
 
-    func didAuthenticate() {
+    func didAuthenticate(email: String = "", name: String = "") {
+        if !email.isEmpty {
+            userEmail = email
+            UserDefaults.standard.set(email, forKey: "user_email")
+        }
+        if !name.isEmpty {
+            userName = name
+            UserDefaults.standard.set(name, forKey: "user_name")
+        }
         phase = .authenticated
     }
 
     func logout() {
         tokenProvider.clearTokens()
+        userEmail = ""
+        userName = ""
+        UserDefaults.standard.removeObject(forKey: "user_email")
+        UserDefaults.standard.removeObject(forKey: "user_name")
         phase = .unauthenticated
     }
 }

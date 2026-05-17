@@ -18,7 +18,7 @@ struct OfferPartSummaryDTO: Decodable, Sendable {
 
         private enum CodingKeys: String, CodingKey {
                 case id, name
-                case partNumber  = "part_number"
+                case partNumber = "part_number"
                 case thumbnailUrl = "thumbnail_url"
         }
 

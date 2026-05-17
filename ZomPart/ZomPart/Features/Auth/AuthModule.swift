@@ -10,7 +10,7 @@ enum AuthModule {
     @MainActor
     static func makeEmailOTPAuthViewModel(
         env: AppEnvironment,
-        onOTPSent: @escaping (String) -> Void
+        onOTPSent: @escaping (String, String?) -> Void
     ) -> EmailOTPAuthViewModel {
         EmailOTPAuthViewModel(
             authRepository: makeAuthRepository(httpClient: env.httpClient),

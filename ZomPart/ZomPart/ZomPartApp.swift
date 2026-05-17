@@ -8,7 +8,6 @@ struct ZomPartApp: App {
 
     init() {
         self.env = AppEnvironment.build()
-        SBDesignSystemManager.shared.updateTheme(.crimson)
     }
 
     var body: some Scene {

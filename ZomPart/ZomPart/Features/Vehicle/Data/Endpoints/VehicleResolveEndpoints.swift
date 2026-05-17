@@ -176,7 +176,7 @@ struct VehicleManualStepEndpoint: Endpoint {
 }
 
 private struct ManualStepBody: Encodable {
-        let resolveType  = "MANUAL"
+        let resolveType = "MANUAL"
         let sessionId: String?
         let currentStep: String
         let countryCode: String

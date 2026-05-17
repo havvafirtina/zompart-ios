@@ -126,6 +126,30 @@ enum Localized {
         case photos = "history.detail.photos"
     }
 
+    enum Profile: String, LocalizableContent, CaseIterable {
+        case userInfo = "profile.userInfo"
+        case appearance = "profile.appearance"
+        case theme = "profile.theme"
+        case appearanceMode = "profile.appearanceMode"
+        case system = "profile.system"
+        case light = "profile.light"
+        case dark = "profile.dark"
+        case language = "profile.language"
+        case about = "profile.about"
+        case account = "profile.account"
+        case logout = "profile.logout"
+        case logoutConfirmTitle = "profile.logout.confirmTitle"
+        case logoutConfirmMessage = "profile.logout.confirmMessage"
+        case deleteAccount = "profile.deleteAccount"
+        case deleteConfirmTitle = "profile.deleteAccount.confirmTitle"
+        case deleteConfirmMessage = "profile.deleteAccount.confirmMessage"
+        case deleteOTPSent = "profile.deleteAccount.otpSent"
+        case version = "profile.version"
+        case privacyPolicy = "profile.privacyPolicy"
+        case termsOfService = "profile.termsOfService"
+        case restartRequired = "profile.restartRequired"
+    }
+
     enum Offers: String, LocalizableContent, CaseIterable {
         case recommended = "offers.recommended"
         case cheapest = "offers.cheapest"
