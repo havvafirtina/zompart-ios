@@ -16,7 +16,8 @@ protocol ScanRepositoryProtocol: Sendable {
         func startScan(
                 vehicleId: String,
                 inputType: ScanInputTypeDomain,
-                inputText: String?,
+                userDescription: String?,
+                ocrTexts: [String],
                 startOver: Bool
         ) async throws -> ScanDomain
 

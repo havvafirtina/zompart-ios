@@ -23,14 +23,16 @@ actor ScanRepository: ScanRepositoryProtocol {
         func startScan(
                 vehicleId: String,
                 inputType: ScanInputTypeDomain,
-                inputText: String?,
+                userDescription: String?,
+                ocrTexts: [String],
                 startOver: Bool
         ) async throws -> ScanDomain {
                 do {
                         let request = ScanStartRequest(
                                 vehicleId: vehicleId,
                                 inputType: inputType,
-                                inputText: inputText,
+                                userDescription: userDescription,
+                                ocrTexts: ocrTexts,
                                 startOver: startOver
                         )
                         let envelope = try await client.submitRequest(request: request)

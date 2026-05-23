@@ -664,6 +664,52 @@
         }
       }
     },
+    "error.conflict" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This scan is already being processed. Please wait."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Denna skanning bearbetas redan. Vänta."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu tarama zaten işleniyor. Lütfen bekleyin."
+          }
+        }
+      }
+    },
+    "error.invalidState" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This scan has already been processed."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Denna skanning har redan bearbetats."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu tarama zaten işlendi."
+          }
+        }
+      }
+    },
     "error.network" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -683,6 +729,98 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "İnternet bağlantısı yok. Lütfen tekrar deneyin."
+          }
+        }
+      }
+    },
+    "error.noPhotosUploaded" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No photos uploaded. Please take at least one photo."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inga foton uppladdade. Ta minst ett foto."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotoğraf yüklenmedi. Lütfen en az bir fotoğraf çekin."
+          }
+        }
+      }
+    },
+    "error.photoLimitReached" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum photo limit reached."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximalt antal foton har nåtts."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maksimum fotoğraf sınırına ulaşıldı."
+          }
+        }
+      }
+    },
+    "error.rateLimitExceeded" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many requests. Please wait a moment and try again."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "För många förfrågningar. Vänta en stund och försök igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çok fazla istek gönderildi. Lütfen biraz bekleyin ve tekrar deneyin."
+          }
+        }
+      }
+    },
+    "error.scanNotFound" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan not found. Please start a new scan."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skanningen hittades inte. Starta en ny skanning."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarama bulunamadı. Lütfen yeni bir tarama başlatın."
           }
         }
       }
@@ -729,6 +867,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bir hata oluştu. Lütfen tekrar deneyin."
+          }
+        }
+      }
+    },
+    "error.vehicleNotFound" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vehicle not found. Please select a vehicle first."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fordonet hittades inte. Välj ett fordon först."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Araç bulunamadı. Lütfen önce bir araç seçin."
           }
         }
       }
@@ -2178,6 +2339,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Analiz Et"
+          }
+        }
+      }
+    },
+    "scan.camera.focusHint" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Place the part you want to scan inside this frame"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Placera delen du vill skanna inuti denna ram"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taramak istediğiniz parçayı bu çerçevenin içine alın"
           }
         }
       }

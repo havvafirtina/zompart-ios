@@ -24,6 +24,13 @@ enum Localized {
         case network = "error.network"
         case unknown = "error.unknown"
         case tokenExpired = "error.tokenExpired"
+        case rateLimitExceeded = "error.rateLimitExceeded"
+        case scanNotFound = "error.scanNotFound"
+        case vehicleNotFound = "error.vehicleNotFound"
+        case invalidState = "error.invalidState"
+        case conflict = "error.conflict"
+        case noPhotosUploaded = "error.noPhotosUploaded"
+        case photoLimitReached = "error.photoLimitReached"
     }
 
     enum Onboarding: String, LocalizableContent, CaseIterable {
@@ -113,6 +120,7 @@ enum Localized {
         case failedTitle = "scan.failed.title"
         case failedSubtitle = "scan.failed.subtitle"
         case searchByText = "scan.searchByText"
+        case cameraFocusHint = "scan.camera.focusHint"
         case cancelScanTitle = "scan.cancel.title"
         case cancelScanMessage = "scan.cancel.message"
     }

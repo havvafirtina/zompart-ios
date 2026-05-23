@@ -26,4 +26,29 @@ enum ScanError: Error, Equatable {
         case network
         case emptyResponse
         case unknown
+
+        var localizedMessage: String {
+                switch self {
+                case .network:
+                        return Localized.Error.network.localized
+                case .tokenExpired:
+                        return Localized.Error.tokenExpired.localized
+                case .rateLimitExceeded:
+                        return Localized.Error.rateLimitExceeded.localized
+                case .scanNotFound:
+                        return Localized.Error.scanNotFound.localized
+                case .vehicleNotFound:
+                        return Localized.Error.vehicleNotFound.localized
+                case .invalidState:
+                        return Localized.Error.invalidState.localized
+                case .conflict:
+                        return Localized.Error.conflict.localized
+                case .noPhotosUploaded:
+                        return Localized.Error.noPhotosUploaded.localized
+                case .photoLimitReached:
+                        return Localized.Error.photoLimitReached.localized
+                default:
+                        return Localized.Error.unknown.localized
+                }
+        }
 }

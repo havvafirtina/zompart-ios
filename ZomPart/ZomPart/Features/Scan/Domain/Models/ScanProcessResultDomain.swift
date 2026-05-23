@@ -24,11 +24,22 @@ enum ScanProcessResultDomain: Equatable, Sendable {
 struct ScanPartSummaryDomain: Equatable, Sendable {
         let id: String
         let name: String
+        let nameTr: String?
+        let nameSv: String?
         let partNumber: String
         let thumbnailUrl: String?
+
+        var localizedName: String {
+                let lang = Locale.current.language.languageCode?.identifier
+                switch lang {
+                case "tr": return nameTr ?? name
+                case "sv": return nameSv ?? name
+                default: return name
+                }
+        }
 }
 
-struct ScanAlternativeDomain: Equatable, Sendable {
+struct ScanAlternativeDomain: Equatable, Hashable, Sendable {
         let name: String
         let partNumber: String
         let confidence: Double

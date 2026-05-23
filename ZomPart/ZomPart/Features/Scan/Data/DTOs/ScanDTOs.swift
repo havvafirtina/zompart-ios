@@ -72,17 +72,21 @@ struct ScanUploadUrlDataDTO: ResponseProtocol {
 struct ScanPartSummaryDTO: Decodable, Sendable {
         let id: String
         let name: String
+        let nameTr: String?
+        let nameSv: String?
         let partNumber: String
         let thumbnailUrl: String?
 
         private enum CodingKeys: String, CodingKey {
                 case id, name
+                case nameTr = "name_tr"
+                case nameSv = "name_sv"
                 case partNumber = "part_number"
                 case thumbnailUrl = "thumbnail_url"
         }
 
         func toModel() -> ScanPartSummaryDomain {
-                ScanPartSummaryDomain(id: id, name: name, partNumber: partNumber, thumbnailUrl: thumbnailUrl)
+                ScanPartSummaryDomain(id: id, name: name, nameTr: nameTr, nameSv: nameSv, partNumber: partNumber, thumbnailUrl: thumbnailUrl)
         }
 }
 

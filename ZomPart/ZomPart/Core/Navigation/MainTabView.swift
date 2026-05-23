@@ -115,6 +115,19 @@ struct MainTabView: View {
                 }
             )
 
+        case .disambiguation(let scanId, let alternatives):
+            DisambiguationView(
+                viewModel: ScanModule.makeDisambiguationViewModel(
+                    env: env,
+                    scanId: scanId,
+                    alternatives: alternatives
+                ) { feedback in
+                    if feedback.nextAction == .showOffers {
+                        router.scanPath.append(.offers(scanId: scanId))
+                    }
+                }
+            )
+
         case .scanResult(let scanId, let partName, let partNumber):
             ScanResultView(
                 partName: partName,
@@ -152,11 +165,22 @@ struct MainTabView: View {
 
         switch result {
         case .offersReady(let scanId, let part):
-            router.scanPath.append(.scanResult(scanId: scanId, partName: part.name, partNumber: part.partNumber))
+            if let idx = router.scanPath.lastIndex(where: { if case .scanProcessing = $0 { return true }; return false }) {
+                router.scanPath.replaceSubrange(idx..., with: [
+                    .scanResult(scanId: scanId, partName: part.localizedName, partNumber: part.partNumber)
+                ])
+            } else {
+                router.scanPath.append(.scanResult(scanId: scanId, partName: part.localizedName, partNumber: part.partNumber))
+            }
 
         case .disambiguation(let scanId, let alternatives, _):
-            router.scanPath.append(.scanProcessing(scanId: scanId))
-            _ = alternatives
+            if let idx = router.scanPath.lastIndex(where: { if case .scanProcessing = $0 { return true }; return false }) {
+                router.scanPath.replaceSubrange(idx..., with: [
+                    .disambiguation(scanId: scanId, alternatives: alternatives)
+                ])
+            } else {
+                router.scanPath.append(.disambiguation(scanId: scanId, alternatives: alternatives))
+            }
 
         case .failed:
             break

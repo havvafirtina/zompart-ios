@@ -29,6 +29,8 @@ struct ScanCameraView: View {
                 .ignoresSafeArea()
             }
 
+            focusFrameOverlay
+
             VStack {
                 topBar
                 Spacer()
@@ -145,6 +147,26 @@ struct ScanCameraView: View {
                 .background(Color.sbAccentPrimary)
                 .sbCornerRadius(.medium)
         }
+    }
+
+    private var focusFrameOverlay: some View {
+        VStack {
+            Spacer()
+
+            RoundedRectangle(cornerRadius: 16)
+                .strokeBorder(Color.white.opacity(0.7), style: StrokeStyle(lineWidth: 2, dash: [12, 8]))
+                .frame(width: 280, height: 280)
+
+            Text(Localized.Scan.cameraFocusHint.localizedKey)
+                .font(.sbBodyRegularSmall)
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+                .shadow(color: .black.opacity(0.6), radius: 4, y: 2)
+                .padding(.top, 12)
+
+            Spacer()
+        }
+        .allowsHitTesting(false)
     }
 
     private func finishAndDismiss() {

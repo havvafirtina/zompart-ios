@@ -32,8 +32,10 @@ final class DisambiguationViewModel {
             )
             state = .loaded(result)
             onResolved(result)
+        } catch let error as ScanError {
+            state = .error(error.localizedMessage)
         } catch {
-            state = .error(Localized.Error.network.localized)
+            state = .error(Localized.Error.unknown.localized)
         }
     }
 }

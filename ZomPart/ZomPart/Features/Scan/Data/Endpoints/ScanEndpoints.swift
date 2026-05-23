@@ -16,10 +16,11 @@ struct ScanStartRequest: RequestProtocol {
         typealias EndpointType = ScanStartEndpoint
         let vehicleId: String
         let inputType: ScanInputTypeDomain
-        let inputText: String?
+        let userDescription: String?
+        let ocrTexts: [String]
         let startOver: Bool
         func toEndpoint() -> ScanStartEndpoint {
-                ScanStartEndpoint(vehicleId: vehicleId, inputType: inputType, inputText: inputText, startOver: startOver)
+                ScanStartEndpoint(vehicleId: vehicleId, inputType: inputType, userDescription: userDescription, ocrTexts: ocrTexts, startOver: startOver)
         }
 }
 
@@ -27,24 +28,27 @@ struct ScanStartEndpoint: Endpoint {
         typealias ResponseType = APIEnvelope<ScanStartDataDTO>
         let vehicleId: String
         let inputType: ScanInputTypeDomain
-        let inputText: String?
+        let userDescription: String?
+        let ocrTexts: [String]
         let startOver: Bool
         var path: String { "/functions/v1/scan-start" }
         var method: HTTPMethod { .post }
         var payload: Encodable? {
-                ScanStartBody(vehicleId: vehicleId, inputType: inputType, inputText: inputText, startOver: startOver)
+                ScanStartBody(vehicleId: vehicleId, inputType: inputType, userDescription: userDescription, ocrTexts: ocrTexts, startOver: startOver)
         }
 }
 
 private struct ScanStartBody: Encodable {
         let vehicleId: String
         let inputType: ScanInputTypeDomain
-        let inputText: String?
+        let userDescription: String?
+        let ocrTexts: [String]
         let startOver: Bool
         private enum CodingKeys: String, CodingKey {
                 case vehicleId = "vehicle_id"
                 case inputType = "input_type"
-                case inputText = "input_text"
+                case userDescription = "user_description"
+                case ocrTexts = "ocr_texts"
                 case startOver = "start_over"
         }
 }

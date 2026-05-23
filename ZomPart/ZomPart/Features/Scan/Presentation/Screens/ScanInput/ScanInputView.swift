@@ -4,6 +4,7 @@ import PhotosUI
 
 struct ScanInputView: View {
 
+    @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: ScanInputViewModel
     @State private var showCamera = false
     @State private var selectedPhotoItem: PhotosPickerItem?
@@ -45,16 +46,20 @@ struct ScanInputView: View {
         }
         .background(Color.sbSurfacePrimary)
         .onTapGesture {
-            UIApplication.shared.sendAction(
-                #selector(UIResponder.resignFirstResponder),
-                to: nil, from: nil, for: nil
-            )
+            isTextFieldFocused = false
         }
         .navigationTitle(Localized.Scan.title.localized)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button(Localized.Common.cancel.localized) {
-                    showCancelAlert = true
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    if viewModel.hasInput {
+                        showCancelAlert = true
+                    } else {
+                        dismiss()
+                    }
+                } label: {
+                    Image(systemName: "chevron.backward")
                 }
             }
         }
@@ -64,7 +69,7 @@ struct ScanInputView: View {
         ) {
             Button(Localized.Common.cancel.localized, role: .cancel) {}
             Button(Localized.Common.confirm.localized, role: .destructive) {
-                // TODO: call scan-start(start_over: true) and pop
+                dismiss()
             }
         } message: {
             Text(Localized.Scan.cancelScanMessage.localizedKey)

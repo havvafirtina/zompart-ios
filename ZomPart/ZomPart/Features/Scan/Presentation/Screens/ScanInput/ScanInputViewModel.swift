@@ -29,6 +29,10 @@ final class ScanInputViewModel {
         self.onScanCreated = onScanCreated
     }
 
+    var hasInput: Bool {
+        !photos.isEmpty || !ocrTexts.isEmpty || !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     var canAnalyze: Bool {
         !photos.isEmpty || !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
@@ -61,15 +65,13 @@ final class ScanInputViewModel {
         do {
             let inputType: ScanInputTypeDomain = photos.isEmpty ? .text : .photo
             let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-            let combinedText = ([text] + ocrTexts)
-                .filter { !$0.isEmpty }
-                .joined(separator: " | ")
-            let finalText = combinedText.isEmpty ? nil : combinedText
+            let description: String? = text.isEmpty ? nil : text
 
             let scan = try await scanRepository.startScan(
                 vehicleId: vehicleId,
                 inputType: inputType,
-                inputText: finalText,
+                userDescription: description,
+                ocrTexts: ocrTexts,
                 startOver: false
             )
 
@@ -79,8 +81,10 @@ final class ScanInputViewModel {
 
             state = .loaded(scan)
             onScanCreated(scan)
+        } catch let error as ScanError {
+            state = .error(error.localizedMessage)
         } catch {
-            state = .error(Localized.Error.network.localized)
+            state = .error(Localized.Error.unknown.localized)
         }
     }
 
@@ -99,7 +103,8 @@ final class ScanInputViewModel {
 
         for (index, urlItem) in urlItems.enumerated() {
             guard index < photos.count,
-                  let data = photos[index].jpegData(compressionQuality: 0.8) else { continue }
+                  let resized = photos[index].resizedToLongEdge(1024),
+                  let data = resized.jpegData(compressionQuality: 0.8) else { continue }
 
             let fixedUrlString = fixUploadUrl(urlItem.uploadUrl, scheme: scheme, host: host)
             #if DEBUG

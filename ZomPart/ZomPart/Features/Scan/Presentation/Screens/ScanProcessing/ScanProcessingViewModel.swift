@@ -28,6 +28,8 @@ final class ScanProcessingViewModel {
     }
 
     func startProcessing() async {
+        if case .loading = state { return }
+        if case .loaded = state { return }
         state = .loading
         startTipRotation()
 
@@ -35,8 +37,10 @@ final class ScanProcessingViewModel {
             let result = try await scanRepository.processScan(scanId: scanId)
             state = .loaded(result)
             onResult(result)
+        } catch let error as ScanError {
+            state = .error(error.localizedMessage)
         } catch {
-            state = .error(Localized.Error.network.localized)
+            state = .error(Localized.Error.unknown.localized)
         }
     }
 
