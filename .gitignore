@@ -55,6 +55,9 @@ xctest/
 *.coverage.txt
 flank.jar
 
+# Auto-generated local IP config
+**/LocalIP.xcconfig
+
 # Claude Code
 .claude/settings.local.json
 

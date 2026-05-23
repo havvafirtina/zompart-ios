@@ -83,6 +83,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6DED93532FB7DD8B0061CBC0 /* Build configuration list for PBXNativeTarget "ZomPart" */;
 			buildPhases = (
+				6D12E17B2FC13CAD00DBC80E /* Resolve Local IP */,
 				6DED93442FB7DD8A0061CBC0 /* Sources */,
 				6DED93452FB7DD8A0061CBC0 /* Frameworks */,
 				6DED93462FB7DD8A0061CBC0 /* Resources */,
@@ -152,6 +153,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		6D12E17B2FC13CAD00DBC80E /* Resolve Local IP */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Resolve Local IP";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/../scripts/resolve-local-ip.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		6DED93442FB7DD8A0061CBC0 /* Sources */ = {
