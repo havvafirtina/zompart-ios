@@ -9,6 +9,9 @@ struct DisambiguationView: View {
         ScrollView {
             VStack(alignment: .leading) {
                 headerSection
+                if !viewModel.questions.isEmpty {
+                    questionsSection
+                }
                 alternativesList
             }
             .sbPadding(.large)
@@ -36,6 +39,29 @@ struct DisambiguationView: View {
         .sbVerticalPadding(.medium)
     }
 
+    private var questionsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ForEach(viewModel.questions, id: \.id) { question in
+                VStack(alignment: .leading) {
+                    Text(question.question)
+                        .font(.sbBodySemiboldDefault)
+                        .foregroundStyle(Color.sbTextPrimary)
+
+                    ForEach(question.options, id: \.self) { option in
+                        Text("• \(option)")
+                            .font(.sbBodyRegularDefault)
+                            .foregroundStyle(Color.sbTextSecondary)
+                    }
+                }
+                .sbPadding(.medium)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.sbAccentSubtle)
+                .sbCornerRadius(.medium)
+            }
+        }
+        .sbVerticalPadding(.small)
+    }
+
     private var alternativesList: some View {
         VStack {
             ForEach(Array(viewModel.alternatives.enumerated()), id: \.offset) { _, alt in
@@ -43,15 +69,9 @@ struct DisambiguationView: View {
                     Task { await viewModel.selectPart(partCandidateId: alt.partNumber) }
                 } label: {
                     HStack {
-                        VStack(alignment: .leading) {
-                            Text(alt.name)
-                                .font(.sbBodySemiboldDefault)
-                                .foregroundStyle(Color.sbTextPrimary)
-
-                            Text(alt.partNumber)
-                                .font(.sbBodyRegularSmall)
-                                .foregroundStyle(Color.sbTextSecondary)
-                        }
+                        Text(alt.name)
+                            .font(.sbBodySemiboldDefault)
+                            .foregroundStyle(Color.sbTextPrimary)
 
                         Spacer()
 

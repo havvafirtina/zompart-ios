@@ -43,6 +43,9 @@
     "%lld%%" : {
 
     },
+    "• %@" : {
+
+    },
     "auth.email.placeholder" : {
       "extractionState" : "stale",
       "localizations" : {

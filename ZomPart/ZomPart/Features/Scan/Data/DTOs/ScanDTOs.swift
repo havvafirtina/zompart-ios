@@ -106,12 +106,12 @@ struct ScanAlternativeDTO: Decodable, Sendable {
 }
 
 struct ScanQuestionDTO: Decodable, Sendable {
-        let id: String
+        let id: String?
         let question: String
         let options: [String]
 
         func toModel() -> ScanQuestionDomain {
-                ScanQuestionDomain(id: id, question: question, options: options)
+                ScanQuestionDomain(id: id ?? UUID().uuidString, question: question, options: options)
         }
 }
 

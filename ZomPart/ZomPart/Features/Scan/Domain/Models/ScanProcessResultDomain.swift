@@ -45,7 +45,7 @@ struct ScanAlternativeDomain: Equatable, Hashable, Sendable {
         let confidence: Double
 }
 
-struct ScanQuestionDomain: Equatable, Sendable {
+struct ScanQuestionDomain: Equatable, Hashable, Sendable {
         let id: String
         let question: String
         let options: [String]

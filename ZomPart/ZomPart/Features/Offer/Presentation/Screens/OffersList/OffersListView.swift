@@ -67,7 +67,7 @@ struct OffersListView: View {
     private var sortPicker: some View {
         Picker("", selection: Binding(
             get: { viewModel.selectedSort },
-            set: { sort in Task { await viewModel.changeSort(sort) } }
+            set: { viewModel.changeSort($0) }
         )) {
             Text(Localized.Offers.recommended.localizedKey)
                 .tag(OfferSortDomain.recommended)

@@ -110,6 +110,7 @@ struct ScanProcessEndpoint: Endpoint {
         var path: String { "/functions/v1/scan-process" }
         var method: HTTPMethod { .post }
         var payload: Encodable? { ScanIdBody(scanId: scanId) }
+        var timeoutInterval: TimeInterval { 180 }
 }
 
 // ─────────────────────────────────────────

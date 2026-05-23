@@ -6,6 +6,7 @@ final class DisambiguationViewModel {
 
     private(set) var state: ViewState<ScanFeedbackResultDomain> = .idle
     let alternatives: [ScanAlternativeDomain]
+    let questions: [ScanQuestionDomain]
 
     private let scanId: String
     private let scanRepository: ScanRepositoryProtocol
@@ -14,11 +15,13 @@ final class DisambiguationViewModel {
     init(
         scanId: String,
         alternatives: [ScanAlternativeDomain],
+        questions: [ScanQuestionDomain] = [],
         scanRepository: ScanRepositoryProtocol,
         onResolved: @escaping (ScanFeedbackResultDomain) -> Void
     ) {
         self.scanId = scanId
         self.alternatives = alternatives
+        self.questions = questions
         self.scanRepository = scanRepository
         self.onResolved = onResolved
     }

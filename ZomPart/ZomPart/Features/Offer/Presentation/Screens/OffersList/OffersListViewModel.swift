@@ -10,6 +10,7 @@ final class OffersListViewModel {
     var selectedSort: OfferSortDomain = .recommended
     private(set) var redirectUrl: URL?
 
+    private var allOffers: [OfferDomain] = []
     private let scanId: String
     private let offerRepository: OfferRepositoryProtocol
 
@@ -19,17 +20,17 @@ final class OffersListViewModel {
     }
 
     func loadOffers() async {
-        let previousOffers = offers
+        let previousOffers = allOffers
         state = .loading
         do {
-            let result = try await offerRepository.listOffers(scanId: scanId, sort: selectedSort)
+            let result = try await offerRepository.listOffers(scanId: scanId, sort: .recommended)
             part = result.part
-            offers = result.offers
-            state = result.offers.isEmpty ? .empty : .loaded(result)
+            allOffers = result.offers
+            applySort()
         } catch is CancellationError {
-            offers = previousOffers
+            allOffers = previousOffers
             if !previousOffers.isEmpty {
-                state = .loaded(OfferListDomain(scanId: scanId, part: part, offers: previousOffers, sortApplied: selectedSort, totalCount: previousOffers.count))
+                applySort()
             } else {
                 state = .idle
             }
@@ -38,10 +39,26 @@ final class OffersListViewModel {
         }
     }
 
-    func changeSort(_ sort: OfferSortDomain) async {
+    func changeSort(_ sort: OfferSortDomain) {
         guard sort != selectedSort else { return }
         selectedSort = sort
-        await loadOffers()
+        applySort()
+    }
+
+    private func applySort() {
+        switch selectedSort {
+        case .recommended:
+            offers = allOffers
+        case .cheapest:
+            offers = allOffers.sorted { $0.price < $1.price }
+        case .fastest:
+            offers = allOffers.sorted {
+                ($0.deliveryDays ?? Int.max) < ($1.deliveryDays ?? Int.max)
+            }
+        }
+        state = offers.isEmpty ? .empty : .loaded(
+            OfferListDomain(scanId: scanId, part: part, offers: offers, sortApplied: selectedSort, totalCount: offers.count)
+        )
     }
 
     func recordClick(offer: OfferDomain) async {

@@ -115,7 +115,7 @@ struct MainTabView: View {
                 }
             )
 
-        case .disambiguation(let scanId, let alternatives):
+        case .disambiguation(let scanId, let alternatives, _):
             DisambiguationView(
                 viewModel: ScanModule.makeDisambiguationViewModel(
                     env: env,
@@ -173,13 +173,13 @@ struct MainTabView: View {
                 router.scanPath.append(.scanResult(scanId: scanId, partName: part.localizedName, partNumber: part.partNumber))
             }
 
-        case .disambiguation(let scanId, let alternatives, _):
+        case .disambiguation(let scanId, let alternatives, let questions):
             if let idx = router.scanPath.lastIndex(where: { if case .scanProcessing = $0 { return true }; return false }) {
                 router.scanPath.replaceSubrange(idx..., with: [
-                    .disambiguation(scanId: scanId, alternatives: alternatives)
+                    .disambiguation(scanId: scanId, alternatives: alternatives, questions: questions)
                 ])
             } else {
-                router.scanPath.append(.disambiguation(scanId: scanId, alternatives: alternatives))
+                router.scanPath.append(.disambiguation(scanId: scanId, alternatives: alternatives, questions: questions))
             }
 
         case .failed:
