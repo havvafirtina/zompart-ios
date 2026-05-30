@@ -24,3 +24,19 @@ enum ScanInputTypeDomain: String, Encodable, Sendable {
         case photo = "PHOTO"
         case text  = "TEXT"
 }
+
+/// UI-level scan mode chosen by the user on the ScanHome screen. Locks the
+/// behavior of ScanInputView so the photo flow and the text flow are visually
+/// and functionally distinct. Maps 1:1 to ScanInputTypeDomain at network
+/// boundary — backend treats the two as separate input types.
+enum ScanInputMode: Equatable, Sendable {
+        case photo  // Camera + gallery + OCR + optional clarifying description
+        case text   // Single text field — part name or number, no photo controls
+
+        var asNetworkType: ScanInputTypeDomain {
+                switch self {
+                case .photo: return .photo
+                case .text:  return .text
+                }
+        }
+}

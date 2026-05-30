@@ -17,8 +17,10 @@ struct ScanInputView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading) {
-                        photoSection
-                        ocrChips
+                        if viewModel.mode == .photo {
+                            photoSection
+                            ocrChips
+                        }
                         textInputSection
                             .id("textInput")
                         uploadStatus

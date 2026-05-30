@@ -157,6 +157,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		6D12E17B2FC13CAD00DBC80E /* Resolve Local IP */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -168,6 +169,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(SRCROOT)/ZomPart/SupportingFiles/Configs/LocalIP.xcconfig",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

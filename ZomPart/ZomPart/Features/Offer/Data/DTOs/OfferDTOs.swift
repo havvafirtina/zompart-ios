@@ -13,17 +13,57 @@ import SBNetworking
 struct OfferPartSummaryDTO: Decodable, Sendable {
         let id: String
         let name: String
+        let nameTr: String?
+        let nameSv: String?
         let partNumber: String
         let thumbnailUrl: String?
+        // Layer 1 canonical enrichment — same shape as ScanPartSummaryDTO.
+        // Kept in sync intentionally so the iOS Scan and Offer features stay decoupled
+        // (no cross-feature imports) but display the same data.
+        let oemNumber: String?
+        let mpn: String?
+        let ean: String?
+        let brand: String?
+        let manufacturer: String?
+        let crossReferences: [String]?
+        let categoryTecdoc: String?
+        let vehicleCompatible: Bool?
+        let imageUrl: String?
+        let confidenceScore: Double?
 
         private enum CodingKeys: String, CodingKey {
-                case id, name
+                case id, name, brand, manufacturer, mpn, ean
+                case nameTr = "name_tr"
+                case nameSv = "name_sv"
                 case partNumber = "part_number"
                 case thumbnailUrl = "thumbnail_url"
+                case oemNumber = "oem_number"
+                case crossReferences = "cross_references"
+                case categoryTecdoc = "category_tecdoc"
+                case vehicleCompatible = "vehicle_compatible"
+                case imageUrl = "image_url"
+                case confidenceScore = "confidence_score"
         }
 
         func toModel() -> OfferPartSummaryDomain {
-                OfferPartSummaryDomain(id: id, name: name, partNumber: partNumber, thumbnailUrl: thumbnailUrl)
+                OfferPartSummaryDomain(
+                        id: id,
+                        name: name,
+                        nameTr: nameTr,
+                        nameSv: nameSv,
+                        partNumber: partNumber,
+                        thumbnailUrl: thumbnailUrl,
+                        oemNumber: oemNumber,
+                        mpn: mpn,
+                        ean: ean,
+                        brand: brand,
+                        manufacturer: manufacturer,
+                        crossReferences: crossReferences,
+                        categoryTecdoc: categoryTecdoc,
+                        vehicleCompatible: vehicleCompatible,
+                        imageUrl: imageUrl,
+                        confidenceScore: confidenceScore
+                )
         }
 }
 
@@ -46,9 +86,14 @@ struct OfferItemDTO: Decodable, Sendable {
         let rating: Double?
         let ratingCount: Int?
         let sourceProvider: String
+        // Layer 2 vendor identifiers (optional). Useful for client-side cross-check
+        // and analytics, not necessarily shown in UI.
+        let sku: String?
+        let gtin: String?
+        let merchantId: String?
 
         private enum CodingKeys: String, CodingKey {
-                case id, url, currency, rating
+                case id, url, currency, rating, sku, gtin
                 case vendorName    = "vendor_name"
                 case vendorSlug    = "vendor_slug"
                 case vendorLogoUrl = "vendor_logo_url"
@@ -61,6 +106,7 @@ struct OfferItemDTO: Decodable, Sendable {
                 case stockLabel    = "stock_label"
                 case ratingCount   = "rating_count"
                 case sourceProvider = "source_provider"
+                case merchantId    = "merchant_id"
         }
 
         func toModel() -> OfferDomain {
@@ -80,7 +126,10 @@ struct OfferItemDTO: Decodable, Sendable {
                         stockLabel: stockLabel,
                         rating: rating,
                         ratingCount: ratingCount,
-                        sourceProvider: sourceProvider
+                        sourceProvider: sourceProvider,
+                        sku: sku,
+                        gtin: gtin,
+                        merchantId: merchantId
                 )
         }
 }

@@ -25,6 +25,9 @@ enum ScanError: Error, Equatable {
         case rateLimitExceeded
         case network
         case emptyResponse
+        /// Backend AI providers (Gemini + OpenAI fallback) all failed.
+        /// Usually a transient capacity spike — retrying in a few seconds works.
+        case aiTemporarilyUnavailable
         case unknown
 
         var localizedMessage: String {
@@ -47,6 +50,10 @@ enum ScanError: Error, Equatable {
                         return Localized.Error.noPhotosUploaded.localized
                 case .photoLimitReached:
                         return Localized.Error.photoLimitReached.localized
+                case .aiTemporarilyUnavailable:
+                        // TODO i18n: add `error.aiTemporarilyUnavailable` key to Localizable.xcstrings.
+                        // Suggested copy: "AI is busy right now. Please try again in a few seconds."
+                        return "AI is busy right now. Please try again in a few seconds."
                 default:
                         return Localized.Error.unknown.localized
                 }

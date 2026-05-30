@@ -33,14 +33,6 @@ struct AddVehicleSheetView: View {
                     path.append(.plateScanner)
                 }
 
-                methodButton(
-                    icon: "hand.tap.fill",
-                    title: Localized.Garage.manualEntry.localized,
-                    subtitle: Localized.Garage.manualEntrySubtitle.localized
-                ) {
-                    path.append(.manualWizard)
-                }
-
                 Spacer()
             }
             .sbPadding(.large)

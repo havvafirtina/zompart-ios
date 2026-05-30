@@ -17,10 +17,12 @@ enum ScanModule {
     @MainActor
     static func makeScanInputViewModel(
         env: AppEnvironment,
+        mode: ScanInputMode,
         vehicleId: String,
         onScanCreated: @escaping (ScanDomain) -> Void
     ) -> ScanInputViewModel {
         ScanInputViewModel(
+            mode: mode,
             vehicleId: vehicleId,
             scanRepository: makeScanRepository(httpClient: env.httpClient),
             ocrService: VisionOCRService(),

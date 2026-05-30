@@ -76,17 +76,53 @@ struct ScanPartSummaryDTO: Decodable, Sendable {
         let nameSv: String?
         let partNumber: String
         let thumbnailUrl: String?
+        // Layer 1 canonical enrichment (all optional — null when AMBIGUOUS path
+        // picked a candidate without running resolvePart, or when the parts
+        // provider returned an empty canonical).
+        let oemNumber: String?
+        let mpn: String?
+        let ean: String?
+        let brand: String?
+        let manufacturer: String?
+        let crossReferences: [String]?
+        let categoryTecdoc: String?
+        let vehicleCompatible: Bool?
+        let imageUrl: String?
+        let confidenceScore: Double?
 
         private enum CodingKeys: String, CodingKey {
-                case id, name
+                case id, name, brand, manufacturer, mpn, ean
                 case nameTr = "name_tr"
                 case nameSv = "name_sv"
                 case partNumber = "part_number"
                 case thumbnailUrl = "thumbnail_url"
+                case oemNumber = "oem_number"
+                case crossReferences = "cross_references"
+                case categoryTecdoc = "category_tecdoc"
+                case vehicleCompatible = "vehicle_compatible"
+                case imageUrl = "image_url"
+                case confidenceScore = "confidence_score"
         }
 
         func toModel() -> ScanPartSummaryDomain {
-                ScanPartSummaryDomain(id: id, name: name, nameTr: nameTr, nameSv: nameSv, partNumber: partNumber, thumbnailUrl: thumbnailUrl)
+                ScanPartSummaryDomain(
+                        id: id,
+                        name: name,
+                        nameTr: nameTr,
+                        nameSv: nameSv,
+                        partNumber: partNumber,
+                        thumbnailUrl: thumbnailUrl,
+                        oemNumber: oemNumber,
+                        mpn: mpn,
+                        ean: ean,
+                        brand: brand,
+                        manufacturer: manufacturer,
+                        crossReferences: crossReferences,
+                        categoryTecdoc: categoryTecdoc,
+                        vehicleCompatible: vehicleCompatible,
+                        imageUrl: imageUrl,
+                        confidenceScore: confidenceScore
+                )
         }
 }
 

@@ -5,6 +5,7 @@ import UIKit
 @Observable
 final class ScanInputViewModel {
 
+    let mode: ScanInputMode
     private(set) var state: ViewState<ScanDomain> = .idle
     var photos: [UIImage] = []
     var ocrTexts: [String] = []
@@ -18,11 +19,13 @@ final class ScanInputViewModel {
     private let onScanCreated: (ScanDomain) -> Void
 
     init(
+        mode: ScanInputMode,
         vehicleId: String,
         scanRepository: ScanRepositoryProtocol,
         ocrService: OCRServiceProtocol,
         onScanCreated: @escaping (ScanDomain) -> Void
     ) {
+        self.mode = mode
         self.vehicleId = vehicleId
         self.scanRepository = scanRepository
         self.ocrService = ocrService
@@ -33,8 +36,14 @@ final class ScanInputViewModel {
         !photos.isEmpty || !ocrTexts.isEmpty || !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    /// Submit-eligibility differs by mode:
+    /// - .photo: at least one photo is required (description is optional).
+    /// - .text:  a non-empty text query is required.
     var canAnalyze: Bool {
-        !photos.isEmpty || !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        switch mode {
+        case .photo: return !photos.isEmpty
+        case .text:  return !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
     }
 
     var totalPhotos: Int { photos.count }
@@ -63,7 +72,11 @@ final class ScanInputViewModel {
     func analyze() async {
         state = .loading
         do {
-            let inputType: ScanInputTypeDomain = photos.isEmpty ? .text : .photo
+            // input_type is locked at entry. The old behavior of computing it
+            // from `photos.isEmpty` at submission silently swapped modes —
+            // e.g. opening "Search by text" then taking a photo would still
+            // send PHOTO. Now the user's chosen mode is the source of truth.
+            let inputType = mode.asNetworkType
             let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
             let description: String? = text.isEmpty ? nil : text
 
@@ -75,7 +88,7 @@ final class ScanInputViewModel {
                 startOver: false
             )
 
-            if !photos.isEmpty {
+            if mode == .photo && !photos.isEmpty {
                 try await uploadPhotos(scanId: scan.scanId)
             }
 

@@ -89,6 +89,7 @@ struct MainTabView: View {
             ScanInputView(
                 viewModel: ScanModule.makeScanInputViewModel(
                     env: env,
+                    mode: .photo,
                     vehicleId: vehicleId
                 ) { scan in
                     router.scanPath.append(.scanProcessing(scanId: scan.scanId))
@@ -99,6 +100,7 @@ struct MainTabView: View {
             ScanInputView(
                 viewModel: ScanModule.makeScanInputViewModel(
                     env: env,
+                    mode: .text,
                     vehicleId: vehicleId
                 ) { scan in
                     router.scanPath.append(.scanProcessing(scanId: scan.scanId))
@@ -128,12 +130,45 @@ struct MainTabView: View {
                 }
             )
 
-        case .scanResult(let scanId, let partName, let partNumber):
+        case .scanResult(let scanId, let part):
             ScanResultView(
-                partName: partName,
-                partNumber: partNumber,
+                part: part,
                 onViewOffers: {
                     router.scanPath.append(.offers(scanId: scanId))
+                }
+            )
+
+        case .scanFailed(_, let reason):
+            ScanFailedView(
+                reason: reason,
+                onRetry: {
+                    // Pop scanFailed (and any trailing scanProcessing) so the user
+                    // lands back on their original ScanInputView (photo or text).
+                    while let last = router.scanPath.last {
+                        switch last {
+                        case .scanInputPhoto, .scanInputText:
+                            return
+                        default:
+                            router.scanPath.removeLast()
+                        }
+                    }
+                },
+                onTextSearch: {
+                    // Switch to text mode regardless of how the user arrived.
+                    // Walk the path to find the active vehicleId (preserved by
+                    // whichever scanInput entry started this flow), then reset
+                    // the stack to a fresh text-mode ScanInputView.
+                    let vehicleId = router.scanPath.lazy.compactMap { route -> String? in
+                        switch route {
+                        case .scanInputPhoto(let v), .scanInputText(let v): return v
+                        default: return nil
+                        }
+                    }.first
+                    if let vehicleId {
+                        router.scanPath = [.scanInputText(vehicleId: vehicleId)]
+                    } else {
+                        router.scanPath = []
+                    }
                 }
             )
 
@@ -167,10 +202,10 @@ struct MainTabView: View {
         case .offersReady(let scanId, let part):
             if let idx = router.scanPath.lastIndex(where: { if case .scanProcessing = $0 { return true }; return false }) {
                 router.scanPath.replaceSubrange(idx..., with: [
-                    .scanResult(scanId: scanId, partName: part.localizedName, partNumber: part.partNumber)
+                    .scanResult(scanId: scanId, part: part)
                 ])
             } else {
-                router.scanPath.append(.scanResult(scanId: scanId, partName: part.localizedName, partNumber: part.partNumber))
+                router.scanPath.append(.scanResult(scanId: scanId, part: part))
             }
 
         case .disambiguation(let scanId, let alternatives, let questions):
@@ -182,8 +217,14 @@ struct MainTabView: View {
                 router.scanPath.append(.disambiguation(scanId: scanId, alternatives: alternatives, questions: questions))
             }
 
-        case .failed:
-            break
+        case .failed(let scanId, let reason):
+            if let idx = router.scanPath.lastIndex(where: { if case .scanProcessing = $0 { return true }; return false }) {
+                router.scanPath.replaceSubrange(idx..., with: [
+                    .scanFailed(scanId: scanId, reason: reason)
+                ])
+            } else {
+                router.scanPath.append(.scanFailed(scanId: scanId, reason: reason))
+            }
         }
     }
 

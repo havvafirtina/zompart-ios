@@ -140,6 +140,12 @@ actor ScanRepository: ScanRepositoryProtocol {
                         case .invalidUUID: return .invalidUUID
                         default: return .invalidState
                         }
+                case .serverError:
+                        // Backend already retries Gemini + falls back to OpenAI before
+                        // surfacing a 5xx. If we still got one, both AI providers are
+                        // unavailable — surface a transient-friendly error so the user
+                        // sees a "try again in a few seconds" message and a retry button.
+                        return .aiTemporarilyUnavailable
                 case .unauthorized: return .tokenExpired
                 case .notConnectedToInternet, .networkConnectionLost: return .network
                 default: return .unknown

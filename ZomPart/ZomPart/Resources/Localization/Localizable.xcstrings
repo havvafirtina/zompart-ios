@@ -7,6 +7,16 @@
     "(%lld)" : {
 
     },
+    "%@ · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
     "%@ %@" : {
       "localizations" : {
         "en" : {
@@ -3127,6 +3137,9 @@
           }
         }
       }
+    },
+    "This part may not fit your vehicle. Double-check the OEM number before purchasing." : {
+
     }
   },
   "version" : "1.0"
