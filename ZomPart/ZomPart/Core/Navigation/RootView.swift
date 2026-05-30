@@ -12,12 +12,21 @@ struct RootView: View {
 
     init(env: AppEnvironment) {
         self.env = env
-        self._authStateManager = State(
-            wrappedValue: AuthStateManager(
-                tokenProvider: env.tokenProvider,
-                featureFlags: env.featureFlags
-            )
+        let manager = AuthStateManager(
+            tokenProvider: env.tokenProvider,
+            featureFlags: env.featureFlags
         )
+        self._authStateManager = State(wrappedValue: manager)
+
+        // Wire the network layer to notify the auth state manager when a
+        // refresh attempt fails. Without this hook, stale tokens (e.g. after
+        // a backend user wipe) would keep the UI on MainTabView while every
+        // request fails — instead we route back to the login screen.
+        env.tokenProvider.setOnAuthInvalidated { [weak manager] in
+            Task { @MainActor in
+                manager?.handleAuthInvalidated()
+            }
+        }
     }
 
     var body: some View {

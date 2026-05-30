@@ -71,6 +71,18 @@ final class ZomPartAuthTokenProvider: AuthTokenProvider, @unchecked Sendable {
                 tokenPersistence.clear()
         }
 
+        /// Register a callback fired when a refresh attempt fails and the
+        /// session is therefore invalid. AuthStateManager wires this to
+        /// route the UI back to the login screen.
+        func setOnAuthInvalidated(_ callback: @escaping @Sendable () -> Void) {
+                lock.withLock { $0.onAuthInvalidated = callback }
+        }
+
+        private func notifyAuthInvalidated() {
+                let callback = lock.withLock { $0.onAuthInvalidated }
+                callback?()
+        }
+
         func refresh() async throws {
                 guard let currentRefreshToken = refreshToken else {
                         throw HTTPClientError.unauthorized
@@ -93,12 +105,14 @@ final class ZomPartAuthTokenProvider: AuthTokenProvider, @unchecked Sendable {
                 guard let httpResponse = response as? HTTPURLResponse,
                             (200...299).contains(httpResponse.statusCode) else {
                         clearTokens()
+                        notifyAuthInvalidated()
                         throw HTTPClientError.unauthorized
                 }
 
                 let decoded = try JSONDecoder().decode(RefreshEnvelope.self, from: data)
                 guard decoded.success, let tokenData = decoded.data else {
                         clearTokens()
+                        notifyAuthInvalidated()
                         throw HTTPClientError.unauthorized
                 }
 
@@ -108,6 +122,7 @@ final class ZomPartAuthTokenProvider: AuthTokenProvider, @unchecked Sendable {
         private struct TokenState {
                 var accessToken: String?
                 var refreshToken: String?
+                var onAuthInvalidated: (@Sendable () -> Void)?
         }
 
         private struct RefreshEnvelope: Decodable {
