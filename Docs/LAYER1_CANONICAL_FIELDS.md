@@ -1,12 +1,8 @@
 # Layer 1 Canonical Fields — iOS Integration
 
-*Created: 2026-05-30 — input for a future session focused on iOS UI work.*
+*iOS-side audit trail + remaining UI roadmap for Layer 1 (parts identification + OEM resolution).*
 
-> **Context:** Backend's Layer 1 (parts identification + OEM resolution) was completed: scan-process now resolves a canonical part via Autodoc Parts Catalog (RapidAPI) and returns nine new optional fields on every part summary. iOS data + domain layers + navigation + the scan-result screen were updated to consume the new shape. Most UI surface work is still open.
->
-> Companion backend docs live in the Obsidian vault:
-> - `10_katman_1_parca_esleme_oem_implementation_plan.md`
-> - `12_katman_1_api_reference_ve_ios_contract.md`
+> **Scope of this file:** What the backend returns, which iOS files were wired to consume it, and what UI work is still pending. **For backend internals (strategies, AI bridges, endpoint shapes), read the Obsidian vault** — `10_katman_1_parca_esleme_oem_implementation_plan.md`, `12_katman_1_api_reference_ve_ios_contract.md`, and especially `13_scan_flows_source_of_truth.md`.
 
 ---
 
@@ -93,14 +89,20 @@ Every endpoint that surfaces a `part` summary (`scan-process`, `scan-offers`, `s
 
 ## 3. What's Done vs Open (the next session's UI work)
 
-### ✅ Done in this round
+### ✅ Done
 
+**Initial canonical-fields round:**
 - All DTOs + Domain models accept the new shape with no breaking changes.
 - `Hashable` conformance on `ScanPartSummaryDomain` so navigation routes work.
-- Two high-value UI surfaces wired:
-  - **Part image** on `ScanResultView` (trust signal — "AI really identified this part").
-  - **Vehicle-compatibility warning** on `ScanResultView` when `vehicleCompatible == false` (safety-critical, since a wrong-fit suggestion is dangerous).
-- Manufacturer · brand badge on `ScanResultView`.
+- Two high-value UI surfaces wired on `ScanResultView`:
+  - **Part image** (trust signal — "AI really identified this part").
+  - **Vehicle-compatibility warning** when `vehicleCompatible == false` (safety-critical).
+  - Manufacturer · brand badge.
+
+**Subsequent UX rounds:**
+- **Mode-aware `ScanInputView`** — `ScanInputMode` enum (`.photo` / `.text`) carried through the ViewModel; photo mode shows camera + gallery + OCR, text mode shows a single text field. `input_type` locked at entry, not derived from photo-array state at submit time.
+- **`ScanFailedView`** — terminal recovery UI for backend-FAILED scans; `Retry` + `Search by Text` buttons that re-enter the appropriate scan input route.
+- **Auth bootstrap fix** — fresh-install detection clears stale Keychain tokens (iOS Keychain survives app delete); `ZomPartAuthTokenProvider` fires `onAuthInvalidated` on refresh failure so `AuthStateManager` routes back to login instead of leaving the UI stuck on MainTabView.
 
 ### ⏳ Open (iOS UI session candidates)
 
@@ -109,10 +111,11 @@ Roughly in expected-value order. None are blocked by backend.
 1. **OffersListView** — show `part.displayImageUrl` at the top so the user keeps seeing the visual confirmation through the funnel. `OfferPartSummaryDomain` already carries it.
 2. **OffersListView part header** — surface `manufacturer`, `brand`, `categoryTecdoc` (chip/breadcrumb) instead of plain `name + partNumber`. Improves perceived precision.
 3. **Compatibility warning on OffersListView** — same `vehicleCompatible == false` banner. Currently only shown on ScanResultView; user might navigate straight past it.
-4. **Disambiguation flow enrichment** — `DisambiguationView` operates on `ScanAlternativeDomain`, which the backend has _not_ enriched yet. If you want canonical fields per alternative, the backend AMBIGUOUS branch needs to call `resolvePart` per candidate. Filed in the backend docs as future debt.
-5. **Detail/info sheet** — `oemNumber`, `mpn`, `ean`, `crossReferences` are good content for a "More details" sheet or expanded card.
-6. **History list + detail** — `HistoryPartSummaryDomain` already carries everything; the cells/screens currently only show `name + partNumber + thumbnailUrl`. Image + brand makes the list much more scannable.
-7. **`confidenceScore < 0.85` UI** — consider a soft hint ("low confidence — try a closer photo"). Threshold is a product decision.
+4. **Detail/info sheet** — `oemNumber`, `mpn`, `ean`, `crossReferences` are good content for a "More details" sheet or expanded card.
+5. **History list + detail** — `HistoryPartSummaryDomain` already carries everything; the cells/screens currently only show `name + partNumber + thumbnailUrl`. Image + brand makes the list much more scannable.
+6. **`confidenceScore < 0.85` UI** — consider a soft hint ("low confidence — try a closer photo"). Threshold is a product decision.
+
+> Backend now enriches the AMBIGUOUS path too: when the user picks an alternative via `scan-feedback` (action `SELECT_PART`), the chosen candidate is promoted to CONFIDENT with full canonical fields. iOS already deserializes everything, no additional work needed for this path.
 
 ### i18n strings to add
 
@@ -161,28 +164,24 @@ To force the `vehicleCompatible == false` banner with the mock provider, you'd n
 
 ---
 
-## 5. Backend Provider Internals (for context, not action)
+## 5. Backend Provider Internals
 
-The new fields come from these endpoints inside `parts/rapidapi-autodoc.ts`:
+Backend-side implementation (Autodoc endpoints, AI bridges, vehicle resolver tiers, composite confidence formula, telemetry columns) lives in the Obsidian vault — they are the authoritative source for backend behavior:
 
-| Endpoint | Strategy | Populates |
-|---|---|---|
-| `POST /api/artlookup/search-for-cross-references-through-oem-numbers` | A (brand known) | `oemNumber, manufacturer, crossReferences, brand, imageUrl` |
-| `GET /api/artlookup/search-articles-by-article-no?articleType=OENumber` | A1 (no brand) | Same set, derived from search hit + Article Details |
-| `GET /api/vin/tecdoc-vin-check/{vin}` → category search → article list | B (no part number) | Reaches Article Details same way, then fills all fields |
-| `GET /api/articles/details/article-id/{id}/lang-id/4` | All strategies | `ean`, `vehicleCompatible` (derived from `articleOemNo[].oemBrand` vs user's vehicle make), `categoryTecdoc` |
+- `10_katman_1_parca_esleme_oem_implementation_plan.md` — Layer 1 implementation plan
+- `12_katman_1_api_reference_ve_ios_contract.md` — endpoint catalog + iOS contract
+- `13_scan_flows_source_of_truth.md` — end-to-end scan flows, state machine, every endpoint's request/response shape
 
-Each strategy ends with one Article Details enrichment call. Per-scan cost is 2 calls for A/A1, 4 for B (rare).
+If something here disagrees with the Obsidian docs or the Supabase source, **trust the Supabase source first, then the Obsidian docs, then this file**.
 
 ---
 
 ## 6. Known Limitations & Gotchas
 
-- **AMBIGUOUS path doesn't run `resolvePart` yet.** When the AI returns multiple candidates and the user picks one via `scan-feedback`, canonical fields can be `nil`. Currently filed as future debt in the backend plan (`10_katman_1_...`). Implication for iOS: any view that consumes a `selectedPart` after AMBIGUOUS+SELECT_PART should gracefully handle empty `imageUrl` / `vehicleCompatible == nil`.
-- **`vehicle_compatible` can be `nil`** even on a CONFIDENT scan if Article Details returned no `articleOemNo[]`. Treat `nil` as "no information" — never as `true` or `false`.
+- **`vehicle_compatible` can be `nil`** when the part candidate's TecDoc data has no compatibility info (or for parts resolved without a `tecdoc_ktype`). Treat `nil` as "no information" — never as `true` or `false`.
 - **`cross_references`** is jsonb on the server, decoded as `[String]?` on iOS. Could be a long array (hundreds of entries for popular parts). When you build a UI for it, paginate or truncate.
-- **Confidence semantics:** `confidenceScore` is the AI's confidence (0..1). The parts provider's own confidence is currently fixed at 0.85 (A1), 0.9 (A), 0.95 (mock) and not exposed. If the product needs a single combined number, decide the formula on iOS for now.
-- **Layer 2 (offers) still mock.** `OFFERS_PROVIDER=mock` is the only working option; the three vendor stubs return `[]`. Real offer integration (eBay + Awin Bildelaronline) is the next backend sprint, tracked in `11_katman_2_...md`.
+- **`confidenceScore`** is a composite score (0..1) combining the provider strategy bucket with confirming signals (cross-ref count, image presence, compat check, EAN/MPN). It is _not_ a calibrated probability — use it for UI cutoffs ("show alternatives below X"), not for absolute claims.
+- **Layer 2 (offers) still mock.** `OFFERS_PROVIDER=mock` is the only fully working option; the eBay + Awin Bildelaronline providers are stubs. Real offer integration is the next backend sprint, tracked in `11_katman_2_...md`.
 
 ---
 
@@ -193,14 +192,25 @@ zompart-ios/
 ├── Docs/
 │   └── LAYER1_CANONICAL_FIELDS.md          ← this file
 ├── ZomPart/ZomPart/
-│   ├── Core/Navigation/
-│   │   ├── AppRouter.swift                  ← ScanRoute.scanResult now carries part summary
-│   │   └── MainTabView.swift                ← 3 call sites updated
+│   ├── Core/
+│   │   ├── Auth/
+│   │   │   └── AuthStateManager.swift       ← fresh-install detection + handleAuthInvalidated
+│   │   ├── Navigation/
+│   │   │   ├── AppRouter.swift              ← ScanRoute.scanResult carries part summary; .scanFailed added
+│   │   │   └── MainTabView.swift            ← scanResult/scanFailed routing + handleProcessResult
+│   │   └── Networking/
+│   │       └── ZomPartAuthTokenProvider.swift  ← onAuthInvalidated callback (fired on refresh failure)
 │   └── Features/
 │       ├── Scan/
 │       │   ├── Data/DTOs/ScanDTOs.swift     ← ScanPartSummaryDTO +10 fields
-│       │   ├── Domain/Models/ScanProcessResultDomain.swift  ← Domain +10 fields + Hashable + displayImageUrl
-│       │   └── Presentation/Screens/ScanResult/ScanResultView.swift  ← AsyncImage + compat warning
+│       │   ├── Domain/Models/
+│       │   │   ├── ScanDomain.swift                       ← ScanInputMode enum (.photo / .text)
+│       │   │   └── ScanProcessResultDomain.swift          ← Domain +10 fields + Hashable + displayImageUrl
+│       │   └── Presentation/Screens/
+│       │       ├── ScanInput/ScanInputView.swift          ← mode-conditional UI
+│       │       ├── ScanInput/ScanInputViewModel.swift     ← mode locks input_type
+│       │       ├── ScanResult/ScanResultView.swift        ← AsyncImage + compat warning + brand badge
+│       │       └── ScanFailed/ScanFailedView.swift        ← Retry / Search by Text recovery
 │       ├── Offer/
 │       │   ├── Data/DTOs/OfferDTOs.swift    ← OfferPartSummaryDTO +10, OfferItemDTO +3
 │       │   └── Domain/Models/OfferDomain.swift  ← OfferDomain +3, OfferPartSummaryDomain +10
