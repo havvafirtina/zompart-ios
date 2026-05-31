@@ -45,6 +45,11 @@ struct RootView: View {
             }
         }
         .animation(.default, value: authStateManager.phase)
+        .onChange(of: authStateManager.phase) { _, newValue in
+            if newValue != .authenticated {
+                router.resetAll()
+            }
+        }
     }
 
     @ViewBuilder
@@ -62,7 +67,11 @@ struct RootView: View {
                         pendingVerifyEmail = nil
                         authStateManager.didAuthenticate(email: email, name: pendingUserName ?? "")
                     }
-                )
+                ),
+                onChangeEmail: {
+                    pendingVerifyEmail = nil
+                    pendingUserName = nil
+                }
             )
         } else {
             EmailOTPAuthView(

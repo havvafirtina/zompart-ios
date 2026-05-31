@@ -12,67 +12,67 @@ import SBNetworking
 /// Uses `actor` isolation to satisfy `Sendable`.
 actor OfferRepository: OfferRepositoryProtocol {
 
-        private let client: HTTPClient
+    private let client: HTTPClient
 
-        init(client: HTTPClient) {
-                self.client = client
+    init(client: HTTPClient) {
+        self.client = client
+    }
+
+    // MARK: - List offers
+
+    func listOffers(scanId: String, sort: OfferSortDomain) async throws -> OfferListDomain {
+        do {
+            let request = ScanOffersRequest(scanId: scanId, sort: sort)
+            let envelope = try await client.submitRequest(request: request)
+            guard let envelope, envelope.success, envelope.data != nil else { throw OfferError.emptyResponse }
+            return envelope.toModel()
+        } catch let e as OfferError { throw e
+        } catch let e as HTTPClientError { throw Self.mapListError(e)
+        } catch { throw OfferError.unknown }
+    }
+
+    // MARK: - Record click
+
+    func recordClick(offerId: String, scanId: String) async throws -> OfferClickResultDomain {
+        do {
+            let request = OffersClickRequest(offerId: offerId, scanId: scanId)
+            let envelope = try await client.submitRequest(request: request)
+            guard let envelope, envelope.success, envelope.data != nil else { throw OfferError.emptyResponse }
+            return envelope.toModel()
+        } catch let e as OfferError { throw e
+        } catch let e as HTTPClientError { throw Self.mapClickError(e)
+        } catch { throw OfferError.unknown }
+    }
+
+    // MARK: - Error mapping
+
+    private static func mapListError(_ e: HTTPClientError) -> OfferError {
+        switch e {
+        case .notFound: return .scanNotFound
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidUUID: return .invalidUUID
+            default: return .invalidUUID
+            }
+        case .unauthorized: return .tokenExpired
+        case .notConnectedToInternet, .networkConnectionLost: return .network
+        default: return .unknown
         }
+    }
 
-        // MARK: - List offers
-
-        func listOffers(scanId: String, sort: OfferSortDomain) async throws -> OfferListDomain {
-                do {
-                        let request = ScanOffersRequest(scanId: scanId, sort: sort)
-                        let envelope = try await client.submitRequest(request: request)
-                        guard let envelope, envelope.success, envelope.data != nil else { throw OfferError.emptyResponse }
-                        return envelope.toModel()
-                } catch let e as OfferError { throw e
-                } catch let e as HTTPClientError { throw Self.mapListError(e)
-                } catch { throw OfferError.unknown }
+    private static func mapClickError(_ e: HTTPClientError) -> OfferError {
+        switch e {
+        case .notFound: return .offerNotFound
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidUUID: return .invalidUUID
+            default: return .invalidUUID
+            }
+        case .unauthorized: return .tokenExpired
+        case .notConnectedToInternet, .networkConnectionLost: return .network
+        default: return .unknown
         }
-
-        // MARK: - Record click
-
-        func recordClick(offerId: String, scanId: String) async throws -> OfferClickResultDomain {
-                do {
-                        let request = OffersClickRequest(offerId: offerId, scanId: scanId)
-                        let envelope = try await client.submitRequest(request: request)
-                        guard let envelope, envelope.success, envelope.data != nil else { throw OfferError.emptyResponse }
-                        return envelope.toModel()
-                } catch let e as OfferError { throw e
-                } catch let e as HTTPClientError { throw Self.mapClickError(e)
-                } catch { throw OfferError.unknown }
-        }
-
-        // MARK: - Error mapping
-
-        private static func mapListError(_ e: HTTPClientError) -> OfferError {
-                switch e {
-                case .notFound: return .scanNotFound
-                case .clientError(statusCode: 429, _): return .rateLimitExceeded
-                case .clientError(_, let data):
-                        switch APIErrorParser.code(from: data) {
-                        case .invalidUUID: return .invalidUUID
-                        default: return .invalidUUID
-                        }
-                case .unauthorized: return .tokenExpired
-                case .notConnectedToInternet, .networkConnectionLost: return .network
-                default: return .unknown
-                }
-        }
-
-        private static func mapClickError(_ e: HTTPClientError) -> OfferError {
-                switch e {
-                case .notFound: return .offerNotFound
-                case .clientError(statusCode: 429, _): return .rateLimitExceeded
-                case .clientError(_, let data):
-                        switch APIErrorParser.code(from: data) {
-                        case .invalidUUID: return .invalidUUID
-                        default: return .invalidUUID
-                        }
-                case .unauthorized: return .tokenExpired
-                case .notConnectedToInternet, .networkConnectionLost: return .network
-                default: return .unknown
-                }
-        }
+    }
 }

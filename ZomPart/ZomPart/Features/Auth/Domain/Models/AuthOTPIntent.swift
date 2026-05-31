@@ -9,6 +9,6 @@ import Foundation
 
 /// The purpose of the OTP request. Values match the Supabase edge function contract.
 enum AuthOTPIntent: String, Encodable, Sendable {
-        case signup
-        case login
+    case signup
+    case login
 }

@@ -10,42 +10,42 @@ import SBNetworking
 
 struct DefaultEnvironment: HttpClientProtocol {
 
-        private struct Keys {
-                struct Supabase {
-                        static let scheme = "SUPABASE_API_SCHEME"
-                        static let url = "SUPABASE_URL"
-                }
-
-                static let appEnvironment = "APP_ENV"
+    private struct Keys {
+        struct Supabase {
+            static let scheme = "SUPABASE_API_SCHEME"
+            static let url = "SUPABASE_URL"
         }
 
-        private static let scheme: String = {
-                PlistReader.value(for: Keys.Supabase.scheme)
-        }()
+        static let appEnvironment = "APP_ENV"
+    }
 
-        private static let baseURL: String = {
-                PlistReader.value(for: Keys.Supabase.url)
-        }()
+    private static let scheme: String = {
+        PlistReader.value(for: Keys.Supabase.scheme)
+    }()
 
-        let environment: HTTPClientEnvironment
-        let authTokenProvider: AuthTokenProvider?
+    private static let baseURL: String = {
+        PlistReader.value(for: Keys.Supabase.url)
+    }()
 
-        init(authTokenProvider: AuthTokenProvider) {
-                self.environment = HTTPClientEnvironment(
-                        scheme: Self.scheme,
-                        baseURL: Self.baseURL
-                )
-                self.authTokenProvider = authTokenProvider
-        }
+    let environment: HTTPClientEnvironment
+    let authTokenProvider: AuthTokenProvider?
 
-        #if DEBUG
-        static func debugDescription() -> String {
-                let appEnv: String = PlistReader.value(for: Keys.appEnvironment)
-                return """
-                \(Keys.appEnvironment): \(appEnv)
-                \(Keys.Supabase.scheme): \(scheme)
-                \(Keys.Supabase.url): \(baseURL)
-                """
-        }
-        #endif
+    init(authTokenProvider: AuthTokenProvider) {
+        self.environment = HTTPClientEnvironment(
+            scheme: Self.scheme,
+            baseURL: Self.baseURL
+        )
+        self.authTokenProvider = authTokenProvider
+    }
+
+    #if DEBUG
+    static func debugDescription() -> String {
+        let appEnv: String = PlistReader.value(for: Keys.appEnvironment)
+        return """
+        \(Keys.appEnvironment): \(appEnv)
+        \(Keys.Supabase.scheme): \(scheme)
+        \(Keys.Supabase.url): \(baseURL)
+        """
+    }
+    #endif
 }

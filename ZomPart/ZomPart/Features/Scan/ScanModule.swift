@@ -1,6 +1,36 @@
 import Foundation
 import SBNetworking
 
+extension ScanError {
+
+    var localizedMessage: String {
+        switch self {
+        case .network:
+            return Localized.Error.network.localized
+        case .tokenExpired:
+            return Localized.Error.tokenExpired.localized
+        case .rateLimitExceeded:
+            return Localized.Error.rateLimitExceeded.localized
+        case .scanNotFound:
+            return Localized.Error.scanNotFound.localized
+        case .vehicleNotFound:
+            return Localized.Error.vehicleNotFound.localized
+        case .invalidState:
+            return Localized.Error.invalidState.localized
+        case .conflict:
+            return Localized.Error.conflict.localized
+        case .noPhotosUploaded:
+            return Localized.Error.noPhotosUploaded.localized
+        case .photoLimitReached:
+            return Localized.Error.photoLimitReached.localized
+        case .aiTemporarilyUnavailable:
+            return Localized.Error.aiTemporarilyUnavailable.localized
+        default:
+            return Localized.Error.unknown.localized
+        }
+    }
+}
+
 enum ScanModule {
 
     static func makeScanRepository(httpClient: HTTPClient) -> ScanRepositoryProtocol {
@@ -8,9 +38,12 @@ enum ScanModule {
     }
 
     @MainActor
-    static func makeScanHomeViewModel(env: AppEnvironment) -> ScanHomeViewModel {
+    static func makeScanHomeViewModel(
+        env: AppEnvironment,
+        vehicleRepository: VehicleRepositoryProtocol
+    ) -> ScanHomeViewModel {
         ScanHomeViewModel(
-            vehicleRepository: VehicleModule.makeVehicleRepository(httpClient: env.httpClient)
+            vehicleRepository: vehicleRepository
         )
     }
 
@@ -48,11 +81,13 @@ enum ScanModule {
         env: AppEnvironment,
         scanId: String,
         alternatives: [ScanAlternativeDomain],
+        questions: [ScanQuestionDomain] = [],
         onResolved: @escaping (ScanFeedbackResultDomain) -> Void
     ) -> DisambiguationViewModel {
         DisambiguationViewModel(
             scanId: scanId,
             alternatives: alternatives,
+            questions: questions,
             scanRepository: makeScanRepository(httpClient: env.httpClient),
             onResolved: onResolved
         )

@@ -10,18 +10,18 @@ import Foundation
 /// Feature-specific error type for the Vehicle module.
 /// `HTTPClientError` is never exposed beyond the repository layer.
 enum VehicleError: Error, Equatable {
-        case invalidVIN
-        case invalidPlate
-        case invalidPersonNumber
-        case invalidOrganizationNumber
-        case invalidCountryCode
-        case invalidStep
-        case invalidSession
-        case vehicleNotFound
-        case tokenExpired
-        case rateLimitExceeded
-        case providerUnavailable
-        case network
-        case emptyResponse
-        case unknown
+    case invalidVIN
+    case invalidPlate
+    case invalidPersonNumber
+    case invalidOrganizationNumber
+    case invalidCountryCode
+    case invalidStep
+    case invalidSession
+    case vehicleNotFound
+    case tokenExpired
+    case rateLimitExceeded
+    case providerUnavailable
+    case network
+    case emptyResponse
+    case unknown
 }

@@ -10,11 +10,11 @@ import SBNetworking
 
 /// DTO for the `data` field inside the auth-otp success envelope: `{ "id": "ok" }`.
 struct AuthOTPDataDTO: ResponseProtocol {
-        typealias ModelType = AuthOTPResultDomain
+    typealias ModelType = AuthOTPResultDomain
 
-        let id: String
+    let id: String
 
-        func toModel() -> AuthOTPResultDomain {
-                AuthOTPResultDomain(id: id)
-        }
+    func toModel() -> AuthOTPResultDomain {
+        AuthOTPResultDomain(id: id)
+    }
 }

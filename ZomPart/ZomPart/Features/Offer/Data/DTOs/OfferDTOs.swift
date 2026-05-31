@@ -79,10 +79,10 @@ struct AffiliateMetadataDTO: Decodable, Sendable, Equatable {
     let awinFeedSyncedAt: String?
 
     private enum CodingKeys: String, CodingKey {
-        case ebayItemId        = "ebay_item_id"
-        case ebayMarketplace   = "ebay_marketplace"
-        case awinMerchantId    = "awin_merchant_id"
-        case awinFeedSyncedAt  = "awin_feed_synced_at"
+        case ebayItemId       = "ebay_item_id"
+        case ebayMarketplace  = "ebay_marketplace"
+        case awinMerchantId   = "awin_merchant_id"
+        case awinFeedSyncedAt = "awin_feed_synced_at"
     }
 
     func toModel() -> AffiliateMetadataDomain {

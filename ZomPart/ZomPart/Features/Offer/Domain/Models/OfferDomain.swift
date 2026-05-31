@@ -35,7 +35,7 @@ struct OfferDomain: Equatable, Sendable {
     let expiresAt: Date?
     /// Opaque provider telemetry — pass-through for analytics, not currently rendered.
     let affiliateMetadata: AffiliateMetadataDomain?
-    
+
     /// Maps `sourceProvider` to the localizable label key shown in the
     /// "via {provider}" badge. Returns nil for unknown or DEBUG-only
     /// providers in release builds.
@@ -44,11 +44,11 @@ struct OfferDomain: Equatable, Sendable {
         case "ebay-browse":         return .providerEbayDE
         case "awin-bildelaronline": return .providerBildelaronline
         case "mock":
-#if DEBUG
+            #if DEBUG
             return .providerMock
-#else
+            #else
             return nil
-#endif
+            #endif
         default:
             return nil
         }
@@ -92,7 +92,7 @@ struct OfferPartSummaryDomain: Equatable, Sendable {
     let vehicleCompatible: Bool?
     let imageUrl: String?
     let confidenceScore: Double?
-    
+
     var localizedName: String {
         let lang = Locale.current.language.languageCode?.identifier
         switch lang {
@@ -101,7 +101,7 @@ struct OfferPartSummaryDomain: Equatable, Sendable {
         default: return name
         }
     }
-    
+
     var displayImageUrl: String? {
         imageUrl ?? thumbnailUrl
     }

@@ -47,7 +47,11 @@ struct KeychainTokenStore: TokenPersistence {
         addQuery[kSecValueData as String] = data
         addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
 
-        SecItemAdd(addQuery as CFDictionary, nil)
+        let status = SecItemAdd(addQuery as CFDictionary, nil)
+        if status != errSecSuccess {
+            SecItemDelete(query as CFDictionary)
+            SecItemAdd(addQuery as CFDictionary, nil)
+        }
     }
 
     private func get(for key: String) -> String? {

@@ -11,10 +11,10 @@ import Foundation
 /// Implemented by `OfferRepository` in the Data layer.
 protocol OfferRepositoryProtocol: Sendable {
 
-        /// Returns offers for the given scan, sorted by the specified strategy.
-        /// Returns an empty list (not an error) when no offers exist yet.
-        func listOffers(scanId: String, sort: OfferSortDomain) async throws -> OfferListDomain
+    /// Returns offers for the given scan, sorted by the specified strategy.
+    /// Returns an empty list (not an error) when no offers exist yet.
+    func listOffers(scanId: String, sort: OfferSortDomain) async throws -> OfferListDomain
 
-        /// Records an offer click and returns the UTM-tracked redirect URL.
-        func recordClick(offerId: String, scanId: String) async throws -> OfferClickResultDomain
+    /// Records an offer click and returns the UTM-tracked redirect URL.
+    func recordClick(offerId: String, scanId: String) async throws -> OfferClickResultDomain
 }

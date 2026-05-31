@@ -12,173 +12,173 @@ import SBNetworking
 /// Uses `actor` isolation to satisfy `Sendable`.
 actor AuthRepository: AuthRepositoryProtocol {
 
-        private let client: HTTPClient
+    private let client: HTTPClient
 
-        init(client: HTTPClient) {
-                self.client = client
+    init(client: HTTPClient) {
+        self.client = client
+    }
+
+    // MARK: - OTP
+
+    func sendOTP(
+        email: String,
+        intent: AuthOTPIntent,
+        firstName: String?,
+        lastName: String?
+    ) async throws -> AuthOTPResultDomain {
+        do {
+            let request = AuthOTPRequest(email: email, intent: intent, firstName: firstName, lastName: lastName)
+            let envelope = try await client.submitRequest(request: request)
+            guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
+            return envelope.toModel()
+        } catch let error as AuthError {
+            throw error
+        } catch let httpError as HTTPClientError {
+            throw Self.mapOTPError(httpError)
+        } catch {
+            throw AuthError.unknown
         }
+    }
 
-        // MARK: - OTP
+    // MARK: - Verify
 
-        func sendOTP(
-                email: String,
-                intent: AuthOTPIntent,
-                firstName: String?,
-                lastName: String?
-        ) async throws -> AuthOTPResultDomain {
-                do {
-                        let request = AuthOTPRequest(email: email, intent: intent, firstName: firstName, lastName: lastName)
-                        let envelope = try await client.submitRequest(request: request)
-                        guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
-                        return envelope.toModel()
-                } catch let error as AuthError {
-                        throw error
-                } catch let httpError as HTTPClientError {
-                        throw Self.mapOTPError(httpError)
-                } catch {
-                        throw AuthError.unknown
-                }
+    func verifyOTP(email: String, token: String) async throws -> AuthSessionDomain {
+        do {
+            let request = AuthVerifyRequest(email: email, token: token)
+            let envelope = try await client.submitRequest(request: request)
+            guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
+            return envelope.toModel()
+        } catch let error as AuthError {
+            throw error
+        } catch let httpError as HTTPClientError {
+            throw Self.mapVerifyError(httpError)
+        } catch {
+            throw AuthError.unknown
         }
+    }
 
-        // MARK: - Verify
+    // MARK: - Refresh
 
-        func verifyOTP(email: String, token: String) async throws -> AuthSessionDomain {
-                do {
-                        let request = AuthVerifyRequest(email: email, token: token)
-                        let envelope = try await client.submitRequest(request: request)
-                        guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
-                        return envelope.toModel()
-                } catch let error as AuthError {
-                        throw error
-                } catch let httpError as HTTPClientError {
-                        throw Self.mapVerifyError(httpError)
-                } catch {
-                        throw AuthError.unknown
-                }
+    func refreshToken(_ refreshToken: String) async throws -> AuthSessionDomain {
+        do {
+            let request = AuthRefreshRequest(refreshToken: refreshToken)
+            let envelope = try await client.submitRequest(request: request)
+            guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
+            return envelope.toModel()
+        } catch let error as AuthError {
+            throw error
+        } catch let httpError as HTTPClientError {
+            throw Self.mapRefreshError(httpError)
+        } catch {
+            throw AuthError.unknown
         }
+    }
 
-        // MARK: - Refresh
+    // MARK: - Logout
 
-        func refreshToken(_ refreshToken: String) async throws -> AuthSessionDomain {
-                do {
-                        let request = AuthRefreshRequest(refreshToken: refreshToken)
-                        let envelope = try await client.submitRequest(request: request)
-                        guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
-                        return envelope.toModel()
-                } catch let error as AuthError {
-                        throw error
-                } catch let httpError as HTTPClientError {
-                        throw Self.mapRefreshError(httpError)
-                } catch {
-                        throw AuthError.unknown
-                }
+    func logout(scope: AuthLogoutScope) async throws {
+        do {
+            let request = AuthLogoutRequest(scope: scope)
+            _ = try await client.submitRequest(request: request)
+        } catch let error as AuthError {
+            throw error
+        } catch let httpError as HTTPClientError {
+            throw Self.mapTokenError(httpError)
+        } catch {
+            throw AuthError.unknown
         }
+    }
 
-        // MARK: - Logout
+    // MARK: - Account Deletion
 
-        func logout(scope: AuthLogoutScope) async throws {
-                do {
-                        let request = AuthLogoutRequest(scope: scope)
-                        _ = try await client.submitRequest(request: request)
-                } catch let error as AuthError {
-                        throw error
-                } catch let httpError as HTTPClientError {
-                        throw Self.mapTokenError(httpError)
-                } catch {
-                        throw AuthError.unknown
-                }
+    func requestAccountDeletion() async throws -> AuthDeleteRequestDomain {
+        do {
+            let request = AuthDeleteRequestRequest()
+            let envelope = try await client.submitRequest(request: request)
+            guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
+            return envelope.toModel()
+        } catch let error as AuthError {
+            throw error
+        } catch let httpError as HTTPClientError {
+            throw Self.mapTokenError(httpError)
+        } catch {
+            throw AuthError.unknown
         }
+    }
 
-        // MARK: - Account Deletion
-
-        func requestAccountDeletion() async throws -> AuthDeleteRequestDomain {
-                do {
-                        let request = AuthDeleteRequestRequest()
-                        let envelope = try await client.submitRequest(request: request)
-                        guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
-                        return envelope.toModel()
-                } catch let error as AuthError {
-                        throw error
-                } catch let httpError as HTTPClientError {
-                        throw Self.mapTokenError(httpError)
-                } catch {
-                        throw AuthError.unknown
-                }
+    func confirmAccountDeletion(email: String, token: String) async throws {
+        do {
+            let request = AuthDeleteConfirmRequest(email: email, token: token)
+            _ = try await client.submitRequest(request: request)
+        } catch let error as AuthError {
+            throw error
+        } catch let httpError as HTTPClientError {
+            throw Self.mapDeleteConfirmError(httpError)
+        } catch {
+            throw AuthError.unknown
         }
+    }
 
-        func confirmAccountDeletion(email: String, token: String) async throws {
-                do {
-                        let request = AuthDeleteConfirmRequest(email: email, token: token)
-                        _ = try await client.submitRequest(request: request)
-                } catch let error as AuthError {
-                        throw error
-                } catch let httpError as HTTPClientError {
-                        throw Self.mapDeleteConfirmError(httpError)
-                } catch {
-                        throw AuthError.unknown
-                }
+    // MARK: - Error Mapping
+
+    private static func mapOTPError(_ error: HTTPClientError) -> AuthError {
+        switch error {
+        case .clientError(statusCode: 409, _): return .emailAlreadyRegistered
+        case .notFound: return .emailNotRegistered
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .invalidIntent, .missingFields, .signupMetadataRequired: return .validationFailed
+            default: return .validationFailed
+            }
+        case .unauthorized: return .tokenExpired
+        case .notConnectedToInternet, .networkConnectionLost: return .network
+        default: return .unknown
         }
+    }
 
-        // MARK: - Error Mapping
-
-        private static func mapOTPError(_ error: HTTPClientError) -> AuthError {
-                switch error {
-                case .clientError(statusCode: 409, _): return .emailAlreadyRegistered
-                case .notFound: return .emailNotRegistered
-                case .clientError(statusCode: 429, _): return .rateLimitExceeded
-                case .clientError(_, let data):
-                        switch APIErrorParser.code(from: data) {
-                        case .invalidIntent, .missingFields, .signupMetadataRequired: return .validationFailed
-                        default: return .validationFailed
-                        }
-                case .unauthorized: return .tokenExpired
-                case .notConnectedToInternet, .networkConnectionLost: return .network
-                default: return .unknown
-                }
+    private static func mapVerifyError(_ error: HTTPClientError) -> AuthError {
+        switch error {
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError: return .otpInvalid
+        case .unauthorized: return .tokenExpired
+        case .notConnectedToInternet, .networkConnectionLost: return .network
+        default: return .unknown
         }
+    }
 
-        private static func mapVerifyError(_ error: HTTPClientError) -> AuthError {
-                switch error {
-                case .clientError(statusCode: 429, _): return .rateLimitExceeded
-                case .clientError: return .otpInvalid
-                case .unauthorized: return .tokenExpired
-                case .notConnectedToInternet, .networkConnectionLost: return .network
-                default: return .unknown
-                }
+    private static func mapRefreshError(_ error: HTTPClientError) -> AuthError {
+        switch error {
+        case .unauthorized: return .tokenExpired
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .notConnectedToInternet, .networkConnectionLost: return .network
+        default: return .unknown
         }
+    }
 
-        private static func mapRefreshError(_ error: HTTPClientError) -> AuthError {
-                switch error {
-                case .unauthorized: return .tokenExpired
-                case .clientError(statusCode: 429, _): return .rateLimitExceeded
-                case .notConnectedToInternet, .networkConnectionLost: return .network
-                default: return .unknown
-                }
+    private static func mapTokenError(_ error: HTTPClientError) -> AuthError {
+        switch error {
+        case .unauthorized: return .tokenExpired
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .notConnectedToInternet, .networkConnectionLost: return .network
+        default: return .unknown
         }
+    }
 
-        private static func mapTokenError(_ error: HTTPClientError) -> AuthError {
-                switch error {
-                case .unauthorized: return .tokenExpired
-                case .clientError(statusCode: 429, _): return .rateLimitExceeded
-                case .notConnectedToInternet, .networkConnectionLost: return .network
-                default: return .unknown
-                }
+    private static func mapDeleteConfirmError(_ error: HTTPClientError) -> AuthError {
+        switch error {
+        case .clientError(statusCode: 410, _): return .deletionRequestExpired
+        case .serverError(statusCode: 500, _): return .deletionFailed
+        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(_, let data):
+            switch APIErrorParser.code(from: data) {
+            case .requestExpired: return .deletionRequestExpired
+            case .noPendingRequest: return .noPendingDeletionRequest
+            default: return .noPendingDeletionRequest
+            }
+        case .unauthorized: return .tokenExpired
+        case .notConnectedToInternet, .networkConnectionLost: return .network
+        default: return .unknown
         }
-
-        private static func mapDeleteConfirmError(_ error: HTTPClientError) -> AuthError {
-                switch error {
-                case .clientError(statusCode: 410, _): return .deletionRequestExpired
-                case .serverError(statusCode: 500, _): return .deletionFailed
-                case .clientError(statusCode: 429, _): return .rateLimitExceeded
-                case .clientError(_, let data):
-                        switch APIErrorParser.code(from: data) {
-                        case .requestExpired: return .deletionRequestExpired
-                        case .noPendingRequest: return .noPendingDeletionRequest
-                        default: return .noPendingDeletionRequest
-                        }
-                case .unauthorized: return .tokenExpired
-                case .notConnectedToInternet, .networkConnectionLost: return .network
-                default: return .unknown
-                }
-        }
+    }
 }

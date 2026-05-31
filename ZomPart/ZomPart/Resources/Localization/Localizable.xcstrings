@@ -309,6 +309,29 @@
         }
       }
     },
+    "auth.otp.changeEmail" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change email address"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ändra e-postadress"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-posta adresini değiştir"
+          }
+        }
+      }
+    },
     "auth.otp.placeholder" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -673,6 +696,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Atla"
+          }
+        }
+      }
+    },
+    "error.aiTemporarilyUnavailable" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI is busy right now. Please try again in a few seconds."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI är upptagen just nu. Försök igen om några sekunder."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI şu anda meşgul. Lütfen birkaç saniye sonra tekrar deneyin."
           }
         }
       }
@@ -1317,6 +1363,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "örn. WBA3A5C55CF256789"
+          }
+        }
+      }
+    },
+    "garage.vinLabel" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VIN"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VIN"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VIN"
           }
         }
       }
@@ -2540,6 +2609,29 @@
         }
       }
     },
+    "scan.compatibilityWarning" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This part may not fit your vehicle. Double-check the OEM number before purchasing."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Denna del kanske inte passar ditt fordon. Dubbelkolla OEM-numret innan du köper."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu parça aracınıza uymayabilir. Satın almadan önce OEM numarasını kontrol edin."
+          }
+        }
+      }
+    },
     "scan.description.placeholder" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2651,6 +2743,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tanımlanamadı"
+          }
+        }
+      }
+    },
+    "scan.goHome" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back to Home"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tillbaka till Start"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ana Sayfaya Dön"
           }
         }
       }
@@ -3229,9 +3344,6 @@
           }
         }
       }
-    },
-    "This part may not fit your vehicle. Double-check the OEM number before purchasing." : {
-
     }
   },
   "version" : "1.0"

@@ -4,6 +4,7 @@ import SBDesignSystem
 struct OTPVerifyView: View {
 
     @Bindable var viewModel: OTPVerifyViewModel
+    var onChangeEmail: (() -> Void)?
 
     var body: some View {
         ScrollView {
@@ -11,6 +12,7 @@ struct OTPVerifyView: View {
                 header
                 codeField
                 verifyButton
+                changeEmailButton
                 errorMessage
             }
             .sbPadding(.large)
@@ -70,6 +72,19 @@ struct OTPVerifyView: View {
         }
         .disabled(viewModel.otpCode.isEmpty)
         .sbVerticalPadding(.large)
+    }
+
+    @ViewBuilder
+    private var changeEmailButton: some View {
+        if let onChangeEmail {
+            Button {
+                onChangeEmail()
+            } label: {
+                Text(Localized.Auth.otpChangeEmail.localizedKey)
+                    .font(.sbBodyRegularDefault)
+                    .foregroundStyle(Color.sbAccentPrimary)
+            }
+        }
     }
 
     @ViewBuilder

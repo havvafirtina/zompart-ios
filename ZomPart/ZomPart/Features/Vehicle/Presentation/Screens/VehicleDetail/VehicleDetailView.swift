@@ -27,6 +27,11 @@ struct VehicleDetailView: View {
                 }
             }
         }
+        .task {
+            if historyViewModel.state == .idle {
+                await historyViewModel.loadInitial()
+            }
+        }
     }
 
     private var vehicleInfoCard: some View {
@@ -50,7 +55,7 @@ struct VehicleDetailView: View {
             }
 
             if let vin = vehicle.vin, !vin.isEmpty {
-                detailRow(label: "VIN", value: vin)
+                detailRow(label: Localized.Garage.vinLabel.localized, value: vin)
             }
 
             if let plate = vehicle.plate, !plate.isEmpty {

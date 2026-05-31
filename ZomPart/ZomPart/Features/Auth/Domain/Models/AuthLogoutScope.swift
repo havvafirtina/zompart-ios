@@ -9,7 +9,7 @@ import Foundation
 
 /// Scope of a logout operation. Values match the Supabase edge function contract.
 enum AuthLogoutScope: String, Encodable, Sendable {
-        case local
-        case global
-        case others
+    case local
+    case global
+    case others
 }

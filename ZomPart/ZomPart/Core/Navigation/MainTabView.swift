@@ -61,9 +61,13 @@ struct MainTabView: View {
     // MARK: - Scan Tab
 
     private var scanTab: some View {
-        let vm = scanHomeViewModel ?? {
-            let created = ScanModule.makeScanHomeViewModel(env: env)
-            Task { @MainActor in scanHomeViewModel = created }
+        let vm: ScanHomeViewModel = {
+            if let existing = scanHomeViewModel { return existing }
+            let created = ScanModule.makeScanHomeViewModel(
+                env: env,
+                vehicleRepository: VehicleModule.makeVehicleRepository(httpClient: env.httpClient)
+            )
+            scanHomeViewModel = created
             return created
         }()
 
@@ -114,15 +118,19 @@ struct MainTabView: View {
                     scanId: scanId
                 ) { result in
                     handleProcessResult(result)
+                },
+                onCancel: {
+                    router.resetScanFlow()
                 }
             )
 
-        case .disambiguation(let scanId, let alternatives, _):
+        case .disambiguation(let scanId, let alternatives, let questions):
             DisambiguationView(
                 viewModel: ScanModule.makeDisambiguationViewModel(
                     env: env,
                     scanId: scanId,
-                    alternatives: alternatives
+                    alternatives: alternatives,
+                    questions: questions
                 ) { feedback in
                     if feedback.nextAction == .showOffers {
                         router.scanPath.append(.offers(scanId: scanId))
@@ -135,6 +143,9 @@ struct MainTabView: View {
                 part: part,
                 onViewOffers: {
                     router.scanPath.append(.offers(scanId: scanId))
+                },
+                onGoHome: {
+                    router.resetScanFlow()
                 }
             )
 
@@ -142,8 +153,6 @@ struct MainTabView: View {
             ScanFailedView(
                 reason: reason,
                 onRetry: {
-                    // Pop scanFailed (and any trailing scanProcessing) so the user
-                    // lands back on their original ScanInputView (photo or text).
                     while let last = router.scanPath.last {
                         switch last {
                         case .scanInputPhoto, .scanInputText:
@@ -154,10 +163,6 @@ struct MainTabView: View {
                     }
                 },
                 onTextSearch: {
-                    // Switch to text mode regardless of how the user arrived.
-                    // Walk the path to find the active vehicleId (preserved by
-                    // whichever scanInput entry started this flow), then reset
-                    // the stack to a fresh text-mode ScanInputView.
                     let vehicleId = router.scanPath.lazy.compactMap { route -> String? in
                         switch route {
                         case .scanInputPhoto(let v), .scanInputText(let v): return v
@@ -169,6 +174,9 @@ struct MainTabView: View {
                     } else {
                         router.scanPath = []
                     }
+                },
+                onGoHome: {
+                    router.resetScanFlow()
                 }
             )
 
@@ -231,9 +239,10 @@ struct MainTabView: View {
     // MARK: - Garage Tab
 
     private var garageTab: some View {
-        let vm = garageViewModel ?? {
+        let vm: GarageListViewModel = {
+            if let existing = garageViewModel { return existing }
             let created = VehicleModule.makeGarageListViewModel(env: env)
-            Task { @MainActor in garageViewModel = created }
+            garageViewModel = created
             return created
         }()
 
@@ -262,6 +271,9 @@ struct MainTabView: View {
                         router.selectedTab = .scan
                     }
                 )
+            } else {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
@@ -270,7 +282,10 @@ struct MainTabView: View {
 
     private var profileTab: some View {
         ProfileMainView(
-            viewModel: ProfileModule.makeProfileMainViewModel(env: env, authStateManager: authStateManager),
+            viewModel: ProfileModule.makeProfileMainViewModel(
+                authRepository: AuthModule.makeAuthRepository(httpClient: env.httpClient),
+                authStateManager: authStateManager
+            ),
             themeManager: themeManager,
             onTheme: { router.profilePath.append(.theme) },
             onLanguage: { router.profilePath.append(.language) },
@@ -290,7 +305,10 @@ struct MainTabView: View {
             AboutView()
         case .deleteAccount:
             DeleteAccountView(
-                viewModel: ProfileModule.makeDeleteAccountViewModel(env: env, authStateManager: authStateManager)
+                viewModel: ProfileModule.makeDeleteAccountViewModel(
+                    authRepository: AuthModule.makeAuthRepository(httpClient: env.httpClient),
+                    authStateManager: authStateManager
+                )
             )
         }
     }

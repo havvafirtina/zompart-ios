@@ -6,6 +6,7 @@ struct ScanFailedView: View {
     let reason: String
     let onRetry: () -> Void
     let onTextSearch: () -> Void
+    let onGoHome: () -> Void
 
     var body: some View {
         VStack {
@@ -50,6 +51,16 @@ struct ScanFailedView: View {
                         .sbControlHeight(.regular)
                         .background(Color.sbAccentSubtle)
                         .sbCornerRadius(.default)
+                }
+
+                Button {
+                    onGoHome()
+                } label: {
+                    Text(Localized.Scan.goHome.localizedKey)
+                        .font(.sbBodySemiboldDefault)
+                        .foregroundStyle(Color.sbTextSecondary)
+                        .frame(maxWidth: .infinity)
+                        .sbControlHeight(.regular)
                 }
             }
         }

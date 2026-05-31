@@ -5,6 +5,7 @@ struct ScanResultView: View {
 
     let part: ScanPartSummaryDomain
     let onViewOffers: () -> Void
+    let onGoHome: () -> Void
 
     var body: some View {
         VStack {
@@ -65,14 +66,11 @@ struct ScanResultView: View {
             .sbCornerRadius(.default)
             .sbShadow(.soft)
 
-            // Safety-critical warning: AI compatibility check explicitly failed.
-            // Shown only when vehicleCompatible == false (nil means "not checked").
-            // TODO i18n: extract to Localizable.xcstrings (key suggestion: scan.compatibilityWarning)
             if part.vehicleCompatible == false {
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(Color.sbStatusWarning)
-                    Text("This part may not fit your vehicle. Double-check the OEM number before purchasing.")
+                    Text(Localized.Scan.compatibilityWarning.localizedKey)
                         .font(.sbBodyRegularSmall)
                         .foregroundStyle(Color.sbTextPrimary)
                 }
@@ -85,16 +83,28 @@ struct ScanResultView: View {
 
             Spacer()
 
-            Button {
-                onViewOffers()
-            } label: {
-                Text(Localized.Scan.viewOffers.localizedKey)
-                    .font(.sbBodySemiboldDefault)
-                    .foregroundStyle(Color.sbTextOnAccent)
-                    .frame(maxWidth: .infinity)
-                    .sbControlHeight(.regular)
-                    .background(Color.sbAccentPrimary)
-                    .sbCornerRadius(.default)
+            VStack {
+                Button {
+                    onViewOffers()
+                } label: {
+                    Text(Localized.Scan.viewOffers.localizedKey)
+                        .font(.sbBodySemiboldDefault)
+                        .foregroundStyle(Color.sbTextOnAccent)
+                        .frame(maxWidth: .infinity)
+                        .sbControlHeight(.regular)
+                        .background(Color.sbAccentPrimary)
+                        .sbCornerRadius(.default)
+                }
+
+                Button {
+                    onGoHome()
+                } label: {
+                    Text(Localized.Scan.goHome.localizedKey)
+                        .font(.sbBodySemiboldDefault)
+                        .foregroundStyle(Color.sbAccentPrimary)
+                        .frame(maxWidth: .infinity)
+                        .sbControlHeight(.regular)
+                }
             }
         }
         .sbPadding(.large)

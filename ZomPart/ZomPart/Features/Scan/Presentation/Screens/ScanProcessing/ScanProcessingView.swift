@@ -4,6 +4,7 @@ import SBDesignSystem
 struct ScanProcessingView: View {
 
     let viewModel: ScanProcessingViewModel
+    let onCancel: () -> Void
 
     var body: some View {
         VStack {
@@ -34,6 +35,13 @@ struct ScanProcessingView: View {
                     }
                     .font(.sbBodySemiboldDefault)
                     .foregroundStyle(Color.sbAccentPrimary)
+
+                    Button(Localized.Scan.goHome.localized) {
+                        onCancel()
+                    }
+                    .font(.sbBodyRegularDefault)
+                    .foregroundStyle(Color.sbTextSecondary)
+                    .sbVerticalPadding(.small)
                 }
                 .sbVerticalPadding(.large)
             }

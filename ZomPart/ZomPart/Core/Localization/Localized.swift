@@ -31,6 +31,7 @@ enum Localized {
         case conflict = "error.conflict"
         case noPhotosUploaded = "error.noPhotosUploaded"
         case photoLimitReached = "error.photoLimitReached"
+        case aiTemporarilyUnavailable = "error.aiTemporarilyUnavailable"
     }
 
     enum Onboarding: String, LocalizableContent, CaseIterable {
@@ -66,6 +67,7 @@ enum Localized {
         case selectTrim = "garage.wizard.selectTrim"
         case selectEngine = "garage.wizard.selectEngine"
         case vehicleAlreadyExists = "garage.vehicleAlreadyExists"
+        case vinLabel = "garage.vinLabel"
     }
 
     enum Auth: String, LocalizableContent, CaseIterable {
@@ -81,6 +83,7 @@ enum Localized {
         case otpSubtitle = "auth.otp.subtitle"
         case otpPlaceholder = "auth.otp.placeholder"
         case otpVerify = "auth.otp.verify"
+        case otpChangeEmail = "auth.otp.changeEmail"
         case errorValidation = "auth.error.validation"
         case errorEmailRegistered = "auth.error.emailRegistered"
         case errorEmailNotRegistered = "auth.error.emailNotRegistered"
@@ -123,6 +126,8 @@ enum Localized {
         case cameraFocusHint = "scan.camera.focusHint"
         case cancelScanTitle = "scan.cancel.title"
         case cancelScanMessage = "scan.cancel.message"
+        case compatibilityWarning = "scan.compatibilityWarning"
+        case goHome = "scan.goHome"
     }
 
     enum History: String, LocalizableContent, CaseIterable {

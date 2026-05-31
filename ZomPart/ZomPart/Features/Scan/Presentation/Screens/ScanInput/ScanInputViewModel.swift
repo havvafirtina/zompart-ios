@@ -102,48 +102,15 @@ final class ScanInputViewModel {
     }
 
     private func uploadPhotos(scanId: String) async throws {
-        let contentTypes = photos.map { _ in "image/jpeg" }
-        let urlItems = try await scanRepository.getUploadURLs(
-            scanId: scanId,
-            contentTypes: contentTypes
-        )
-
         uploadedCount = 0
         uploadProgress = 0
 
-        let scheme: String = PlistReader.value(for: "SUPABASE_API_SCHEME")
-        let host: String = PlistReader.value(for: "SUPABASE_URL")
-
-        for (index, urlItem) in urlItems.enumerated() {
-            guard index < photos.count,
-                  let resized = photos[index].resizedToLongEdge(1024),
-                  let data = resized.jpegData(compressionQuality: 0.8) else { continue }
-
-            let fixedUrlString = fixUploadUrl(urlItem.uploadUrl, scheme: scheme, host: host)
-            #if DEBUG
-            print("[Upload] Original: \(urlItem.uploadUrl.prefix(60))...")
-            print("[Upload] Fixed:    \(fixedUrlString.prefix(60))...")
-            #endif
-            guard let url = URL(string: fixedUrlString) else { continue }
-
-            var request = URLRequest(url: url)
-            request.httpMethod = "PUT"
-            request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
-
-            let _ = try await URLSession.shared.upload(for: request, from: data)
-            uploadedCount = index + 1
-            uploadProgress = Double(uploadedCount) / Double(urlItems.count)
+        let photosData: [Data] = photos.compactMap { photo in
+            photo.resizedToLongEdge(1024)?.jpegData(compressionQuality: 0.8)
         }
-    }
 
-    private func fixUploadUrl(_ urlString: String, scheme: String, host: String) -> String {
-        guard var components = URLComponents(string: urlString) else { return urlString }
-        components.scheme = scheme
-        components.host = host.components(separatedBy: ":").first
-        if let portString = host.components(separatedBy: ":").last,
-           let port = Int(portString), portString != host {
-            components.port = port
-        }
-        return components.string ?? urlString
+        try await scanRepository.uploadPhotos(scanId: scanId, photosData: photosData)
+        uploadedCount = photosData.count
+        uploadProgress = 1.0
     }
 }

@@ -11,13 +11,13 @@ import SBNetworking
 // MARK: - RequestProtocol
 
 struct AuthRefreshRequest: RequestProtocol {
-        typealias EndpointType = AuthRefreshEndpoint
+    typealias EndpointType = AuthRefreshEndpoint
 
-        let refreshToken: String
+    let refreshToken: String
 
-        func toEndpoint() -> AuthRefreshEndpoint {
-                AuthRefreshEndpoint(refreshToken: refreshToken)
-        }
+    func toEndpoint() -> AuthRefreshEndpoint {
+        AuthRefreshEndpoint(refreshToken: refreshToken)
+    }
 }
 
 // MARK: - Endpoint
@@ -25,24 +25,24 @@ struct AuthRefreshRequest: RequestProtocol {
 /// Transport-level endpoint for POST `/functions/v1/auth-refresh`.
 /// Does not require a valid Bearer token — uses the refresh token in the body.
 struct AuthRefreshEndpoint: Endpoint {
-        typealias ResponseType = APIEnvelope<AuthSessionDataDTO>
+    typealias ResponseType = APIEnvelope<AuthSessionDataDTO>
 
-        let refreshToken: String
+    let refreshToken: String
 
-        var path: String { "/functions/v1/auth-refresh" }
-        var method: HTTPMethod { .post }
+    var path: String { "/functions/v1/auth-refresh" }
+    var method: HTTPMethod { .post }
 
-        var payload: Encodable? {
-                AuthRefreshRequestBody(refreshToken: refreshToken)
-        }
+    var payload: Encodable? {
+        AuthRefreshRequestBody(refreshToken: refreshToken)
+    }
 }
 
 // MARK: - Request Body
 
 private struct AuthRefreshRequestBody: Encodable {
-        let refreshToken: String
+    let refreshToken: String
 
-        private enum CodingKeys: String, CodingKey {
-                case refreshToken = "refresh_token"
-        }
+    private enum CodingKeys: String, CodingKey {
+        case refreshToken = "refresh_token"
+    }
 }
