@@ -33,6 +33,7 @@ final class ViewModelCache {
     func invalidateHistory() {
         historyListVMs.removeAll()
         scanDetailVMs.removeAll()
+        offersListVMs.removeAll()
     }
 
     func invalidateScanDetail(scanId: String) {
