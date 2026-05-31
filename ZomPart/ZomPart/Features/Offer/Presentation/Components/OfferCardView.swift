@@ -69,9 +69,15 @@ struct OfferCardView: View {
             }
 
             VStack(alignment: .leading) {
-                Text(offer.vendorName)
-                    .font(.sbBodySemiboldDefault)
-                    .foregroundStyle(Color.sbTextPrimary)
+                HStack(alignment: .firstTextBaseline) {
+                    Text(offer.vendorName)
+                        .font(.sbBodySemiboldDefault)
+                        .foregroundStyle(Color.sbTextPrimary)
+
+                    if let labelKey = offer.providerLabelKey {
+                        providerBadge(label: labelKey.localized)
+                    }
+                }
 
                 if let stockLabel = offer.stockLabel {
                     Text(stockLabel)
@@ -82,6 +88,15 @@ struct OfferCardView: View {
                 }
             }
         }
+    }
+
+    private func providerBadge(label: String) -> some View {
+        Text(Localized.Offers.viaProvider.localized(label))
+            .font(.sbBodyRegularXSmall)
+            .foregroundStyle(Color.sbTextSecondary)
+            .sbPadding(.small)
+            .background(Color.sbSurfaceTertiary)
+            .sbCornerRadius(.small)
     }
 
     private var priceLabel: some View {

@@ -164,5 +164,10 @@ enum Localized {
         case fastest = "offers.fastest"
         case empty = "offers.empty"
         case sponsored = "offers.sponsored"
+        // Source provider badge labels — used by OfferCardView's "via …" chip.
+        case providerEbayDE = "offers.provider.ebayDE"
+        case providerBildelaronline = "offers.provider.bildelaronline"
+        case providerMock = "offers.provider.mock"
+        case viaProvider = "offers.viaProvider"
     }
 }
