@@ -58,7 +58,11 @@ actor ScanRepository: ScanRepositoryProtocol {
 
     // MARK: - Upload Photos
 
-    func uploadPhotos(scanId: String, photosData: [Data]) async throws {
+    func uploadPhotos(
+        scanId: String,
+        photosData: [Data],
+        onPhotoUploaded: (@Sendable @MainActor (Int) -> Void)? = nil
+    ) async throws {
         let contentTypes = photosData.map { _ in "image/jpeg" }
         let urlItems = try await getUploadURLs(scanId: scanId, contentTypes: contentTypes)
 
@@ -78,6 +82,10 @@ actor ScanRepository: ScanRepositoryProtocol {
             request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
 
             _ = try await URLSession.shared.upload(for: request, from: data)
+
+            if let onPhotoUploaded {
+                await onPhotoUploaded(index + 1)
+            }
         }
     }
 

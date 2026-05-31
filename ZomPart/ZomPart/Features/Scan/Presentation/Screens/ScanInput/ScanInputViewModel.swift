@@ -108,9 +108,12 @@ final class ScanInputViewModel {
         let photosData: [Data] = photos.compactMap { photo in
             photo.resizedToLongEdge(1024)?.jpegData(compressionQuality: 0.8)
         }
+        let total = photosData.count
+        guard total > 0 else { return }
 
-        try await scanRepository.uploadPhotos(scanId: scanId, photosData: photosData)
-        uploadedCount = photosData.count
-        uploadProgress = 1.0
+        try await scanRepository.uploadPhotos(scanId: scanId, photosData: photosData) { uploaded in
+            self.uploadedCount = uploaded
+            self.uploadProgress = Double(uploaded) / Double(total)
+        }
     }
 }

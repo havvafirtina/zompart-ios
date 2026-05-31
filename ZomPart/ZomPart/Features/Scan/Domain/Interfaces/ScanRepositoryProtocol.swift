@@ -25,7 +25,14 @@ protocol ScanRepositoryProtocol: Sendable {
     func getUploadURLs(scanId: String, contentTypes: [String]) async throws -> [ScanUploadUrlItemDomain]
 
     /// Uploads photo data to the signed URLs obtained from `getUploadURLs`.
-    func uploadPhotos(scanId: String, photosData: [Data]) async throws
+    /// `onPhotoUploaded` is invoked on the main actor after every successful
+    /// per-photo PUT with the running count (1-based), enabling incremental
+    /// UI progress instead of a single 0→100 jump.
+    func uploadPhotos(
+        scanId: String,
+        photosData: [Data],
+        onPhotoUploaded: (@Sendable @MainActor (Int) -> Void)?
+    ) async throws
 
     /// Runs AI processing on the scan. Returns one of three outcomes.
     func processScan(scanId: String) async throws -> ScanProcessResultDomain
