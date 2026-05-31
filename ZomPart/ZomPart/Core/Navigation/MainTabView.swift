@@ -259,21 +259,57 @@ struct MainTabView: View {
     private func garageDestination(for route: AppRouter.GarageRoute) -> some View {
         switch route {
         case .vehicleDetail(let vehicleId):
-            if let vehicle = garageViewModel?.vehicles.first(where: { $0.id == vehicleId }) {
-                VehicleDetailView(
-                    vehicle: vehicle,
-                    historyViewModel: HistoryModule.makeHistoryListViewModel(env: env, vehicleId: vehicleId),
-                    onScanTap: { scanId in
-                        router.selectedTab = .scan
-                        router.scanPath = [.scanDetail(scanId: scanId)]
-                    },
-                    onStartScan: {
-                        router.selectedTab = .scan
+            vehicleDetailContent(vehicleId: vehicleId)
+                .task {
+                    if garageViewModel == nil {
+                        garageViewModel = VehicleModule.makeGarageListViewModel(env: env)
                     }
-                )
-            } else {
+                    if garageViewModel?.vehicles.isEmpty == true {
+                        await garageViewModel?.loadVehicles()
+                    }
+                }
+        }
+    }
+
+    @ViewBuilder
+    private func vehicleDetailContent(vehicleId: String) -> some View {
+        if let vehicle = garageViewModel?.vehicles.first(where: { $0.id == vehicleId }) {
+            VehicleDetailView(
+                vehicle: vehicle,
+                historyViewModel: HistoryModule.makeHistoryListViewModel(env: env, vehicleId: vehicleId),
+                onScanTap: { scanId in
+                    router.selectedTab = .scan
+                    router.scanPath = [.scanDetail(scanId: scanId)]
+                },
+                onStartScan: {
+                    router.selectedTab = .scan
+                }
+            )
+        } else {
+            switch garageViewModel?.state {
+            case .loading?, .idle?, .none:
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+            case .error(let message)?:
+                VStack {
+                    Text(message)
+                        .font(.sbBodyRegularDefault)
+                        .foregroundStyle(Color.sbTextSecondary)
+                        .multilineTextAlignment(.center)
+                    Button(Localized.Common.retry.localizedKey) {
+                        Task { await garageViewModel?.loadVehicles() }
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .sbPadding(.xLarge)
+            case .loaded?, .empty?:
+                Text(Localized.Error.vehicleNotFound.localizedKey)
+                    .font(.sbBodyRegularDefault)
+                    .foregroundStyle(Color.sbTextSecondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .sbPadding(.xLarge)
             }
         }
     }
