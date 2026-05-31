@@ -66,7 +66,10 @@ struct ScanPartSummaryDomain: Equatable, Hashable, Sendable {
 
 struct ScanAlternativeDomain: Equatable, Hashable, Sendable {
     let name: String
-    let partNumber: String
+    /// `part_candidates.id` UUID. Forwarded to `selectPart(partCandidateId:)`.
+    /// Backend currently sends this as `part_number` on the wire — see
+    /// `ScanAlternativeDTO` for the decode mapping.
+    let id: String
     let confidence: Double
 }
 

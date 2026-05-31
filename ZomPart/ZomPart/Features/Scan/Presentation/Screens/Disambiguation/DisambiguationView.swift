@@ -66,7 +66,7 @@ struct DisambiguationView: View {
         VStack {
             ForEach(Array(viewModel.alternatives.enumerated()), id: \.offset) { _, alt in
                 Button {
-                    Task { await viewModel.selectPart(partCandidateId: alt.partNumber) }
+                    Task { await viewModel.selectPart(partCandidateId: alt.id) }
                 } label: {
                     HStack {
                         Text(alt.name)

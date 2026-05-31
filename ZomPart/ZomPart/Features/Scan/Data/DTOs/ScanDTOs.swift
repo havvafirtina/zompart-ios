@@ -128,16 +128,21 @@ struct ScanPartSummaryDTO: Decodable, Sendable {
 
 struct ScanAlternativeDTO: Decodable, Sendable {
     let name: String
-    let partNumber: String
+    /// Backend wire field is `part_number` for historical reasons, but the
+    /// value is actually the `part_candidates.id` UUID. Decoded under the
+    /// correct Swift name so callers can pass it to `selectPart(partCandidateId:)`
+    /// without ambiguity. Do NOT rename the JSON key until the backend ships
+    /// a coordinated change to send `id` instead.
+    let id: String
     let confidence: Double
 
     private enum CodingKeys: String, CodingKey {
         case name, confidence
-        case partNumber = "part_number"
+        case id = "part_number"
     }
 
     func toModel() -> ScanAlternativeDomain {
-        ScanAlternativeDomain(name: name, partNumber: partNumber, confidence: confidence)
+        ScanAlternativeDomain(name: name, id: id, confidence: confidence)
     }
 }
 
