@@ -83,7 +83,7 @@ Every endpoint that surfaces a `part` summary (`scan-process`, `scan-offers`, `s
 
 | File | Change |
 |---|---|
-| `ZomPart/ZomPart/Features/Scan/Presentation/Screens/ScanResult/ScanResultView.swift` | Signature: `(part: ScanPartSummaryDomain, onViewOffers: () -> Void)`. Now renders `AsyncImage` from `part.displayImageUrl` (falls back to the legacy success seal on missing/failed image). Shows a manufacturer · brand badge below the part name when both are known. Shows a warning banner when `vehicleCompatible == false`. |
+| `ZomPart/ZomPart/Features/Scan/Presentation/Screens/ScanResult/ScanResultView.swift` | Signature: `(part: ScanPartSummaryDomain, onViewOffers: () -> Void, onGoHome: () -> Void)`. Now renders `AsyncImage` from `part.displayImageUrl` (falls back to the legacy success seal on missing/failed image). Shows a manufacturer · brand badge below the part name when both are known. Shows a localized warning banner (`Localized.Scan.compatibilityWarning`) when `vehicleCompatible == false`. |
 
 ---
 
@@ -106,25 +106,30 @@ Every endpoint that surfaces a `part` summary (`scan-process`, `scan-offers`, `s
 
 ### ⏳ Open (iOS UI session candidates)
 
-Roughly in expected-value order. None are blocked by backend.
+Roughly in expected-value order. None are blocked by backend. As of this snapshot, `ScanResultView` is still the **only** presentation surface that reads any Layer 1 canonical field (`displayImageUrl`, `manufacturer`/`brand`, `vehicleCompatible`); every item below remains untouched in the UI.
 
-1. **OffersListView** — show `part.displayImageUrl` at the top so the user keeps seeing the visual confirmation through the funnel. `OfferPartSummaryDomain` already carries it.
-2. **OffersListView part header** — surface `manufacturer`, `brand`, `categoryTecdoc` (chip/breadcrumb) instead of plain `name + partNumber`. Improves perceived precision.
-3. **Compatibility warning on OffersListView** — same `vehicleCompatible == false` banner. Currently only shown on ScanResultView; user might navigate straight past it.
-4. **Detail/info sheet** — `oemNumber`, `mpn`, `ean`, `crossReferences` are good content for a "More details" sheet or expanded card.
-5. **History list + detail** — `HistoryPartSummaryDomain` already carries everything; the cells/screens currently only show `name + partNumber + thumbnailUrl`. Image + brand makes the list much more scannable.
-6. **`confidenceScore < 0.85` UI** — consider a soft hint ("low confidence — try a closer photo"). Threshold is a product decision.
+1. **OffersListView** — show `part.displayImageUrl` at the top so the user keeps seeing the visual confirmation through the funnel. `OfferPartSummaryDomain` already carries it; the current `partHeader` (in `OffersListView.swift`) renders no image.
+2. **OffersListView part header** — surface `manufacturer`, `brand`, `categoryTecdoc` (chip/breadcrumb) instead of plain `name + partNumber`. The header still shows only `part.name` + `part.partNumber`. Improves perceived precision.
+3. **Compatibility warning on OffersListView** — same `vehicleCompatible == false` banner. Still only shown on `ScanResultView`; `OffersListView` has no compat banner, so a user who taps straight through "View offers" never sees it.
+4. **Detail/info sheet** — `oemNumber`, `mpn`, `ean`, `crossReferences` are good content for a "More details" sheet or expanded card. Nothing surfaces these yet (neither `OffersListView`/`OfferCardView` nor `ScanDetailView`).
+5. **History list + detail** — `HistoryPartSummaryDomain` already carries everything. `HistoryScanRowView` currently shows only `part.name` (no part number, no image); `ScanDetailView`'s part section shows `part.name + part.partNumber` only. (`ScanDetailView` does render the user's own scan photos via `artifacts[].thumbnailUrl`, but never the canonical `part.displayImageUrl` or `brand`.) Image + brand makes the list much more scannable.
+6. **`confidenceScore < 0.85` UI** — consider a soft hint ("low confidence — try a closer photo"). No screen reads `confidenceScore` today. Threshold is a product decision.
 
 > Backend now enriches the AMBIGUOUS path too: when the user picks an alternative via `scan-feedback` (action `SELECT_PART`), the chosen candidate is promoted to CONFIDENT with full canonical fields. iOS already deserializes everything, no additional work needed for this path.
 
-### i18n strings to add
+### i18n strings
 
-`ScanResultView` currently inlines an English string for the compatibility warning with a `TODO i18n` comment. Suggested `Localizable.xcstrings` keys:
+The compatibility warning is **done**: `scan.compatibilityWarning` is defined in `Localized.Scan` and translated for en/sv/tr in `Localizable.xcstrings`, and `ScanResultView` renders it via `Localized.Scan.compatibilityWarning.localizedKey` (no hard-coded string / TODO remains).
+
+| Key | Default (en) | Status |
+|---|---|---|
+| `scan.compatibilityWarning` | `This part may not fit your vehicle. Double-check the OEM number before purchasing.` | ✅ Added + translated (en/sv/tr). Shown when `vehicleCompatible == false`. |
+
+Still **open**: the manufacturer · brand badge in `ScanResultView` builds its label with inline string interpolation (`"\(manufacturer) · \(brand)"`) — it was never extracted to a catalog key. If you ever need a locale-aware separator/order, add a format key:
 
 | Key | Default (en) | Notes |
 |---|---|---|
-| `scan.compatibilityWarning` | `This part may not fit your vehicle. Double-check the OEM number before purchasing.` | Shown when `vehicleCompatible == false` |
-| `scan.manufacturerBrandFormat` | `%1$@ · %2$@` | Currently hard-coded format; localize for RTL etc. |
+| `scan.manufacturerBrandFormat` | `%1$@ · %2$@` | Not yet extracted; currently inline interpolation. Localize for RTL / separator differences. |
 
 ---
 

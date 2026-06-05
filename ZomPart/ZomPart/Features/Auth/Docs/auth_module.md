@@ -11,69 +11,74 @@
 ## Public Contracts
 
 - Domain Interfaces:
-  - `AuthRepositoryProtocol`
+  - `AuthRepositoryProtocol` (`sendOTP`, `verifyOTP`, `refreshToken`, `logout`, `requestAccountDeletion`, `confirmAccountDeletion`)
 - Navigation Entry Points:
-  - `EmailOTPAuthView` — email input + OTP send (used from composition root)
-  - `OTPVerifyView` — 6-digit code entry + verify (presented by composition root after OTP send)
+  - `EmailOTPAuthView` — email input + OTP send (used from `RootView` auth flow)
+  - `OTPVerifyView` — code entry + verify (presented by `RootView` after OTP send)
 
 ## Data Dependencies
 
-- Endpoints:
-  - `AuthOTPEndpoint` — POST `/functions/v1/auth-otp`
-  - `AuthVerifyEndpoint` — POST `/functions/v1/auth-verify`
-  - `AuthRefreshEndpoint` — POST `/functions/v1/auth-refresh`
-  - `AuthLogoutEndpoint` — POST `/functions/v1/auth-logout`
-  - `AuthDeleteRequestEndpoint` — POST `/functions/v1/auth-delete-request`
-  - `AuthDeleteConfirmEndpoint` — POST `/functions/v1/auth-delete-confirm` (body: `email`, `token`, `type`)
+- Endpoints (all POST):
+  - `AuthOTPEndpoint` — `/functions/v1/auth-otp` (body: `email`, `intent`, `first_name`, `last_name`)
+  - `AuthVerifyEndpoint` — `/functions/v1/auth-verify` (body: `email`, `token`, `type: "email"`)
+  - `AuthRefreshEndpoint` — `/functions/v1/auth-refresh` (body: `refresh_token`; no Bearer required)
+  - `AuthLogoutEndpoint` — `/functions/v1/auth-logout` (body: `scope`; requires Bearer)
+  - `AuthDeleteRequestEndpoint` — `/functions/v1/auth-delete-request` (empty body; requires Bearer)
+  - `AuthDeleteConfirmEndpoint` — `/functions/v1/auth-delete-confirm` (body: `email`, `token`, `type: "email"`)
 - Networking:
-  - Uses SBNetworking `HTTPClient` with base URL and `apikey` header injected at app level via `ZomPartAuthTokenProvider`.
-  - Bearer token automatically added by `ZomPartAuthTokenProvider` for authenticated endpoints.
+  - Uses SBNetworking `HTTPClient`. `apikey` header + Bearer token are injected at app level via `ZomPartAuthTokenProvider`.
 
 ## Domain Models
 
 - `AuthOTPResultDomain` — OTP send confirmation (`id`)
 - `AuthSessionDomain` — `accessToken`, `refreshToken`, `expiresIn`
+- `AuthOTPIntent` — `.signup` | `.login`
 - `AuthLogoutScope` — `.local` | `.global` | `.others`
 - `AuthDeleteRequestDomain` — `expiresInMinutes`
 
 ## Auth Flow
 
 ```
-EmailOTPAuthView → sendOTP() → onOTPSent(email)
-  ↓ (composition root navigates)
-OTPVerifyView → verifyOTP() → onVerified(AuthSessionDomain)
-  ↓ (composition root stores tokens + sets isAuthenticated)
-ContentView (main app)
+EmailOTPAuthView → sendOTP() → onOTPSent(email, name?)
+  ↓ (RootView sets pendingVerifyEmail, presents verify)
+OTPVerifyView → verify() → onVerified(AuthSessionDomain)
+  ↓ (RootView stores tokens, calls authStateManager.didAuthenticate)
+AuthStateManager.phase = .authenticated → MainTabView
 ```
+
+`onOTPSent` carries `(email, fullName?)`; the name is forwarded to `didAuthenticate` after verification.
 
 ## Error Handling
 
-`AuthError` maps `HTTPClientError` cases. `HTTPClient` uses dedicated cases for 401 (`.unauthorized`),
-404 (`.notFound`), and 500+ (`.serverError`); other 4xx arrive as `.clientError(statusCode:)`.
-Repositories also validate `envelope.success` and `envelope.data != nil` before calling `toModel()`.
+`AuthError` maps `HTTPClientError` cases per operation. `HTTPClient` surfaces dedicated cases for
+401 (`.unauthorized`), 404 (`.notFound`), and 500+ (`.serverError(statusCode:)`); other 4xx arrive as
+`.clientError(statusCode:data:)`. Repositories validate `envelope.success` and `envelope.data != nil`
+before calling `toModel()`. Error bodies are parsed via `APIErrorParser.code(from:)` for granular cases.
 
 | Case | Trigger |
 |---|---|
-| `.validationFailed` | 400 on OTP send (`MISSING_FIELDS`, `INVALID_INTENT`, `SIGNUP_METADATA_REQUIRED`) |
-| `.emailAlreadyRegistered` | 409 on signup |
-| `.emailNotRegistered` | 404 (`.notFound`) on OTP send |
-| `.otpInvalid` | 4xx on verify |
-| `.tokenExpired` | 401 (`.unauthorized`) on any endpoint |
+| `.emailAlreadyRegistered` | 409 on OTP send |
+| `.emailNotRegistered` | `.notFound` on OTP send |
+| `.validationFailed` | any other `.clientError` on OTP send (e.g. `MISSING_FIELDS`, `INVALID_INTENT`, `SIGNUP_METADATA_REQUIRED`) |
+| `.otpInvalid` | any non-429 `.clientError` on verify |
+| `.deletionRequestExpired` | 410 on delete confirm, or `REQUEST_EXPIRED` code |
+| `.deletionFailed` | `.serverError` 500 on delete confirm |
+| `.noPendingDeletionRequest` | other `.clientError` on delete confirm (`NO_PENDING_REQUEST`) |
+| `.tokenExpired` | `.unauthorized` on verify / refresh / logout / delete |
 | `.rateLimitExceeded` | 429 on any endpoint |
-| `.noPendingDeletionRequest` | 400 on delete confirm (`NO_PENDING_REQUEST`) |
-| `.deletionRequestExpired` | 410 on delete confirm (`REQUEST_EXPIRED`) |
-| `.deletionFailed` | 500 (`.serverError`) on delete confirm |
-| `.network` | No connectivity |
-| `.emptyResponse` | Nil envelope or `success: false` |
-| `.unknown` | All other errors |
+| `.network` | `.notConnectedToInternet` / `.networkConnectionLost` |
+| `.emptyResponse` | nil envelope or `success == false` / `data == nil` |
+| `.unknown` | all other errors |
 
-Error response bodies are parsed via `APIErrorParser` for granular 400 distinction.
+ViewModels surface a subset: `EmailOTPAuthViewModel` shows messages for `.validationFailed`,
+`.emailAlreadyRegistered`, `.emailNotRegistered`, `.network` (else unknown); `OTPVerifyViewModel`
+shows `.otpInvalid`, `.tokenExpired`, `.network` (else unknown).
 
 ## Backend Error Codes (from Supabase, for reference)
 
 - `MISSING_FIELDS`, `INVALID_INTENT`, `SIGNUP_METADATA_REQUIRED`, `EMAIL_ALREADY_REGISTERED`
 - `EMAIL_NOT_REGISTERED`, `VERIFY_FAILED`, `REFRESH_FAILED`
-- `NO_PENDING_REQUEST`, `REQUEST_EXPIRED`, `DELETE_FAILED`
+- `NO_PENDING_REQUEST`, `REQUEST_EXPIRED`, `DELETE_FAILED`, `RATE_LIMIT_EXCEEDED`, `UNAUTHORIZED`
 
 ## Analytics
 
@@ -81,22 +86,31 @@ Error response bodies are parsed via `APIErrorParser` for granular 400 distincti
 
 ## DTOs
 
-- `AuthSessionDataDTO` is shared between `auth-verify` and `auth-refresh` (both return the same `{ access_token, refresh_token, expires_in }` shape).
+- `AuthOTPDataDTO` — `{ id }` → `AuthOTPResultDomain`
+- `AuthSessionDataDTO` — `{ access_token, refresh_token, expires_in }` → `AuthSessionDomain`; shared by
+  `auth-verify` and `auth-refresh` (`AuthRefreshDataDTO` is a typealias of it).
+- `AuthLogoutDataDTO` — `{ logged_out }` → `Bool`
+- `AuthDeleteRequestDataDTO` — `{ expires_in_minutes }` → `AuthDeleteRequestDomain`
+- `AuthDeleteConfirmDataDTO` — `{ deleted }` → `Bool`
 
 ## Token Refresh
 
-`ZomPartAuthTokenProvider.refresh()` is called automatically by `HTTPClient` on 401 responses.
-It calls `POST /functions/v1/auth-refresh` directly via `URLSession` (bypassing `HTTPClient`
-to avoid circular dependency). On success, tokens are updated transparently and the original
-request is retried. On failure, tokens are cleared and `.unauthorized` is thrown.
+`ZomPartAuthTokenProvider.refresh()` is invoked by `HTTPClient` on 401 responses. It POSTs to
+`/functions/v1/auth-refresh` directly via `URLSession` (bypassing `HTTPClient` to avoid recursion),
+deduplicating concurrent attempts through a shared `pendingRefresh` task. On success, tokens are
+updated and persisted transparently and the original request is retried. On failure, tokens are
+cleared, the `onAuthInvalidated` callback fires (wired in `RootView` to `AuthStateManager`, routing
+back to login), and `.unauthorized` is thrown.
 
 ## Persistence
 
-- Tokens are stored in `ZomPartAuthTokenProvider` (in-memory).
-- `clearTokens()` resets both tokens to nil (used on logout and on refresh failure).
-- Keychain persistence for tokens is not yet implemented.
+- Tokens are persisted in the Keychain via `KeychainTokenStore` (`TokenPersistence`), keyed under
+  service `com.zompart.auth` with `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`.
+- `ZomPartAuthTokenProvider` loads stored tokens on init and mirrors them into memory under a lock.
+- `clearTokens()` wipes both memory and Keychain (used on logout and refresh failure).
+- `AuthStateManager` clears Keychain tokens on a detected fresh install (UserDefaults `launchedBefore`
+  flag) so reinstalls don't resurrect stale tokens.
 
 ## Open Questions / TODO
 
-- Persist tokens in Keychain after successful verification.
-- Add account deletion UI screens.
+- Add account deletion UI screens (repository methods exist; no SwiftUI screens wired yet).
