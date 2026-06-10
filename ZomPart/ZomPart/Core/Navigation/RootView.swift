@@ -17,16 +17,6 @@ struct RootView: View {
             featureFlags: env.featureFlags
         )
         self._authStateManager = State(wrappedValue: manager)
-
-        // Wire the network layer to notify the auth state manager when a
-        // refresh attempt fails. Without this hook, stale tokens (e.g. after
-        // a backend user wipe) would keep the UI on MainTabView while every
-        // request fails — instead we route back to the login screen.
-        env.tokenProvider.setOnAuthInvalidated { [weak manager] in
-            Task { @MainActor in
-                manager?.handleAuthInvalidated()
-            }
-        }
     }
 
     var body: some View {
@@ -48,6 +38,20 @@ struct RootView: View {
         .onChange(of: authStateManager.phase) { _, newValue in
             if newValue != .authenticated {
                 router.resetAll()
+            }
+        }
+        // Wire the network layer to notify the auth state manager when a
+        // refresh attempt fails, so the UI routes back to the login screen.
+        // Wired here instead of init: init re-runs on every parent body
+        // evaluation (e.g. theme changes) with a manager SwiftUI discards,
+        // which would leave the callback bound to a deallocated instance.
+        // `.task` runs once per view identity and sees the kept @State value.
+        .task {
+            let manager = authStateManager
+            env.tokenProvider.setOnAuthInvalidated { [weak manager] in
+                Task { @MainActor in
+                    manager?.handleAuthInvalidated()
+                }
             }
         }
     }
