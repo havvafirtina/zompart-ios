@@ -24,6 +24,17 @@ struct ScanProcessingView: View {
                 .multilineTextAlignment(.center)
                 .animation(.easeInOut, value: viewModel.currentTip)
 
+            // Escape hatch: the process request can run up to 180s. Leaving
+            // keeps the scan pending server-side; it can be resumed later.
+            if viewModel.state == .loading {
+                Button(Localized.Common.cancel.localizedKey) {
+                    onCancel()
+                }
+                .font(.sbBodyRegularDefault)
+                .foregroundStyle(Color.sbTextSecondary)
+                .sbVerticalPadding(.large)
+            }
+
             if case .error(let message) = viewModel.state {
                 VStack {
                     Text(message)

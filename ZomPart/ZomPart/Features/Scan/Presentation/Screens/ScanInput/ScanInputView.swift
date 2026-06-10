@@ -56,6 +56,9 @@ struct ScanInputView: View {
         .onTapGesture {
             isTextFieldFocused = false
         }
+        .onDisappear {
+            viewModel.onDisappear()
+        }
         .navigationTitle(Localized.Scan.title.localized)
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -254,7 +257,7 @@ struct ScanInputView: View {
 
     private var analyzeButton: some View {
         Button {
-            Task { await viewModel.analyze() }
+            viewModel.onAnalyzeTapped()
         } label: {
             Group {
                 if viewModel.state == .loading {

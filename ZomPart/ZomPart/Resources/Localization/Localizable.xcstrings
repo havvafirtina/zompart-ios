@@ -631,6 +631,29 @@
         }
       }
     },
+    "common.openSettings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öppna Inställningar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayarlar'ı Aç"
+          }
+        }
+      }
+    },
     "common.retry" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2743,6 +2766,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Taramak istediğiniz parçayı bu çerçevenin içine alın"
+          }
+        }
+      }
+    },
+    "scan.cameraPermission.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow camera access in Settings to take photos of the part."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tillåt kameraåtkomst i Inställningar för att ta bilder på delen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parçanın fotoğrafını çekmek için Ayarlar'dan kamera erişimine izin verin."
+          }
+        }
+      }
+    },
+    "scan.cameraPermission.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera Access Needed"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kameraåtkomst krävs"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kamera Erişimi Gerekli"
           }
         }
       }

@@ -5,6 +5,7 @@ enum Localized {
     enum Common: String, LocalizableContent, CaseIterable {
         case ok = "common.ok"
         case cancel = "common.cancel"
+        case openSettings = "common.openSettings"
         case retry = "common.retry"
         case next = "common.next"
         case skip = "common.skip"
@@ -129,6 +130,8 @@ enum Localized {
         case failedSubtitle = "scan.failed.subtitle"
         case searchByText = "scan.searchByText"
         case cameraFocusHint = "scan.camera.focusHint"
+        case cameraPermissionTitle = "scan.cameraPermission.title"
+        case cameraPermissionMessage = "scan.cameraPermission.message"
         case cancelScanTitle = "scan.cancel.title"
         case cancelScanMessage = "scan.cancel.message"
         case compatibilityWarning = "scan.compatibilityWarning"

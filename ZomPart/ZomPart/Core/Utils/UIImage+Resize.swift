@@ -9,7 +9,12 @@ extension UIImage {
         let scale = maxLength / longEdge
         let newSize = CGSize(width: size.width * scale, height: size.height * scale)
 
-        let renderer = UIGraphicsImageRenderer(size: newSize)
+        // Default renderer format uses the device screen scale (2x/3x),
+        // which would produce a bitmap 4-9x larger than the requested size.
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 1
+
+        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
         return renderer.image { _ in
             draw(in: CGRect(origin: .zero, size: newSize))
         }

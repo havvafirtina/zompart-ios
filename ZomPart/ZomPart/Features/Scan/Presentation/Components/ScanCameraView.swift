@@ -1,6 +1,7 @@
 import SwiftUI
 import SBDesignSystem
 import VisionKit
+import AVFoundation
 
 struct ScanCameraView: View {
 
@@ -12,12 +13,32 @@ struct ScanCameraView: View {
 
     @State private var capturedPhotos: [UIImage] = []
     @State private var scannerCoordinator: ScanCameraCoordinator?
+    @State private var cameraAuthStatus = AVCaptureDevice.authorizationStatus(for: .video)
 
     private var remainingSlots: Int {
         maxPhotos - currentPhotoCount - capturedPhotos.count
     }
 
     var body: some View {
+        Group {
+            switch cameraAuthStatus {
+            case .authorized:
+                scannerContent
+            case .notDetermined:
+                Color.black
+                    .ignoresSafeArea()
+                    .task {
+                        _ = await AVCaptureDevice.requestAccess(for: .video)
+                        cameraAuthStatus = AVCaptureDevice.authorizationStatus(for: .video)
+                    }
+            default:
+                permissionDeniedView
+            }
+        }
+        .statusBarHidden()
+    }
+
+    private var scannerContent: some View {
         ZStack {
             if LiveTextScannerView.isDeviceSupported {
                 ScanCameraRepresentable(
@@ -37,7 +58,38 @@ struct ScanCameraView: View {
                 bottomBar
             }
         }
-        .statusBarHidden()
+    }
+
+    private var permissionDeniedView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "camera.fill")
+                .font(.largeTitle)
+                .foregroundStyle(Color.sbTextSecondary)
+
+            Text(Localized.Scan.cameraPermissionTitle.localizedKey)
+                .font(.sbTitleSemiboldLarge)
+                .foregroundStyle(Color.sbTextPrimary)
+
+            Text(Localized.Scan.cameraPermissionMessage.localizedKey)
+                .font(.sbBodyRegularDefault)
+                .foregroundStyle(Color.sbTextSecondary)
+                .multilineTextAlignment(.center)
+
+            Button(Localized.Common.openSettings.localizedKey) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .buttonStyle(.borderedProminent)
+
+            Button(Localized.Common.cancel.localizedKey) {
+                onDismiss()
+            }
+            .foregroundStyle(Color.sbTextSecondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .sbPadding(.xLarge)
+        .background(Color.sbSurfacePrimary)
     }
 
     private var topBar: some View {
