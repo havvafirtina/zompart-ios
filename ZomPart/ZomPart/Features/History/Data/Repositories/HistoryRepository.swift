@@ -26,6 +26,8 @@ actor HistoryRepository: HistoryRepositoryProtocol {
             let envelope = try await client.submitRequest(request: request)
             guard let envelope, envelope.success, envelope.data != nil else { throw HistoryError.emptyResponse }
             return envelope.toModel()
+        } catch is CancellationError { throw CancellationError()
+        } catch let e as URLError where e.code == .cancelled { throw CancellationError()
         } catch let e as HistoryError { throw e
         } catch let e as HTTPClientError { throw Self.mapSingleError(e)
         } catch { throw HistoryError.unknown }
@@ -39,6 +41,8 @@ actor HistoryRepository: HistoryRepositoryProtocol {
             let envelope = try await client.submitRequest(request: request)
             guard let envelope, envelope.success, envelope.data != nil else { throw HistoryError.emptyResponse }
             return envelope.toModel()
+        } catch is CancellationError { throw CancellationError()
+        } catch let e as URLError where e.code == .cancelled { throw CancellationError()
         } catch let e as HistoryError { throw e
         } catch let e as HTTPClientError { throw Self.mapHistoryError(e)
         } catch { throw HistoryError.unknown }

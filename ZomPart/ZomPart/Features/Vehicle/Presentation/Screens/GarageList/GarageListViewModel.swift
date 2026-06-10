@@ -26,11 +26,11 @@ final class GarageListViewModel {
             let filtered = all.filter { !deletedIds.contains($0.id) }
             vehicles = filtered
             state = filtered.isEmpty ? .empty : .loaded(filtered)
+        } catch is CancellationError {
+            if case .loading = state { state = .idle }
         } catch let error as VehicleError {
-            if Task.isCancelled { return }
             state = .error(error.localizedMessage)
         } catch {
-            if Task.isCancelled { return }
             state = .error(Localized.Error.unknown.localized)
         }
     }
@@ -41,8 +41,12 @@ final class GarageListViewModel {
             let filtered = all.filter { !deletedIds.contains($0.id) }
             vehicles = filtered
             state = filtered.isEmpty ? .empty : .loaded(filtered)
+        } catch is CancellationError {
+            // cancelled mid-refresh — next appearance reloads via .task
         } catch {
-            // refresh silently fails — keep existing data
+            // refresh keeps existing data, but never leaves a transient
+            // state on screen (onVehicleAdded resets to .idle before this)
+            state = vehicles.isEmpty ? .empty : .loaded(vehicles)
         }
     }
 

@@ -26,6 +26,8 @@ actor OfferRepository: OfferRepositoryProtocol {
             let envelope = try await client.submitRequest(request: request)
             guard let envelope, envelope.success, envelope.data != nil else { throw OfferError.emptyResponse }
             return envelope.toModel()
+        } catch is CancellationError { throw CancellationError()
+        } catch let e as URLError where e.code == .cancelled { throw CancellationError()
         } catch let e as OfferError { throw e
         } catch let e as HTTPClientError { throw Self.mapListError(e)
         } catch { throw OfferError.unknown }
@@ -39,6 +41,8 @@ actor OfferRepository: OfferRepositoryProtocol {
             let envelope = try await client.submitRequest(request: request)
             guard let envelope, envelope.success, envelope.data != nil else { throw OfferError.emptyResponse }
             return envelope.toModel()
+        } catch is CancellationError { throw CancellationError()
+        } catch let e as URLError where e.code == .cancelled { throw CancellationError()
         } catch let e as OfferError { throw e
         } catch let e as HTTPClientError { throw Self.mapClickError(e)
         } catch { throw OfferError.unknown }

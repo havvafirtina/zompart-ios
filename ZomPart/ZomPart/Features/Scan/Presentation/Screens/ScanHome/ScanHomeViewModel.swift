@@ -28,9 +28,12 @@ final class ScanHomeViewModel {
                 selectedVehicle = filtered.first
             }
             vehiclesState = filtered.isEmpty ? .empty : .loaded(filtered)
+        } catch is CancellationError {
+            if case .loading = vehiclesState { vehiclesState = .idle }
+        } catch let error as VehicleError {
+            vehiclesState = .error(error.localizedMessage)
         } catch {
-            if Task.isCancelled { return }
-            vehiclesState = .error(Localized.Error.network.localized)
+            vehiclesState = .error(Localized.Error.unknown.localized)
         }
     }
 }

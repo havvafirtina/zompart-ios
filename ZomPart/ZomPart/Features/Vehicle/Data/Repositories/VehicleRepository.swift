@@ -25,6 +25,10 @@ actor VehicleRepository: VehicleRepositoryProtocol {
             let envelope = try await client.submitRequest(request: VehicleListRequest())
             guard let envelope, envelope.success, envelope.data != nil else { throw VehicleError.emptyResponse }
             return envelope.toModel().vehicles
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            throw CancellationError()
         } catch let error as VehicleError {
             throw error
         } catch let httpError as HTTPClientError {
@@ -64,6 +68,10 @@ actor VehicleRepository: VehicleRepositoryProtocol {
             guard let envelope, envelope.success, envelope.data != nil else { throw VehicleError.emptyResponse }
             let response = envelope.toModel()
             return Self.extractSession(from: response.resolution)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            throw CancellationError()
         } catch let error as VehicleError {
             throw error
         } catch let httpError as HTTPClientError {
@@ -94,6 +102,10 @@ actor VehicleRepository: VehicleRepositoryProtocol {
                 throw VehicleError.emptyResponse
             }
             return .inProgress(session)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            throw CancellationError()
         } catch let error as VehicleError {
             throw error
         } catch let httpError as HTTPClientError {
@@ -117,6 +129,10 @@ actor VehicleRepository: VehicleRepositoryProtocol {
             guard let vehicle = response.vehicles.first else { throw VehicleError.vehicleNotFound }
             let isNew = response.resolution?.isNew ?? true
             return VehicleResolveResultDomain(vehicle: vehicle, isNew: isNew)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            throw CancellationError()
         } catch let error as VehicleError {
             throw error
         } catch let httpError as HTTPClientError {

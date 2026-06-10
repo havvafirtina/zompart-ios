@@ -38,6 +38,8 @@ actor ScanRepository: ScanRepositoryProtocol {
             let envelope = try await client.submitRequest(request: request)
             guard let envelope, envelope.success, envelope.data != nil else { throw ScanError.emptyResponse }
             return envelope.toModel()
+        } catch is CancellationError { throw CancellationError()
+        } catch let e as URLError where e.code == .cancelled { throw CancellationError()
         } catch let e as ScanError { throw e
         } catch let e as HTTPClientError { throw Self.mapStartError(e)
         } catch { throw ScanError.unknown }
@@ -51,6 +53,8 @@ actor ScanRepository: ScanRepositoryProtocol {
             let envelope = try await client.submitRequest(request: request)
             guard let envelope, envelope.success, envelope.data != nil else { throw ScanError.emptyResponse }
             return envelope.toModel()
+        } catch is CancellationError { throw CancellationError()
+        } catch let e as URLError where e.code == .cancelled { throw CancellationError()
         } catch let e as ScanError { throw e
         } catch let e as HTTPClientError { throw Self.mapUploadError(e)
         } catch { throw ScanError.unknown }
@@ -108,6 +112,8 @@ actor ScanRepository: ScanRepositoryProtocol {
             let envelope = try await client.submitRequest(request: request)
             guard let envelope, envelope.success, envelope.data != nil else { throw ScanError.emptyResponse }
             return envelope.toModel()
+        } catch is CancellationError { throw CancellationError()
+        } catch let e as URLError where e.code == .cancelled { throw CancellationError()
         } catch let e as ScanError { throw e
         } catch let e as HTTPClientError { throw Self.mapProcessError(e)
         } catch { throw ScanError.unknown }
@@ -121,6 +127,8 @@ actor ScanRepository: ScanRepositoryProtocol {
             let envelope = try await client.submitRequest(request: request)
             guard let envelope, envelope.success, envelope.data != nil else { throw ScanError.emptyResponse }
             return envelope.toModel()
+        } catch is CancellationError { throw CancellationError()
+        } catch let e as URLError where e.code == .cancelled { throw CancellationError()
         } catch let e as ScanError { throw e
         } catch let e as HTTPClientError { throw Self.mapFeedbackError(e)
         } catch { throw ScanError.unknown }
@@ -132,6 +140,8 @@ actor ScanRepository: ScanRepositoryProtocol {
         do {
             let request = ScanDeleteRequest(scanId: scanId)
             _ = try await client.submitRequest(request: request)
+        } catch is CancellationError { throw CancellationError()
+        } catch let e as URLError where e.code == .cancelled { throw CancellationError()
         } catch let e as ScanError { throw e
         } catch let e as HTTPClientError { throw Self.mapCommonError(e)
         } catch { throw ScanError.unknown }

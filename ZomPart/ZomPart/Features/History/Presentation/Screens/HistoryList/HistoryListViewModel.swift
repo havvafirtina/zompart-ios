@@ -28,11 +28,13 @@ final class HistoryListViewModel {
             scans = page.scans
             pagination = page.pagination
             state = page.scans.isEmpty ? .empty : .loaded(page.scans)
+        } catch is CancellationError {
+            // Cancelled mid-load (view disappeared). Reset to .idle so the
+            // cached VM's next .task run reloads instead of spinning forever.
+            if case .loading = state { state = .idle }
         } catch let error as HistoryError {
-            if Task.isCancelled { return }
             state = .error(error.localizedMessage)
         } catch {
-            if Task.isCancelled { return }
             state = .error(Localized.Error.unknown.localized)
         }
     }

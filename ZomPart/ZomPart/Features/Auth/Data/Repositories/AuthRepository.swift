@@ -31,6 +31,10 @@ actor AuthRepository: AuthRepositoryProtocol {
             let envelope = try await client.submitRequest(request: request)
             guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
             return envelope.toModel()
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            throw CancellationError()
         } catch let error as AuthError {
             throw error
         } catch let httpError as HTTPClientError {
@@ -48,6 +52,10 @@ actor AuthRepository: AuthRepositoryProtocol {
             let envelope = try await client.submitRequest(request: request)
             guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
             return envelope.toModel()
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            throw CancellationError()
         } catch let error as AuthError {
             throw error
         } catch let httpError as HTTPClientError {
@@ -65,6 +73,10 @@ actor AuthRepository: AuthRepositoryProtocol {
             let envelope = try await client.submitRequest(request: request)
             guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
             return envelope.toModel()
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            throw CancellationError()
         } catch let error as AuthError {
             throw error
         } catch let httpError as HTTPClientError {
@@ -80,6 +92,10 @@ actor AuthRepository: AuthRepositoryProtocol {
         do {
             let request = AuthLogoutRequest(scope: scope)
             _ = try await client.submitRequest(request: request)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            throw CancellationError()
         } catch let error as AuthError {
             throw error
         } catch let httpError as HTTPClientError {
@@ -97,6 +113,10 @@ actor AuthRepository: AuthRepositoryProtocol {
             let envelope = try await client.submitRequest(request: request)
             guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
             return envelope.toModel()
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            throw CancellationError()
         } catch let error as AuthError {
             throw error
         } catch let httpError as HTTPClientError {
@@ -110,6 +130,10 @@ actor AuthRepository: AuthRepositoryProtocol {
         do {
             let request = AuthDeleteConfirmRequest(email: email, token: token)
             _ = try await client.submitRequest(request: request)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            throw CancellationError()
         } catch let error as AuthError {
             throw error
         } catch let httpError as HTTPClientError {
