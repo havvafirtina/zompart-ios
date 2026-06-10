@@ -33,6 +33,38 @@ struct HistoryListView: View {
         .refreshable {
             await viewModel.refresh()
         }
+        .overlay(alignment: .bottom) {
+            if let message = viewModel.transientError {
+                transientErrorBanner(message)
+            }
+        }
+    }
+
+    /// Failed refresh/loadMore keeps the old data on screen — without this
+    /// banner the user believes the list is up to date.
+    private func transientErrorBanner(_ message: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.sbBodyRegularSmall)
+                .foregroundStyle(Color.sbStatusError)
+
+            Text(message)
+                .font(.sbBodyRegularSmall)
+                .foregroundStyle(Color.sbTextPrimary)
+        }
+        .sbPadding(.medium)
+        .background(Color.sbStatusErrorSubtle)
+        .sbCornerRadius(.medium)
+        .sbPadding(.large)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        .task {
+            try? await Task.sleep(for: .seconds(3))
+            viewModel.clearTransientError()
+        }
+        .onTapGesture {
+            viewModel.clearTransientError()
+        }
+        .accessibilityElement(children: .combine)
     }
 
     private var scanList: some View {

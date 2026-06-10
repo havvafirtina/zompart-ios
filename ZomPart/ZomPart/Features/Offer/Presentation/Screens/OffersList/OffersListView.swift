@@ -4,6 +4,7 @@ import SBDesignSystem
 struct OffersListView: View {
 
     let viewModel: OffersListViewModel
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         VStack(spacing: 0) {
@@ -35,6 +36,11 @@ struct OffersListView: View {
             set: { _ in viewModel.dismissSafari() }
         )) { item in
             SafariView(url: item.url)
+        }
+        .onChange(of: viewModel.externalUrl) { _, newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            viewModel.dismissExternalUrl()
         }
     }
 
@@ -115,6 +121,15 @@ struct OffersListView: View {
                 .font(.sbBodyRegularDefault)
                 .foregroundStyle(Color.sbTextSecondary)
                 .multilineTextAlignment(.center)
+
+            // Offers are produced asynchronously by the backend after a
+            // scan — an empty first response is normal, so let the user ask
+            // again instead of dead-ending (the cached VM never re-queries).
+            Button(Localized.Common.retry.localizedKey) {
+                Task { await viewModel.loadOffers() }
+            }
+            .font(.sbBodySemiboldDefault)
+            .foregroundStyle(Color.sbAccentPrimary)
         }
         .sbPadding(.xLarge)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -145,6 +160,9 @@ struct OffersListView: View {
 }
 
 struct IdentifiableURL: Identifiable {
-    let id = UUID()
+    // Identity derives from the URL itself: a fresh UUID per body
+    // evaluation would make SwiftUI treat every render as a new sheet item
+    // and re-present the sheet.
     let url: URL
+    var id: String { url.absoluteString }
 }

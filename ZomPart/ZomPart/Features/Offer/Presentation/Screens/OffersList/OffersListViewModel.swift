@@ -8,7 +8,11 @@ final class OffersListViewModel {
     private(set) var offers: [OfferDomain] = []
     private(set) var part: OfferPartSummaryDomain?
     var selectedSort: OfferSortDomain = .recommended
+    /// http(s) destination shown in the in-app Safari sheet.
     private(set) var redirectUrl: URL?
+    /// Non-web destination (tel:, mailto:, store deeplink) — the view hands
+    /// it to the system, because SFSafariViewController crashes on those.
+    private(set) var externalUrl: URL?
 
     private var allOffers: [OfferDomain] = []
     private let scanId: String
@@ -52,7 +56,17 @@ final class OffersListViewModel {
         case .recommended:
             offers = allOffers
         case .cheapest:
-            offers = allOffers.sorted { $0.price < $1.price }
+            // Prices in different currencies are not comparable without FX
+            // data (100 SEK is not cheaper than 90 EUR) — sort within each
+            // currency group, dominant currency group first.
+            let counts = Dictionary(grouping: allOffers, by: \.currency).mapValues(\.count)
+            offers = allOffers.sorted {
+                if $0.currency == $1.currency { return $0.price < $1.price }
+                let lhs = counts[$0.currency] ?? 0
+                let rhs = counts[$1.currency] ?? 0
+                if lhs != rhs { return lhs > rhs }
+                return $0.currency < $1.currency
+            }
         case .fastest:
             offers = allOffers.sorted {
                 ($0.deliveryDays ?? Int.max) < ($1.deliveryDays ?? Int.max)
@@ -66,17 +80,26 @@ final class OffersListViewModel {
     func recordClick(offer: OfferDomain) async {
         do {
             let result = try await offerRepository.recordClick(offerId: offer.id, scanId: scanId)
-            if let url = URL(string: result.redirectUrl) {
-                redirectUrl = url
-            }
+            route(URL(string: result.redirectUrl))
         } catch {
-            if let url = URL(string: offer.url) {
-                redirectUrl = url
-            }
+            route(URL(string: offer.url))
+        }
+    }
+
+    private func route(_ url: URL?) {
+        guard let url else { return }
+        if url.scheme == "http" || url.scheme == "https" {
+            redirectUrl = url
+        } else {
+            externalUrl = url
         }
     }
 
     func dismissSafari() {
         redirectUrl = nil
+    }
+
+    func dismissExternalUrl() {
+        externalUrl = nil
     }
 }

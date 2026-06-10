@@ -126,6 +126,9 @@ struct MainTabView: View {
                     alternatives: alternatives,
                     questions: questions
                 ) { feedback in
+                    // Selecting a part changes the scan's part and offers —
+                    // evict the cached detail/offers VMs so they reload.
+                    vmCache.invalidateScanDetail(scanId: scanId)
                     if feedback.nextAction == .showOffers {
                         router.scanPath.append(.offers(scanId: scanId))
                     }

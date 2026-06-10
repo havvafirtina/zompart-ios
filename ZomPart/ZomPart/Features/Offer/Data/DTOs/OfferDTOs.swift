@@ -163,16 +163,26 @@ struct OfferItemDTO: Decodable, Sendable {
             sku: sku,
             gtin: gtin,
             merchantId: merchantId,
-            expiresAt: expiresAt.flatMap(OfferItemDTO.iso8601.date(from:)),
+            expiresAt: expiresAt.flatMap(OfferItemDTO.parseDate),
             affiliateMetadata: affiliateMetadata?.toModel()
         )
     }
 
-    /// Reusable ISO 8601 parser with fractional-seconds support (Supabase
-    /// timestamptz default format). Reused across all OfferItemDTO instances.
+    /// Supabase timestamptz usually carries fractional seconds, but emits
+    /// none when they are exactly zero — try both formats.
+    private static func parseDate(_ string: String) -> Date? {
+        iso8601.date(from: string) ?? iso8601NoFraction.date(from: string)
+    }
+
     private static let iso8601: ISO8601DateFormatter = {
         let f = ISO8601DateFormatter()
         f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+
+    private static let iso8601NoFraction: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
         return f
     }()
 }

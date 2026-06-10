@@ -8,6 +8,10 @@ final class HistoryListViewModel {
     private(set) var scans: [HistoryScanSummaryDomain] = []
     private(set) var pagination: HistoryPaginationDomain?
     private(set) var isLoadingMore = false
+    /// One-shot message for failures that keep existing data on screen
+    /// (refresh / loadMore) — shown as a transient banner by the view.
+    private(set) var transientError: String?
+    private var isRefreshing = false
 
     private let vehicleId: String?
     private let historyRepository: HistoryRepositoryProtocol
@@ -40,6 +44,11 @@ final class HistoryListViewModel {
     }
 
     func refresh() async {
+        // Mutual exclusion with loadMore: a refresh replacing `scans` while
+        // a stale-offset page is appended would duplicate ForEach IDs.
+        guard !isRefreshing, !isLoadingMore else { return }
+        isRefreshing = true
+        defer { isRefreshing = false }
         do {
             let page = try await historyRepository.fetchHistory(
                 vehicleId: vehicleId, limit: pageSize, offset: 0
@@ -47,14 +56,19 @@ final class HistoryListViewModel {
             scans = page.scans
             pagination = page.pagination
             state = page.scans.isEmpty ? .empty : .loaded(page.scans)
+        } catch is CancellationError {
+            // keep existing data; no feedback needed
+        } catch let error as HistoryError {
+            transientError = error.localizedMessage
         } catch {
-            // refresh silently fails — keep existing data
+            transientError = Localized.Error.unknown.localized
         }
     }
 
     func loadMore() async {
-        guard let pagination, pagination.hasMore, !isLoadingMore else { return }
+        guard let pagination, pagination.hasMore, !isLoadingMore, !isRefreshing else { return }
         isLoadingMore = true
+        defer { isLoadingMore = false }
         do {
             let page = try await historyRepository.fetchHistory(
                 vehicleId: vehicleId, limit: pageSize, offset: scans.count
@@ -62,9 +76,16 @@ final class HistoryListViewModel {
             scans.append(contentsOf: page.scans)
             self.pagination = page.pagination
             state = .loaded(scans)
+        } catch is CancellationError {
+            // keep existing data; no feedback needed
+        } catch let error as HistoryError {
+            transientError = error.localizedMessage
         } catch {
-            // silently fail on load more
+            transientError = Localized.Error.unknown.localized
         }
-        isLoadingMore = false
+    }
+
+    func clearTransientError() {
+        transientError = nil
     }
 }

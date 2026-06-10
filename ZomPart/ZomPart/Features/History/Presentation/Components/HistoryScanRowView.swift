@@ -87,12 +87,27 @@ struct HistoryScanRowView: View {
     }
 
     private var formattedDate: String {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        guard let date = formatter.date(from: scan.createdAt) else { return scan.createdAt }
+        // Supabase timestamptz usually carries fractional seconds, but
+        // emits none when they are exactly zero — try both formats.
+        guard let date = Self.iso8601.date(from: scan.createdAt)
+                ?? Self.iso8601NoFraction.date(from: scan.createdAt) else {
+            return scan.createdAt
+        }
         let display = DateFormatter()
         display.dateStyle = .medium
         display.timeStyle = .short
         return display.string(from: date)
     }
+
+    private static let iso8601: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+
+    private static let iso8601NoFraction: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
 }
