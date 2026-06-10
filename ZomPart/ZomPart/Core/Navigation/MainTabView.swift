@@ -7,8 +7,6 @@ struct MainTabView: View {
     let env: AppEnvironment
     let authStateManager: AuthStateManager
     let themeManager: ThemeManager
-    @State private var garageViewModel: GarageListViewModel?
-    @State private var scanHomeViewModel: ScanHomeViewModel?
     @State private var showAddVehicle = false
     @State private var vmCache = ViewModelCache()
 
@@ -51,28 +49,24 @@ struct MainTabView: View {
         .sheet(isPresented: $showAddVehicle) {
             AddVehicleSheetView(env: env) { vehicleId in
                 Task {
-                    await garageViewModel?.onVehicleAdded(vehicleId: vehicleId)
-                    await scanHomeViewModel?.loadVehicles()
+                    await vmCache.garageListVM(env: env).onVehicleAdded(vehicleId: vehicleId)
+                    await vmCache.scanHomeVM(env: env).loadVehicles()
                 }
             }
+        }
+        .onChange(of: router.scanPath) { _, newValue in
+            if newValue.isEmpty { vmCache.invalidateScanFlow() }
+        }
+        .onChange(of: router.profilePath) { _, newValue in
+            if newValue.isEmpty { vmCache.invalidateDeleteAccount() }
         }
     }
 
     // MARK: - Scan Tab
 
     private var scanTab: some View {
-        let vm: ScanHomeViewModel = {
-            if let existing = scanHomeViewModel { return existing }
-            let created = ScanModule.makeScanHomeViewModel(
-                env: env,
-                vehicleRepository: VehicleModule.makeVehicleRepository(httpClient: env.httpClient)
-            )
-            scanHomeViewModel = created
-            return created
-        }()
-
-        return ScanHomeView(
-            viewModel: vm,
+        ScanHomeView(
+            viewModel: vmCache.scanHomeVM(env: env),
             onStartPhotoScan: { vehicle in
                 router.scanPath.append(.scanInputPhoto(vehicleId: vehicle.id))
             },
@@ -91,7 +85,7 @@ struct MainTabView: View {
         switch route {
         case .scanInputPhoto(let vehicleId):
             ScanInputView(
-                viewModel: ScanModule.makeScanInputViewModel(
+                viewModel: vmCache.scanInputVM(
                     env: env,
                     mode: .photo,
                     vehicleId: vehicleId
@@ -102,7 +96,7 @@ struct MainTabView: View {
 
         case .scanInputText(let vehicleId):
             ScanInputView(
-                viewModel: ScanModule.makeScanInputViewModel(
+                viewModel: vmCache.scanInputVM(
                     env: env,
                     mode: .text,
                     vehicleId: vehicleId
@@ -113,7 +107,7 @@ struct MainTabView: View {
 
         case .scanProcessing(let scanId):
             ScanProcessingView(
-                viewModel: ScanModule.makeScanProcessingViewModel(
+                viewModel: vmCache.scanProcessingVM(
                     env: env,
                     scanId: scanId
                 ) { result in
@@ -126,7 +120,7 @@ struct MainTabView: View {
 
         case .disambiguation(let scanId, let alternatives, let questions):
             DisambiguationView(
-                viewModel: ScanModule.makeDisambiguationViewModel(
+                viewModel: vmCache.disambiguationVM(
                     env: env,
                     scanId: scanId,
                     alternatives: alternatives,
@@ -205,6 +199,7 @@ struct MainTabView: View {
 
     private func handleProcessResult(_ result: ScanProcessResultDomain) {
         vmCache.invalidateHistory()
+        vmCache.invalidateScanProcessing()
 
         switch result {
         case .offersReady(let scanId, let part):
@@ -239,15 +234,8 @@ struct MainTabView: View {
     // MARK: - Garage Tab
 
     private var garageTab: some View {
-        let vm: GarageListViewModel = {
-            if let existing = garageViewModel { return existing }
-            let created = VehicleModule.makeGarageListViewModel(env: env)
-            garageViewModel = created
-            return created
-        }()
-
-        return GarageListView(
-            viewModel: vm,
+        GarageListView(
+            viewModel: vmCache.garageListVM(env: env),
             onAddVehicle: { showAddVehicle = true },
             onVehicleTap: { vehicle in
                 router.garagePath.append(.vehicleDetail(vehicleId: vehicle.id))
@@ -261,11 +249,9 @@ struct MainTabView: View {
         case .vehicleDetail(let vehicleId):
             vehicleDetailContent(vehicleId: vehicleId)
                 .task {
-                    if garageViewModel == nil {
-                        garageViewModel = VehicleModule.makeGarageListViewModel(env: env)
-                    }
-                    if garageViewModel?.vehicles.isEmpty == true {
-                        await garageViewModel?.loadVehicles()
+                    let garageVM = vmCache.garageListVM(env: env)
+                    if garageVM.vehicles.isEmpty {
+                        await garageVM.loadVehicles()
                     }
                 }
         }
@@ -273,10 +259,11 @@ struct MainTabView: View {
 
     @ViewBuilder
     private func vehicleDetailContent(vehicleId: String) -> some View {
-        if let vehicle = garageViewModel?.vehicles.first(where: { $0.id == vehicleId }) {
+        let garageVM = vmCache.garageListVM(env: env)
+        if let vehicle = garageVM.vehicles.first(where: { $0.id == vehicleId }) {
             VehicleDetailView(
                 vehicle: vehicle,
-                historyViewModel: HistoryModule.makeHistoryListViewModel(env: env, vehicleId: vehicleId),
+                historyViewModel: vmCache.historyListVM(env: env, vehicleId: vehicleId),
                 onScanTap: { scanId in
                     router.selectedTab = .scan
                     router.scanPath = [.scanDetail(scanId: scanId)]
@@ -286,24 +273,24 @@ struct MainTabView: View {
                 }
             )
         } else {
-            switch garageViewModel?.state {
-            case .loading?, .idle?, .none:
+            switch garageVM.state {
+            case .loading, .idle:
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            case .error(let message)?:
+            case .error(let message):
                 VStack {
                     Text(message)
                         .font(.sbBodyRegularDefault)
                         .foregroundStyle(Color.sbTextSecondary)
                         .multilineTextAlignment(.center)
                     Button(Localized.Common.retry.localizedKey) {
-                        Task { await garageViewModel?.loadVehicles() }
+                        Task { await garageVM.loadVehicles() }
                     }
                     .buttonStyle(.borderedProminent)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .sbPadding(.xLarge)
-            case .loaded?, .empty?:
+            case .loaded, .empty:
                 Text(Localized.Error.vehicleNotFound.localizedKey)
                     .font(.sbBodyRegularDefault)
                     .foregroundStyle(Color.sbTextSecondary)
@@ -318,10 +305,7 @@ struct MainTabView: View {
 
     private var profileTab: some View {
         ProfileMainView(
-            viewModel: ProfileModule.makeProfileMainViewModel(
-                authRepository: AuthModule.makeAuthRepository(httpClient: env.httpClient),
-                authStateManager: authStateManager
-            ),
+            viewModel: vmCache.profileMainVM(env: env, authStateManager: authStateManager),
             themeManager: themeManager,
             onTheme: { router.profilePath.append(.theme) },
             onLanguage: { router.profilePath.append(.language) },
@@ -341,10 +325,7 @@ struct MainTabView: View {
             AboutView()
         case .deleteAccount:
             DeleteAccountView(
-                viewModel: ProfileModule.makeDeleteAccountViewModel(
-                    authRepository: AuthModule.makeAuthRepository(httpClient: env.httpClient),
-                    authStateManager: authStateManager
-                )
+                viewModel: vmCache.deleteAccountVM(env: env, authStateManager: authStateManager)
             )
         }
     }

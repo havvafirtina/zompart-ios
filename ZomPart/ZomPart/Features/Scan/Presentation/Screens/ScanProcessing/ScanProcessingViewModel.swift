@@ -37,6 +37,8 @@ final class ScanProcessingViewModel {
             let result = try await scanRepository.processScan(scanId: scanId)
             state = .loaded(result)
             onResult(result)
+        } catch is CancellationError {
+            if case .loading = state { state = .idle }
         } catch let error as ScanError {
             state = .error(error.localizedMessage)
         } catch {
