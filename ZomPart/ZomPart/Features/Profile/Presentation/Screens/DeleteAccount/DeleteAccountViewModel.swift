@@ -34,8 +34,10 @@ final class DeleteAccountViewModel {
             _ = try await authRepository.requestAccountDeletion()
             phase = .otpSent
             state = .idle
+        } catch let error as AuthError {
+            state = .error(error.deletionErrorMessage)
         } catch {
-            state = .error(Localized.Error.network.localized)
+            state = .error(Localized.Error.unknown.localized)
         }
     }
 
@@ -47,9 +49,33 @@ final class DeleteAccountViewModel {
             _ = try await authRepository.confirmAccountDeletion(email: userEmail, token: otpCode)
             state = .loaded(true)
             authStateManager.logout()
+        } catch let error as AuthError {
+            phase = .otpSent
+            state = .error(error.deletionErrorMessage)
         } catch {
             phase = .otpSent
-            state = .error(Localized.Auth.errorOtpInvalid.localized)
+            state = .error(Localized.Error.unknown.localized)
+        }
+    }
+}
+
+// Deletion-flow-specific messages for the shared `AuthError` type.
+private extension AuthError {
+
+    var deletionErrorMessage: String {
+        switch self {
+        case .noPendingDeletionRequest:
+            return Localized.Profile.errorNoPendingDeletion.localized
+        case .deletionRequestExpired:
+            return Localized.Profile.errorDeletionRequestExpired.localized
+        case .deletionFailed:
+            return Localized.Profile.errorDeletionFailed.localized
+        case .otpInvalid:
+            return Localized.Auth.errorOtpInvalid.localized
+        case .network:
+            return Localized.Error.network.localized
+        default:
+            return Localized.Error.unknown.localized
         }
     }
 }

@@ -2,6 +2,32 @@ import Foundation
 import SwiftUI
 import SBNetworking
 
+extension VehicleError {
+
+    var localizedMessage: String {
+        switch self {
+        case .invalidVIN:
+            return Localized.Garage.errorInvalidVIN.localized
+        case .invalidPlate:
+            return Localized.Garage.errorInvalidPlate.localized
+        case .invalidCountryCode:
+            return Localized.Garage.errorInvalidCountry.localized
+        case .vehicleNotFound:
+            return Localized.Error.vehicleNotFound.localized
+        case .tokenExpired:
+            return Localized.Error.tokenExpired.localized
+        case .rateLimitExceeded:
+            return Localized.Error.rateLimitExceeded.localized
+        case .providerUnavailable:
+            return Localized.Garage.errorProviderUnavailable.localized
+        case .network:
+            return Localized.Error.network.localized
+        default:
+            return Localized.Error.unknown.localized
+        }
+    }
+}
+
 enum VehicleModule {
 
     static func makeVehicleRepository(httpClient: HTTPClient) -> VehicleRepositoryProtocol {

@@ -19,8 +19,10 @@ final class ScanDetailViewModel {
         do {
             let detail = try await historyRepository.fetchScan(scanId: scanId)
             state = .loaded(detail)
+        } catch let error as HistoryError {
+            state = .error(error.localizedMessage)
         } catch {
-            state = .error(Localized.Error.network.localized)
+            state = .error(Localized.Error.unknown.localized)
         }
     }
 }

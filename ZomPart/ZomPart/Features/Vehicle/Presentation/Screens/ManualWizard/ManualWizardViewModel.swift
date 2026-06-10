@@ -51,8 +51,10 @@ final class ManualWizardViewModel {
                 session = initialSession
                 state = .loaded(initialSession)
             }
+        } catch let error as VehicleError {
+            state = .error(error.localizedMessage)
         } catch {
-            state = .error(Localized.Error.network.localized)
+            state = .error(Localized.Error.unknown.localized)
         }
     }
 
@@ -84,8 +86,10 @@ final class ManualWizardViewModel {
                 countryCode: "SE"
             )
             handleResult(result)
+        } catch let error as VehicleError {
+            state = .error(error.localizedMessage)
         } catch {
-            state = .error(Localized.Error.network.localized)
+            state = .error(Localized.Error.unknown.localized)
         }
     }
 
@@ -110,8 +114,10 @@ final class ManualWizardViewModel {
                 countryCode: "SE"
             )
             handleResult(result)
+        } catch let error as VehicleError {
+            state = .error(error.localizedMessage)
         } catch {
-            state = .error(Localized.Error.network.localized)
+            state = .error(Localized.Error.unknown.localized)
         }
     }
 

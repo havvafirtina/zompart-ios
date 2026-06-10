@@ -28,9 +28,12 @@ final class HistoryListViewModel {
             scans = page.scans
             pagination = page.pagination
             state = page.scans.isEmpty ? .empty : .loaded(page.scans)
+        } catch let error as HistoryError {
+            if Task.isCancelled { return }
+            state = .error(error.localizedMessage)
         } catch {
             if Task.isCancelled { return }
-            state = .error(Localized.Error.network.localized)
+            state = .error(Localized.Error.unknown.localized)
         }
     }
 

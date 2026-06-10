@@ -68,6 +68,10 @@ enum Localized {
         case selectEngine = "garage.wizard.selectEngine"
         case vehicleAlreadyExists = "garage.vehicleAlreadyExists"
         case vinLabel = "garage.vinLabel"
+        case errorInvalidVIN = "garage.error.invalidVIN"
+        case errorInvalidPlate = "garage.error.invalidPlate"
+        case errorInvalidCountry = "garage.error.invalidCountry"
+        case errorProviderUnavailable = "garage.error.providerUnavailable"
     }
 
     enum Auth: String, LocalizableContent, CaseIterable {
@@ -161,6 +165,9 @@ enum Localized {
         case privacyPolicy = "profile.privacyPolicy"
         case termsOfService = "profile.termsOfService"
         case restartRequired = "profile.restartRequired"
+        case errorNoPendingDeletion = "profile.error.noPendingDeletion"
+        case errorDeletionRequestExpired = "profile.error.deletionRequestExpired"
+        case errorDeletionFailed = "profile.error.deletionFailed"
     }
 
     enum Offers: String, LocalizableContent, CaseIterable {
@@ -174,5 +181,6 @@ enum Localized {
         case providerBildelaronline = "offers.provider.bildelaronline"
         case providerMock = "offers.provider.mock"
         case viaProvider = "offers.viaProvider"
+        case errorOfferNotFound = "offers.error.offerNotFound"
     }
 }

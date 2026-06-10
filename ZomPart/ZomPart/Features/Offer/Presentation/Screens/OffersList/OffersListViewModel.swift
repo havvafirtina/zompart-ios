@@ -34,8 +34,10 @@ final class OffersListViewModel {
             } else {
                 state = .idle
             }
+        } catch let error as OfferError {
+            state = .error(error.localizedMessage)
         } catch {
-            state = .error(Localized.Error.network.localized)
+            state = .error(Localized.Error.unknown.localized)
         }
     }
 

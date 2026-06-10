@@ -1045,6 +1045,98 @@
         }
       }
     },
+    "garage.error.invalidCountry" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unsupported country."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Land stöds inte."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desteklenmeyen ülke."
+          }
+        }
+      }
+    },
+    "garage.error.invalidPlate" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid license plate. Please check and try again."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogiltig registreringsskylt. Kontrollera och försök igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçersiz plaka. Lütfen kontrol edip tekrar deneyin."
+          }
+        }
+      }
+    },
+    "garage.error.invalidVIN" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid VIN. Please check and try again."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogiltigt VIN. Kontrollera och försök igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçersiz VIN. Lütfen kontrol edip tekrar deneyin."
+          }
+        }
+      }
+    },
+    "garage.error.providerUnavailable" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Service temporarily unavailable. Please try again later."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tjänsten är tillfälligt otillgänglig. Försök igen senare."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hizmet geçici olarak kullanılamıyor. Lütfen daha sonra tekrar deneyin."
+          }
+        }
+      }
+    },
     "garage.manualEntry" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1689,6 +1781,29 @@
         }
       }
     },
+    "offers.error.offerNotFound" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This offer is no longer available."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detta erbjudande är inte längre tillgängligt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu teklif artık mevcut değil."
+          }
+        }
+      }
+    },
     "offers.fastest" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2191,6 +2306,75 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "E-postanıza bir doğrulama kodu gönderildi. Hesap silmeyi onaylamak için aşağıya girin."
+          }
+        }
+      }
+    },
+    "profile.error.deletionFailed" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account deletion failed. Please try again later."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontoradering misslyckades. Försök igen senare."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hesap silme başarısız oldu. Lütfen daha sonra tekrar deneyin."
+          }
+        }
+      }
+    },
+    "profile.error.deletionRequestExpired" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your deletion request has expired. Please start over."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Din raderingsbegäran har gått ut. Börja om."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Silme isteğinizin süresi doldu. Lütfen yeniden başlayın."
+          }
+        }
+      }
+    },
+    "profile.error.noPendingDeletion" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No deletion request is pending. Please start over."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingen raderingsbegäran väntar. Börja om."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bekleyen bir silme isteği yok. Lütfen yeniden başlayın."
           }
         }
       }

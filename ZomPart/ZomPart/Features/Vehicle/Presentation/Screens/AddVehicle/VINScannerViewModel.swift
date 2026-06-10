@@ -62,8 +62,10 @@ final class VINScannerViewModel {
             state = .loaded(result)
             try? await Task.sleep(for: .seconds(1.5))
             onVehicleAdded(result.vehicle.id)
+        } catch let error as VehicleError {
+            state = .error(error.localizedMessage)
         } catch {
-            state = .error(Localized.Error.network.localized)
+            state = .error(Localized.Error.unknown.localized)
         }
     }
 

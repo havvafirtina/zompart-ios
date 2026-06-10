@@ -26,9 +26,12 @@ final class GarageListViewModel {
             let filtered = all.filter { !deletedIds.contains($0.id) }
             vehicles = filtered
             state = filtered.isEmpty ? .empty : .loaded(filtered)
+        } catch let error as VehicleError {
+            if Task.isCancelled { return }
+            state = .error(error.localizedMessage)
         } catch {
             if Task.isCancelled { return }
-            state = .error(Localized.Error.network.localized)
+            state = .error(Localized.Error.unknown.localized)
         }
     }
 
