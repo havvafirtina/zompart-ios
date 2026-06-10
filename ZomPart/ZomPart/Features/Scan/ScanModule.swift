@@ -23,6 +23,8 @@ extension ScanError {
             return Localized.Error.noPhotosUploaded.localized
         case .photoLimitReached:
             return Localized.Error.photoLimitReached.localized
+        case .photoUploadFailed:
+            return Localized.Error.photoUploadFailed.localized
         case .aiTemporarilyUnavailable:
             return Localized.Error.aiTemporarilyUnavailable.localized
         default:

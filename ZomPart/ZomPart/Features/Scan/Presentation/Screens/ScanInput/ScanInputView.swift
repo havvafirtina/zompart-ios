@@ -39,6 +39,12 @@ struct ScanInputView: View {
                 }
             }
 
+            if case .error(let message) = viewModel.state {
+                errorBanner(message)
+                    .sbHorizontalPadding(.large)
+                    .sbVerticalPadding(.small)
+            }
+
             if !isTextFieldFocused {
                 analyzeButton
                     .sbHorizontalPadding(.large)
@@ -225,6 +231,25 @@ struct ScanInputView: View {
             }
             .sbVerticalPadding(.medium)
         }
+    }
+
+    private func errorBanner(_ message: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.sbBodyRegularSmall)
+                .foregroundStyle(Color.sbStatusError)
+
+            Text(message)
+                .font(.sbBodyRegularSmall)
+                .foregroundStyle(Color.sbTextPrimary)
+                .multilineTextAlignment(.leading)
+
+            Spacer(minLength: 0)
+        }
+        .sbPadding(.medium)
+        .background(Color.sbStatusErrorSubtle)
+        .sbCornerRadius(.medium)
+        .accessibilityElement(children: .combine)
     }
 
     private var analyzeButton: some View {

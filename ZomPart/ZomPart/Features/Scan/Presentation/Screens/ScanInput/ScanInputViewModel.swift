@@ -94,6 +94,8 @@ final class ScanInputViewModel {
 
             state = .loaded(scan)
             onScanCreated(scan)
+        } catch is CancellationError {
+            if case .loading = state { state = .idle }
         } catch let error as ScanError {
             state = .error(error.localizedMessage)
         } catch {

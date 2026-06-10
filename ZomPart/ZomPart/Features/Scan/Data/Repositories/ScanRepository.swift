@@ -67,30 +67,45 @@ actor ScanRepository: ScanRepositoryProtocol {
         photosData: [Data],
         onPhotoUploaded: (@Sendable @MainActor (Int) -> Void)? = nil
     ) async throws {
-        let contentTypes = photosData.map { _ in "image/jpeg" }
-        let urlItems = try await getUploadURLs(scanId: scanId, contentTypes: contentTypes)
+        do {
+            let contentTypes = photosData.map { _ in "image/jpeg" }
+            let urlItems = try await getUploadURLs(scanId: scanId, contentTypes: contentTypes)
 
-        let scheme: String = PlistReader.value(for: "SUPABASE_API_SCHEME")
-        let host: String = PlistReader.value(for: "SUPABASE_URL")
+            let scheme: String = PlistReader.value(for: "SUPABASE_API_SCHEME")
+            let host: String = PlistReader.value(for: "SUPABASE_URL")
 
-        for (index, urlItem) in urlItems.enumerated() {
-            guard index < photosData.count else { break }
-            try Task.checkCancellation()
+            for (index, urlItem) in urlItems.enumerated() {
+                guard index < photosData.count else { break }
+                try Task.checkCancellation()
 
-            let data = photosData[index]
-            let fixedUrlString = Self.fixUploadUrl(urlItem.uploadUrl, scheme: scheme, host: host)
-            guard let url = URL(string: fixedUrlString) else { continue }
+                let data = photosData[index]
+                let fixedUrlString = Self.fixUploadUrl(urlItem.uploadUrl, scheme: scheme, host: host)
+                guard let url = URL(string: fixedUrlString) else { throw ScanError.photoUploadFailed }
 
-            var request = URLRequest(url: url)
-            request.httpMethod = "PUT"
-            request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+                var request = URLRequest(url: url)
+                request.httpMethod = "PUT"
+                request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
 
-            _ = try await URLSession.shared.upload(for: request, from: data)
+                let (_, response) = try await URLSession.shared.upload(for: request, from: data)
 
-            if let onPhotoUploaded {
-                await onPhotoUploaded(index + 1)
+                // URLSession only throws on transport failure; an expired
+                // signed URL (60s TTL) comes back as an HTTP 403 that must
+                // not be counted as a successful upload.
+                guard let httpResponse = response as? HTTPURLResponse,
+                      (200...299).contains(httpResponse.statusCode) else {
+                    throw ScanError.photoUploadFailed
+                }
+
+                if let onPhotoUploaded {
+                    await onPhotoUploaded(index + 1)
+                }
             }
-        }
+        } catch is CancellationError { throw CancellationError()
+        } catch let e as URLError where e.code == .cancelled { throw CancellationError()
+        } catch let e as URLError where e.code == .notConnectedToInternet || e.code == .networkConnectionLost {
+            throw ScanError.network
+        } catch let e as ScanError { throw e
+        } catch { throw ScanError.unknown }
     }
 
     private static func fixUploadUrl(_ urlString: String, scheme: String, host: String) -> String {
@@ -100,6 +115,10 @@ actor ScanRepository: ScanRepositoryProtocol {
         if let portString = host.components(separatedBy: ":").last,
           let port = Int(portString), portString != host {
             components.port = port
+        } else {
+            // Configured host has no port — drop any port carried over from
+            // the backend-issued URL (e.g. local 54321 fixed up to prod).
+            components.port = nil
         }
         return components.string ?? urlString
     }
@@ -156,7 +175,7 @@ actor ScanRepository: ScanRepositoryProtocol {
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidUUID: return .invalidUUID
-            default: return .invalidUUID
+            default: return .unknown
             }
         case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
@@ -174,7 +193,7 @@ actor ScanRepository: ScanRepositoryProtocol {
             case .invalidMimeType: return .invalidMimeType
             case .photoLimitReached: return .photoLimitReached
             case .invalidUUID: return .invalidUUID
-            default: return .invalidScanType
+            default: return .unknown
             }
         case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
@@ -192,7 +211,7 @@ actor ScanRepository: ScanRepositoryProtocol {
             case .invalidState: return .invalidState
             case .noPhotosUploaded: return .noPhotosUploaded
             case .invalidUUID: return .invalidUUID
-            default: return .invalidState
+            default: return .unknown
             }
         case .serverError:
             // Backend already retries Gemini + falls back to OpenAI before
@@ -216,7 +235,7 @@ actor ScanRepository: ScanRepositoryProtocol {
             case .invalidAction: return .invalidAction
             case .invalidState: return .invalidState
             case .invalidUUID: return .invalidUUID
-            default: return .invalidState
+            default: return .unknown
             }
         case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
@@ -231,7 +250,7 @@ actor ScanRepository: ScanRepositoryProtocol {
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidUUID: return .invalidUUID
-            default: return .invalidUUID
+            default: return .unknown
             }
         case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network

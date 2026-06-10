@@ -31,6 +31,7 @@ enum Localized {
         case conflict = "error.conflict"
         case noPhotosUploaded = "error.noPhotosUploaded"
         case photoLimitReached = "error.photoLimitReached"
+        case photoUploadFailed = "error.photoUploadFailed"
         case aiTemporarilyUnavailable = "error.aiTemporarilyUnavailable"
     }
 

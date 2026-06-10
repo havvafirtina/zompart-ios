@@ -16,6 +16,9 @@ enum ScanError: Error, Equatable {
     case invalidScanType
     case invalidMimeType
     case photoLimitReached
+    /// A signed-URL PUT returned a non-2xx response (URLs expire after 60s)
+    /// or a malformed upload URL was received.
+    case photoUploadFailed
     case noPhotosUploaded
     case invalidState
     case invalidPart

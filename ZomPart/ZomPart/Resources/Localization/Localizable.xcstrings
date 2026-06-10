@@ -838,6 +838,29 @@
         }
       }
     },
+    "error.photoUploadFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photo upload failed. Please try again."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Det gick inte att ladda upp bilderna. Försök igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotoğraf yüklenemedi. Lütfen tekrar deneyin."
+          }
+        }
+      }
+    },
     "error.rateLimitExceeded" : {
       "extractionState" : "stale",
       "localizations" : {
