@@ -157,7 +157,13 @@ struct CameraPickerView: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
-        picker.sourceType = .camera
+        // Assigning .camera on a device without one (Simulator, MDM-restricted
+        // hardware) raises NSInvalidArgumentException — fall back to the library.
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            picker.sourceType = .camera
+        } else {
+            picker.sourceType = .photoLibrary
+        }
         picker.delegate = context.coordinator
         return picker
     }

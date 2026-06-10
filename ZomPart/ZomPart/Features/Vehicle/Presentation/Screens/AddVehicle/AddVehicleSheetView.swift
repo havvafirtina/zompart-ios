@@ -6,7 +6,6 @@ struct AddVehicleSheetView: View {
     enum Route: Hashable {
         case vinScanner
         case plateScanner
-        case manualWizard
     }
 
     let env: AppEnvironment
@@ -57,13 +56,6 @@ struct AddVehicleSheetView: View {
                     PlateScannerView(
                         viewModel: VehicleModule.makePlateScannerViewModel(env: env) { vehicleId in
                             onVehicleAdded(vehicleId)
-                            dismiss()
-                        }
-                    )
-                case .manualWizard:
-                    ManualWizardCoordinatorView(
-                        viewModel: VehicleModule.makeManualWizardViewModel(env: env) {
-                            onVehicleAdded("")
                             dismiss()
                         }
                     )

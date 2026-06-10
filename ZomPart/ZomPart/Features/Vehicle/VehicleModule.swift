@@ -66,15 +66,4 @@ enum VehicleModule {
             onVehicleAdded: onVehicleAdded
         )
     }
-
-    @MainActor
-    static func makeManualWizardViewModel(
-        env: AppEnvironment,
-        onVehicleAdded: @escaping () -> Void
-    ) -> ManualWizardViewModel {
-        ManualWizardViewModel(
-            vehicleRepository: makeVehicleRepository(httpClient: env.httpClient),
-            onVehicleAdded: onVehicleAdded
-        )
-    }
 }

@@ -45,60 +45,24 @@ struct VehicleDTO: Decodable, Sendable {
     }
 }
 
-// MARK: - Completed step DTO (MANUAL flow)
-
-struct VehicleCompletedStepDTO: Decodable, Sendable {
-    let step: String
-    let value: String
-    let isOptional: Bool?
-
-    private enum CodingKeys: String, CodingKey {
-        case step, value
-        case isOptional = "is_optional"
-    }
-
-    func toModel() -> VehicleManualCompletedStepDomain {
-        VehicleManualCompletedStepDomain(
-            step: VehicleManualStepDomain(rawValue: step) ?? .year,
-            value: value,
-            isOptional: isOptional ?? false
-        )
-    }
-}
-
 // MARK: - Resolution DTO
 
 struct VehicleResolutionDTO: Decodable, Sendable {
     let resolveType: String
     let isResolved: Bool
     let isNew: Bool?
-    let sessionId: String?
-    let nextStep: String?
-    let nextStepIsOptional: Bool?
-    let options: [String]?
-    let completedSteps: [VehicleCompletedStepDTO]?
 
     private enum CodingKeys: String, CodingKey {
-        case isResolved        = "is_resolved"
-        case isNew             = "is_new"
-        case sessionId         = "session_id"
-        case nextStep          = "next_step"
-        case nextStepIsOptional = "next_step_is_optional"
-        case completedSteps    = "completed_steps"
-        case resolveType       = "resolve_type"
-        case options
+        case isResolved  = "is_resolved"
+        case isNew       = "is_new"
+        case resolveType = "resolve_type"
     }
 
     func toModel() -> VehicleResolutionDomain {
         VehicleResolutionDomain(
             resolveType: resolveType,
             isResolved: isResolved,
-            isNew: isNew,
-            sessionId: sessionId,
-            nextStep: nextStep,
-            nextStepIsOptional: nextStepIsOptional,
-            options: options,
-            completedSteps: (completedSteps ?? []).map { $0.toModel() }
+            isNew: isNew
         )
     }
 }

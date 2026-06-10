@@ -50,7 +50,11 @@ final class VINScannerViewModel {
 
     func resolveEnteredVIN() async {
         let vin = manualVIN.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        guard vin.count == 17 else { return }
+        // ISO 3779: I, O and Q are never valid in a VIN (0/1 confusion).
+        guard vin.wholeMatch(of: Self.vinPattern) != nil else {
+            state = .error(Localized.Garage.errorInvalidVIN.localized)
+            return
+        }
         manualVIN = vin
         await resolveVIN(vin)
     }
@@ -69,11 +73,12 @@ final class VINScannerViewModel {
         }
     }
 
+    private static let vinPattern = /[A-HJ-NPR-Z0-9]{17}/
+
     private func extractVIN(from texts: [String]) -> String? {
-        let vinPattern = /[A-HJ-NPR-Z0-9]{17}/
         for text in texts {
             let cleaned = text.replacingOccurrences(of: " ", with: "").uppercased()
-            if let match = cleaned.firstMatch(of: vinPattern) {
+            if let match = cleaned.firstMatch(of: Self.vinPattern) {
                 return String(match.output)
             }
         }
