@@ -37,15 +37,4 @@ struct DefaultEnvironment: HttpClientProtocol {
         )
         self.authTokenProvider = authTokenProvider
     }
-
-    #if DEBUG
-    static func debugDescription() -> String {
-        let appEnv: String = PlistReader.value(for: Keys.appEnvironment)
-        return """
-        \(Keys.appEnvironment): \(appEnv)
-        \(Keys.Supabase.scheme): \(scheme)
-        \(Keys.Supabase.url): \(baseURL)
-        """
-    }
-    #endif
 }

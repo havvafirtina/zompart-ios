@@ -66,9 +66,9 @@ struct AffiliateMetadataDomain: Equatable, Sendable {
 }
 
 enum OfferSortDomain: String, Encodable, Sendable {
-    case recommended = "recommended"
-    case cheapest    = "cheapest"
-    case fastest     = "fastest"
+    case recommended
+    case cheapest
+    case fastest
 }
 
 /// Shared part summary shape returned by scan-offers.

@@ -149,24 +149,6 @@ private struct ScanFeedbackBody: Encodable {
 }
 
 // ─────────────────────────────────────────
-// MARK: - scan-delete
-// ─────────────────────────────────────────
-
-struct ScanDeleteRequest: RequestProtocol {
-    typealias EndpointType = ScanDeleteEndpoint
-    let scanId: String
-    func toEndpoint() -> ScanDeleteEndpoint { ScanDeleteEndpoint(scanId: scanId) }
-}
-
-struct ScanDeleteEndpoint: Endpoint {
-    typealias ResponseType = APIEnvelope<ScanDeleteDataDTO>
-    let scanId: String
-    var path: String { "/functions/v1/scan-delete" }
-    var method: HTTPMethod { .post }
-    var payload: Encodable? { ScanIdBody(scanId: scanId) }
-}
-
-// ─────────────────────────────────────────
 // MARK: - Shared body
 // ─────────────────────────────────────────
 

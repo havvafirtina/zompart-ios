@@ -5,8 +5,6 @@ struct LocalFeatureFlagClient: FeatureFlagClient {
     func bool(for key: FeatureFlagKey) -> Bool {
         switch key {
         case .onboardingEnabled: true
-        case .ocrEnabled: true
-        case .themeGridEnabled: true
         }
     }
 

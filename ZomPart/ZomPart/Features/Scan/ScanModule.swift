@@ -60,7 +60,6 @@ enum ScanModule {
             mode: mode,
             vehicleId: vehicleId,
             scanRepository: makeScanRepository(httpClient: env.httpClient),
-            ocrService: VisionOCRService(),
             onScanCreated: onScanCreated
         )
     }

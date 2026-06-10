@@ -11,7 +11,7 @@ import Foundation
 struct APIMeta: Decodable, Sendable {
     let requestId: String
     let timestamp: String
-    
+
     private enum CodingKeys: String, CodingKey {
         case requestId = "request_id"
         case timestamp

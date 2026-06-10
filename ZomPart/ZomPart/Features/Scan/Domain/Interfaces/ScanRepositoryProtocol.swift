@@ -40,7 +40,4 @@ protocol ScanRepositoryProtocol: Sendable {
     /// Selects a part candidate from DISAMBIGUATION state.
     /// Only `SELECT_PART` is production-ready; other feedback actions are backend stubs.
     func selectPart(scanId: String, partCandidateId: String) async throws -> ScanFeedbackResultDomain
-
-    /// Deletes the scan and all related storage files.
-    func deleteScan(scanId: String) async throws
 }

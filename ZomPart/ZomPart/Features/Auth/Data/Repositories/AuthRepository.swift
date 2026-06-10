@@ -65,27 +65,6 @@ actor AuthRepository: AuthRepositoryProtocol {
         }
     }
 
-    // MARK: - Refresh
-
-    func refreshToken(_ refreshToken: String) async throws -> AuthSessionDomain {
-        do {
-            let request = AuthRefreshRequest(refreshToken: refreshToken)
-            let envelope = try await client.submitRequest(request: request)
-            guard let envelope, envelope.success, envelope.data != nil else { throw AuthError.emptyResponse }
-            return envelope.toModel()
-        } catch is CancellationError {
-            throw CancellationError()
-        } catch let urlError as URLError where urlError.code == .cancelled {
-            throw CancellationError()
-        } catch let error as AuthError {
-            throw error
-        } catch let httpError as HTTPClientError {
-            throw Self.mapRefreshError(httpError)
-        } catch {
-            throw AuthError.unknown
-        }
-    }
-
     // MARK: - Logout
 
     func logout(scope: AuthLogoutScope) async throws {
@@ -166,15 +145,6 @@ actor AuthRepository: AuthRepositoryProtocol {
         case .clientError(statusCode: 429, _): return .rateLimitExceeded
         case .clientError: return .otpInvalid
         case .unauthorized: return .tokenExpired
-        case .notConnectedToInternet, .networkConnectionLost: return .network
-        default: return .unknown
-        }
-    }
-
-    private static func mapRefreshError(_ error: HTTPClientError) -> AuthError {
-        switch error {
-        case .unauthorized: return .tokenExpired
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }

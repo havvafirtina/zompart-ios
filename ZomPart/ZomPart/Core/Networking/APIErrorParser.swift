@@ -50,6 +50,13 @@ enum APIErrorCode: String {
     case missingApikey = "MISSING_APIKEY"
 }
 
+/// Parses the `{ error: { code } }` body of 4xx envelopes.
+///
+/// `APIErrorCode` deliberately lists every code the backend can produce,
+/// even those no repository maps explicitly — unmapped codes fall through
+/// each repository's `default:` branch to that feature's `.unknown`. Keeping
+/// the full list documents the wire contract and lets a new mapping be added
+/// without re-deriving the code from backend sources.
 enum APIErrorParser {
     private struct ErrorEnvelope: Decodable {
         let error: ErrorBody?

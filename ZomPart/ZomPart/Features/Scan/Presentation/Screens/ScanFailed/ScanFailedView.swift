@@ -26,6 +26,14 @@ struct ScanFailedView: View {
                 .foregroundStyle(Color.sbTextSecondary)
                 .multilineTextAlignment(.center)
 
+            if !reason.isEmpty {
+                Text(reason)
+                    .font(.sbBodyRegularSmall)
+                    .foregroundStyle(Color.sbTextTertiary)
+                    .multilineTextAlignment(.center)
+                    .sbVerticalPadding(.small)
+            }
+
             Spacer()
 
             VStack {

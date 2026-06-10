@@ -19,8 +19,6 @@ protocol AuthRepositoryProtocol: Sendable {
 
     func verifyOTP(email: String, token: String) async throws -> AuthSessionDomain
 
-    func refreshToken(_ refreshToken: String) async throws -> AuthSessionDomain
-
     func logout(scope: AuthLogoutScope) async throws
 
     func requestAccountDeletion() async throws -> AuthDeleteRequestDomain

@@ -15,7 +15,6 @@ final class ScanInputViewModel {
 
     private let vehicleId: String
     private let scanRepository: ScanRepositoryProtocol
-    private let ocrService: OCRServiceProtocol
     private let onScanCreated: (ScanDomain) -> Void
     @ObservationIgnored private var analyzeTask: Task<Void, Never>?
 
@@ -23,13 +22,11 @@ final class ScanInputViewModel {
         mode: ScanInputMode,
         vehicleId: String,
         scanRepository: ScanRepositoryProtocol,
-        ocrService: OCRServiceProtocol,
         onScanCreated: @escaping (ScanDomain) -> Void
     ) {
         self.mode = mode
         self.vehicleId = vehicleId
         self.scanRepository = scanRepository
-        self.ocrService = ocrService
         self.onScanCreated = onScanCreated
     }
 

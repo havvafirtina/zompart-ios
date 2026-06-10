@@ -4,7 +4,7 @@ import SwiftUI
 @MainActor
 final class AppRouter {
 
-    enum Tab: Int, Hashable, CaseIterable {
+    enum Tab: Int, Hashable {
         case scan
         case garage
         case profile
@@ -33,21 +33,10 @@ final class AppRouter {
         case deleteAccount
     }
 
-    enum SheetType: Identifiable {
-        case addVehicle
-
-        var id: String {
-            switch self {
-            case .addVehicle: "addVehicle"
-            }
-        }
-    }
-
     var selectedTab: Tab = .scan
     var scanPath: [ScanRoute] = []
     var garagePath: [GarageRoute] = []
     var profilePath: [ProfileRoute] = []
-    var activeSheet: SheetType?
 
     func resetScanFlow() {
         scanPath = []
@@ -57,7 +46,6 @@ final class AppRouter {
         scanPath = []
         garagePath = []
         profilePath = []
-        activeSheet = nil
         selectedTab = .scan
     }
 }

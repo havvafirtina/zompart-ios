@@ -153,19 +153,6 @@ actor ScanRepository: ScanRepositoryProtocol {
         } catch { throw ScanError.unknown }
     }
 
-    // MARK: - Delete
-
-    func deleteScan(scanId: String) async throws {
-        do {
-            let request = ScanDeleteRequest(scanId: scanId)
-            _ = try await client.submitRequest(request: request)
-        } catch is CancellationError { throw CancellationError()
-        } catch let e as URLError where e.code == .cancelled { throw CancellationError()
-        } catch let e as ScanError { throw e
-        } catch let e as HTTPClientError { throw Self.mapCommonError(e)
-        } catch { throw ScanError.unknown }
-    }
-
     // MARK: - Error mapping
 
     private static func mapStartError(_ e: HTTPClientError) -> ScanError {
@@ -234,21 +221,6 @@ actor ScanRepository: ScanRepositoryProtocol {
             case .invalidPart: return .invalidPart
             case .invalidAction: return .invalidAction
             case .invalidState: return .invalidState
-            case .invalidUUID: return .invalidUUID
-            default: return .unknown
-            }
-        case .unauthorized: return .tokenExpired
-        case .notConnectedToInternet, .networkConnectionLost: return .network
-        default: return .unknown
-        }
-    }
-
-    private static func mapCommonError(_ e: HTTPClientError) -> ScanError {
-        switch e {
-        case .notFound: return .scanNotFound
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
-        case .clientError(_, let data):
-            switch APIErrorParser.code(from: data) {
             case .invalidUUID: return .invalidUUID
             default: return .unknown
             }

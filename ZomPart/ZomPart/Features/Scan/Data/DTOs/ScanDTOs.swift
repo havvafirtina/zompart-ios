@@ -231,13 +231,3 @@ struct ScanFeedbackDataDTO: ResponseProtocol {
         )
     }
 }
-
-// MARK: - scan-delete
-
-struct ScanDeleteDataDTO: ResponseProtocol {
-    typealias ModelType = Bool
-
-    let deleted: Bool
-
-    func toModel() -> Bool { deleted }
-}

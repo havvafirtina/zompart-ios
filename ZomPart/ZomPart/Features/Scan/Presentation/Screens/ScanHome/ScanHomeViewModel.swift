@@ -15,8 +15,6 @@ final class ScanHomeViewModel {
         self.vehicleRepository = vehicleRepository
     }
 
-    var hasVehicles: Bool { !vehicles.isEmpty }
-
     func loadVehicles() async {
         vehiclesState = .loading
         do {

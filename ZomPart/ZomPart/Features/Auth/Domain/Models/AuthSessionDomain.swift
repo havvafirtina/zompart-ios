@@ -8,7 +8,7 @@
 import Foundation
 
 /// Domain model representing a successful authentication session.
-/// Returned by `verifyOTP` and `refreshToken`.
+/// Returned by `verifyOTP`.
 struct AuthSessionDomain: Equatable, Sendable {
     let accessToken: String
     let refreshToken: String
