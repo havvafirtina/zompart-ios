@@ -7,7 +7,7 @@ ZomPart is an iOS app that helps you **identify a vehicle spare part from a phot
 The app is organized into three tabs — **Scan**, **Garage**, and **Profile** — behind a passwordless login.
 
 - **Onboarding & Auth** — A short intro on first launch, then sign-in via email one-time code (OTP). No passwords.
-- **Garage** — Add and manage your vehicles. In the current iOS client a vehicle is added by scanning its **VIN** or **license plate**, using the camera with on-device live text recognition. (The backend and app also support person/company-number and a manual year → make → model → trim → engine wizard, but those entry points aren't exposed in the UI yet.)
+- **Garage** — Add and manage your vehicles. A vehicle is added by scanning its **VIN** or **license plate**, using the camera with on-device live text recognition (VisionKit live text, with a still-photo + Vision OCR fallback). Vehicles can be removed from the garage; removal is a local hide on the client. (The backend's `vehicle-resolve` edge function can resolve other identifier types, but the iOS client only sends VIN and PLATE.)
 - **Scan** — Pick a vehicle and identify the part you need, either by **taking photos** or by **typing a description**. The backend processes the input and returns one of:
   - **Offers ready** — the part was identified; jump straight to offers.
   - **Disambiguation** — several candidates match; you pick the right one.
