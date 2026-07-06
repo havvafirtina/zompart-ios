@@ -96,13 +96,26 @@ struct PlateScannerView: View {
                 .font(.sbBodyRegularSmall)
                 .foregroundStyle(Color.sbTextSecondary)
 
-            TextField(Localized.Garage.platePlaceholder.localized, text: $viewModel.manualPlate)
-                .font(.sbBodyMediumDefault)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.characters)
-                .sbPadding(.medium)
+            HStack {
+                Picker(Localized.Garage.country.localized, selection: $viewModel.country) {
+                    ForEach(PlateCountry.allCases) { country in
+                        Text("\(country.flag) \(country.rawValue)").tag(country)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(Color.sbTextPrimary)
+                .sbPadding(.small)
                 .background(Color.sbSurfaceSecondary)
                 .sbCornerRadius(.medium)
+
+                TextField(Localized.Garage.platePlaceholder.localized, text: $viewModel.manualPlate)
+                    .font(.sbBodyMediumDefault)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.characters)
+                    .sbPadding(.medium)
+                    .background(Color.sbSurfaceSecondary)
+                    .sbCornerRadius(.medium)
+            }
         }
         .sbVerticalPadding(.large)
     }
@@ -137,7 +150,7 @@ struct PlateScannerView: View {
             HStack {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(Color.sbStatusSuccess)
-                Text("\(result.vehicle.make) \(result.vehicle.model)")
+                Text("\(result.vehicle.make.displayCased) \(result.vehicle.model.displayCased)")
                     .font(.sbBodySemiboldDefault)
                     .foregroundStyle(Color.sbTextPrimary)
             }

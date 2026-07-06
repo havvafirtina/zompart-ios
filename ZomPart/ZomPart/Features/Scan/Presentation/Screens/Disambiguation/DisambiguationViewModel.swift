@@ -26,6 +26,8 @@ final class DisambiguationViewModel {
         self.onResolved = onResolved
     }
 
+    var manualQuery = ""
+
     func selectPart(partCandidateId: String) async {
         state = .loading
         do {
@@ -33,6 +35,25 @@ final class DisambiguationViewModel {
                 scanId: scanId,
                 partCandidateId: partCandidateId
             )
+            state = .loaded(result)
+            onResolved(result)
+        } catch let error as ScanError {
+            state = .error(error.localizedMessage)
+        } catch {
+            state = .error(Localized.Error.unknown.localized)
+        }
+    }
+
+    /// Fallback when none of the alternatives matches: resolve the user-typed
+    /// part number on the same scan (MANUAL_SEARCH). On PART_LOOKUP_FAILED the
+    /// scan keeps its DISAMBIGUATION state, so the user can retry or still
+    /// pick an alternative.
+    func manualSearch() async {
+        let query = manualQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return }
+        state = .loading
+        do {
+            let result = try await scanRepository.manualSearch(scanId: scanId, query: query)
             state = .loaded(result)
             onResolved(result)
         } catch let error as ScanError {

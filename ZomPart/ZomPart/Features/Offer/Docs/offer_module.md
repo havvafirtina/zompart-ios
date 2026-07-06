@@ -34,9 +34,10 @@
 
 - `OfferDomain` (`Equatable`, `Sendable`) — `id`, `vendorName`, `vendorSlug`, `vendorLogoUrl`,
   `price` (`Double`), `formattedPrice`, `currency`, `deliveryDays` (`Int?`), `deliveryLabel`,
-  `url`, `isSponsored`, `isAvailable`, `stockLabel`, `rating` (`Double?`), `ratingCount` (`Int?`),
-  `sourceProvider`, `sku`, `gtin`, `merchantId`, `expiresAt` (`Date?`, parsed from ISO 8601),
-  `affiliateMetadata` (`AffiliateMetadataDomain?`).
+  `url`, `isSponsored`, `isAffiliate` (disclosure flag — commission-monetized link, eBay EPN /
+  Awin; separate concept from `isSponsored`), `isAvailable`, `stockLabel`, `rating` (`Double?`),
+  `ratingCount` (`Int?`), `sourceProvider`, `sku`, `gtin`, `merchantId`, `expiresAt` (`Date?`,
+  parsed from ISO 8601), `affiliateMetadata` (`AffiliateMetadataDomain?`).
   - Computed `providerLabelKey: Localized.Offers?` — maps `sourceProvider` to a "via {provider}"
     badge key: `ebay-browse` → `.providerEbayDE`, `awin-bildelaronline` → `.providerBildelaronline`,
     `mock` → `.providerMock` (DEBUG builds only; `nil` in release), anything else → `nil`.
@@ -47,10 +48,14 @@
 - `OfferPartSummaryDomain` (`Equatable`, `Sendable`) — `id`, `name`, `nameTr`, `nameSv`,
   `partNumber`, `thumbnailUrl`, plus Layer-1 canonical fields: `oemNumber`, `mpn`, `ean`, `brand`,
   `manufacturer`, `crossReferences` (`[String]?`), `categoryTecdoc`, `vehicleCompatible` (`Bool?`),
-  `imageUrl`, `confidenceScore` (`Double?`). Computed: `localizedName` (`tr`/`sv` via
+  `imageUrl`, `confidenceScore` (`Double?`), plus TecDoc identification enrichment (2026-07):
+  `genericArticleId` (`Int?`), `articleCriteria` (`[OfferArticleCriterionDomain]`),
+  `fitmentConfirmed` (`Bool`). Computed: `localizedName` (`tr`/`sv` via
   `Locale.current.language.languageCode`, falling back to `name`) and `displayImageUrl`
   (`imageUrl ?? thumbnailUrl`). Mirrors `ScanPartSummaryDomain` intentionally so Scan and Offer
   stay decoupled (Offer must not import Scan).
+- `OfferArticleCriterionDomain` (`Equatable`, `Sendable`) — `criteriaId` (`Int?`, nullable on the
+  wire), `label`, `value` (always a `String` on the wire), `unit` (`String?`).
 - `OfferListDomain` (`Equatable`, `Sendable`) — `scanId`, `part` (`OfferPartSummaryDomain?`, nil
   when the scan has no selected part yet), `offers` (`[OfferDomain]`), `sortApplied`
   (`OfferSortDomain`), `totalCount` (`Int`).
@@ -61,9 +66,10 @@
 
 | DTO | Wire keys (snake_case unless noted) | Maps to |
 |---|---|---|
-| `OfferPartSummaryDTO` | `id`, `name`, `name_tr`, `name_sv`, `part_number`, `thumbnail_url`, `oem_number`, `mpn`, `ean`, `brand`, `manufacturer`, `cross_references`, `category_tecdoc`, `vehicle_compatible`, `image_url`, `confidence_score` | `OfferPartSummaryDomain` |
+| `OfferPartSummaryDTO` | `id`, `name`, `name_tr`, `name_sv`, `part_number`, `thumbnail_url`, `oem_number`, `mpn`, `ean`, `brand`, `manufacturer`, `cross_references`, `category_tecdoc`, `vehicle_compatible`, `image_url`, `confidence_score`, `generic_article_id`, `article_criteria`, `fitment_confirmed` | `OfferPartSummaryDomain` |
+| `OfferArticleCriterionDTO` | `criteria_id`, `label`, `value`, `unit` | `OfferArticleCriterionDomain` |
 | `AffiliateMetadataDTO` | `ebay_item_id`, `ebay_marketplace`, `awin_merchant_id`, `awin_feed_synced_at` | `AffiliateMetadataDomain` |
-| `OfferItemDTO` | `id`, `url`, `currency`, `rating`, `sku`, `gtin`, `vendor_name`, `vendor_slug`, `vendor_logo_url`, `price`, `formatted_price`, `delivery_days`, `delivery_label`, `is_sponsored`, `is_available`, `stock_label`, `rating_count`, `source_provider`, `merchant_id`, `expires_at`, `affiliate_metadata` | `OfferDomain` |
+| `OfferItemDTO` | `id`, `url`, `currency`, `rating`, `sku`, `gtin`, `vendor_name`, `vendor_slug`, `vendor_logo_url`, `price`, `formatted_price`, `delivery_days`, `delivery_label`, `is_sponsored`, `is_affiliate` (optional → `false`), `is_available`, `stock_label`, `rating_count`, `source_provider`, `merchant_id`, `expires_at`, `affiliate_metadata` | `OfferDomain` |
 | `ScanOffersDataDTO` (`ResponseProtocol`) | `scan_id`, `part`, `offers`, `sort_applied`, `total_count` | `OfferListDomain` |
 | `OffersClickDataDTO` (`ResponseProtocol`) | `click_id`, `offer_id`, `scan_id`, `redirect_url`, `tracked` | `OfferClickResultDomain` |
 
@@ -163,32 +169,37 @@ card; overall opacity is `0.4` when `offer.isAvailable == false`, else `1.0`.
 - Delivery / rating row: `deliveryLabel` with a `shippingbox.fill` icon when present; a star + `rating`
   (`%.1f`) plus optional `(ratingCount)` when `rating` is present.
 - A `sponsored` label is shown when `offer.isSponsored`.
+- An `offers.affiliateBadge` label ("Ad · affiliate link") is shown when `offer.isAffiliate`
+  (eBay EPN / Awin disclosure — required by programme terms and App Store guidelines).
+
+`OffersListView` additionally renders a one-time commission-disclosure footer
+(`offers.affiliateFooter`) under the list whenever at least one offer has `isAffiliate == true`,
+and always ends the list with the contractual `TecDocAttributionFooter` (part data is TecDoc).
 
 `sku`, `gtin`, `merchantId`, `expiresAt`, and `affiliateMetadata` are not rendered by the card.
 
 ## Error Handling
 
 `OfferError` (`Error`, `Equatable`) cases: `invalidUUID`, `scanNotFound`, `offerNotFound`,
-`tokenExpired`, `rateLimitExceeded`, `network`, `emptyResponse`, `unknown`. `HTTPClientError` never
-escapes the repository. The repository has two mapping functions (`mapListError`, `mapClickError`)
-that differ only in their `.notFound` result.
+`tokenExpired`, `rateLimitExceeded(retryAfter: Int?)`, `serviceUnavailable`, `network`,
+`emptyResponse`, `unknown`. `HTTPClientError` never escapes the repository. The repository has two
+mapping functions (`mapListError`, `mapClickError`) that differ only in their `.notFound` result.
 
 | `HTTPClientError` | `mapListError` (scan-offers) | `mapClickError` (offers-click) |
 |---|---|---|
 | `.notFound` | `.scanNotFound` | `.offerNotFound` |
-| `.clientError(statusCode: 429, _)` | `.rateLimitExceeded` | `.rateLimitExceeded` |
-| `.clientError(_, data)` (other status) | `.invalidUUID` | `.invalidUUID` |
+| `.clientError(statusCode: 429, data)` | `.rateLimitExceeded(retryAfter:)` | `.rateLimitExceeded(retryAfter:)` |
+| `.clientError(_, data)` with `INVALID_UUID` code | `.invalidUUID` | `.invalidUUID` |
+| `.clientError(_, data)` other/unknown code | `.unknown` | `.unknown` |
+| `.serverError` (5xx, incl. 503 PROVIDER_UNAVAILABLE) | `.serviceUnavailable` | `.serviceUnavailable` |
 | `.unauthorized` | `.tokenExpired` | `.tokenExpired` |
 | `.notConnectedToInternet`, `.networkConnectionLost` | `.network` | `.network` |
 | default | `.unknown` | `.unknown` |
 
 Notes:
 
-- For non-429 `.clientError`, both functions run `APIErrorParser.code(from: data)` but **return
-  `.invalidUUID` in every branch** (the `.invalidUUID` case and the `default` case both yield
-  `.invalidUUID`). So any non-429 client error currently surfaces as `.invalidUUID` regardless of the
-  parsed `APIErrorCode`. (`APIErrorParser` decodes a `{ error: { code } }` body into `APIErrorCode`;
-  see `Core/Networking/APIErrorParser.swift`.)
+- `retryAfter` is decoded from the 429 body's `meta.retry_after` (seconds) via
+  `APIErrorParser.retryAfterSeconds(from:)`.
 - Repository-thrown `OfferError.emptyResponse` is raised when the envelope is nil, `success == false`,
   or `data == nil` — it is re-thrown unchanged (caught as `OfferError` before the `HTTPClientError`
   branch).
@@ -202,7 +213,8 @@ Notes:
 | `.scanNotFound` | `Localized.Error.scanNotFound` |
 | `.offerNotFound` | `Localized.Offers.errorOfferNotFound` |
 | `.tokenExpired` | `Localized.Error.tokenExpired` |
-| `.rateLimitExceeded` | `Localized.Error.rateLimitExceeded` |
+| `.rateLimitExceeded(retryAfter:)` | `Localized.Error.rateLimitRetryIn` (with seconds) or `Localized.Error.rateLimitExceeded` |
+| `.serviceUnavailable` | `Localized.Offers.errorServiceUnavailable` |
 | `.network` | `Localized.Error.network` |
 | default (`.invalidUUID`, `.emptyResponse`, `.unknown`) | `Localized.Error.unknown` |
 

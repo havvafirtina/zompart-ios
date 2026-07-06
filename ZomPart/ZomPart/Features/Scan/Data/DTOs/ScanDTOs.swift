@@ -69,6 +69,24 @@ struct ScanUploadUrlDataDTO: ResponseProtocol {
 
 // MARK: - scan-process
 
+struct ScanArticleCriterionDTO: Decodable, Sendable {
+    /// TecDoc criterion id — nullable on the wire despite the contract table.
+    let criteriaId: Int?
+    let label: String
+    /// Always a string on the wire (`formattedValue ?? rawValue`).
+    let value: String
+    let unit: String?
+
+    private enum CodingKeys: String, CodingKey {
+        case criteriaId = "criteria_id"
+        case label, value, unit
+    }
+
+    func toModel() -> ScanArticleCriterionDomain {
+        ScanArticleCriterionDomain(criteriaId: criteriaId, label: label, value: value, unit: unit)
+    }
+}
+
 struct ScanPartSummaryDTO: Decodable, Sendable {
     let id: String
     let name: String
@@ -89,6 +107,11 @@ struct ScanPartSummaryDTO: Decodable, Sendable {
     let vehicleCompatible: Bool?
     let imageUrl: String?
     let confidenceScore: Double?
+    // TecDoc identification enrichment (additive 2026-07 — optional so rows
+    // predating the backend cutover keep decoding).
+    let genericArticleId: Int?
+    let articleCriteria: [ScanArticleCriterionDTO]?
+    let fitmentConfirmed: Bool?
 
     private enum CodingKeys: String, CodingKey {
         case id, name, brand, manufacturer, mpn, ean
@@ -102,6 +125,9 @@ struct ScanPartSummaryDTO: Decodable, Sendable {
         case vehicleCompatible = "vehicle_compatible"
         case imageUrl = "image_url"
         case confidenceScore = "confidence_score"
+        case genericArticleId = "generic_article_id"
+        case articleCriteria = "article_criteria"
+        case fitmentConfirmed = "fitment_confirmed"
     }
 
     func toModel() -> ScanPartSummaryDomain {
@@ -121,7 +147,10 @@ struct ScanPartSummaryDTO: Decodable, Sendable {
             categoryTecdoc: categoryTecdoc,
             vehicleCompatible: vehicleCompatible,
             imageUrl: imageUrl,
-            confidenceScore: confidenceScore
+            confidenceScore: confidenceScore,
+            genericArticleId: genericArticleId,
+            articleCriteria: (articleCriteria ?? []).map { $0.toModel() },
+            fitmentConfirmed: fitmentConfirmed ?? false
         )
     }
 }

@@ -3,21 +3,27 @@ import SBDesignSystem
 
 struct VehicleDetailView: View {
 
+    let env: AppEnvironment
     let vehicle: VehicleDomain
     let historyViewModel: HistoryListViewModel
     let onScanTap: (String) -> Void
     let onStartScan: () -> Void
+    @State private var showCatalog = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
                 vehicleInfoCard
+                browseCatalogButton
                 scanHistorySection
             }
             .sbPadding(.large)
         }
         .background(Color.sbSurfacePrimary)
-        .navigationTitle("\(vehicle.make) \(vehicle.model)")
+        .sheet(isPresented: $showCatalog) {
+            CatalogBrowseView(env: env, vehicleId: vehicle.id)
+        }
+        .navigationTitle("\(vehicle.make.displayCased) \(vehicle.model.displayCased)")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -42,7 +48,7 @@ struct VehicleDetailView: View {
                     .foregroundStyle(Color.sbAccentPrimary)
 
                 VStack(alignment: .leading) {
-                    Text("\(vehicle.year ?? 0) \(vehicle.make) \(vehicle.model)")
+                    Text("\(vehicle.year ?? 0) \(vehicle.make.displayCased) \(vehicle.model.displayCased)")
                         .font(.sbTitleSemiboldLarge)
                         .foregroundStyle(Color.sbTextPrimary)
 
@@ -70,6 +76,37 @@ struct VehicleDetailView: View {
         .background(Color.sbSurfaceSecondary)
         .sbCornerRadius(.default)
         .sbShadow(.soft)
+    }
+
+    // Entry to the TecDoc catalog browser (vehicle-parts / parts-search).
+    // Only meaningful for plate-resolved vehicles carrying a tecdoc_ktype;
+    // for others the backend answers CATALOG_LOOKUP_FAILED and the sheet
+    // shows its friendly error state.
+    private var browseCatalogButton: some View {
+        Button {
+            showCatalog = true
+        } label: {
+            HStack {
+                Image(systemName: "square.grid.2x2")
+                    .foregroundStyle(Color.sbAccentPrimary)
+
+                Text(Localized.Catalog.browse.localizedKey)
+                    .font(.sbBodySemiboldDefault)
+                    .foregroundStyle(Color.sbTextPrimary)
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.sbBodyRegularSmall)
+                    .foregroundStyle(Color.sbTextTertiary)
+            }
+            .sbPadding(.large)
+            .background(Color.sbSurfaceSecondary)
+            .sbCornerRadius(.default)
+            .sbShadow(.soft)
+        }
+        .buttonStyle(.plain)
+        .sbVerticalPadding(.medium)
     }
 
     private func detailRow(label: String, value: String) -> some View {

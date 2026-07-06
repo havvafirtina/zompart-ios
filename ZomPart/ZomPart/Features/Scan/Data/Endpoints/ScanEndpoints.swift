@@ -114,7 +114,7 @@ struct ScanProcessEndpoint: Endpoint {
 }
 
 // ─────────────────────────────────────────
-// MARK: - scan-feedback (SELECT_PART only)
+// MARK: - scan-feedback (SELECT_PART / MANUAL_SEARCH)
 // ─────────────────────────────────────────
 
 struct ScanSelectPartRequest: RequestProtocol {
@@ -122,29 +122,68 @@ struct ScanSelectPartRequest: RequestProtocol {
     let scanId: String
     let partCandidateId: String
     func toEndpoint() -> ScanFeedbackEndpoint {
-        ScanFeedbackEndpoint(scanId: scanId, partCandidateId: partCandidateId)
+        ScanFeedbackEndpoint(
+            scanId: scanId,
+            action: .selectPart,
+            selectedPartId: partCandidateId,
+            manualQuery: nil
+        )
+    }
+}
+
+struct ScanManualSearchRequest: RequestProtocol {
+    typealias EndpointType = ScanFeedbackEndpoint
+    let scanId: String
+    let query: String
+    func toEndpoint() -> ScanFeedbackEndpoint {
+        ScanFeedbackEndpoint(
+            scanId: scanId,
+            action: .manualSearch,
+            selectedPartId: nil,
+            manualQuery: query
+        )
     }
 }
 
 struct ScanFeedbackEndpoint: Endpoint {
     typealias ResponseType = APIEnvelope<ScanFeedbackDataDTO>
+
+    /// The two finalized backend feedback actions. ANSWER_QUESTION and
+    /// WRONG_RESULT were removed server-side (they return 400 INVALID_ACTION)
+    /// — do not re-add them.
+    enum Action: String {
+        case selectPart = "SELECT_PART"
+        case manualSearch = "MANUAL_SEARCH"
+    }
+
     let scanId: String
-    let partCandidateId: String
+    let action: Action
+    let selectedPartId: String?
+    let manualQuery: String?
     var path: String { "/functions/v1/scan-feedback" }
     var method: HTTPMethod { .post }
     var payload: Encodable? {
-        ScanFeedbackBody(scanId: scanId, action: "SELECT_PART", selectedPartId: partCandidateId)
+        ScanFeedbackBody(
+            scanId: scanId,
+            action: action.rawValue,
+            selectedPartId: selectedPartId,
+            manualQuery: manualQuery
+        )
     }
 }
 
 private struct ScanFeedbackBody: Encodable {
     let scanId: String
     let action: String
-    let selectedPartId: String
+    // Synthesized Encodable omits nil optionals, matching the backend's
+    // per-action required-field validation.
+    let selectedPartId: String?
+    let manualQuery: String?
     private enum CodingKeys: String, CodingKey {
         case scanId         = "scan_id"
         case action
         case selectedPartId = "selected_part_id"
+        case manualQuery    = "manual_query"
     }
 }
 

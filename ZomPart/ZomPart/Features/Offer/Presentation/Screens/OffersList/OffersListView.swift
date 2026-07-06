@@ -104,6 +104,23 @@ struct OffersListView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
+
+            // One-time commission disclosure — required whenever at least one
+            // affiliate-monetized offer is on screen (eBay EPN / Awin terms).
+            if viewModel.offers.contains(where: { $0.isAffiliate }) {
+                Text(Localized.Offers.affiliateFooter.localizedKey)
+                    .font(.sbBodyRegularXSmall)
+                    .foregroundStyle(Color.sbTextTertiary)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
+            }
+
+            // Part data on this screen comes from the TecDoc catalog.
+            TecDocAttributionFooter()
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)

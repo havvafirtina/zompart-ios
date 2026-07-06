@@ -18,6 +18,11 @@ final class ZomPartAuthTokenProvider: AuthTokenProvider, @unchecked Sendable {
 
     var apiKey: String? { Self.supabasePublishableKey }
 
+    /// Hosted Supabase's gateway (new API-key system) swallows the `apikey`
+    /// header whenever an `Authorization` header is present, so authenticated
+    /// requests must carry `s-api-key`. `apikey` stays for the local stack.
+    var apiKeyHeaderNames: [String] { ["apikey", "s-api-key"] }
+
     var accessToken: String? { lock.withLock { $0.accessToken } }
     var refreshToken: String? { lock.withLock { $0.refreshToken } }
 
@@ -116,6 +121,7 @@ final class ZomPartAuthTokenProvider: AuthTokenProvider, @unchecked Sendable {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(Self.supabasePublishableKey, forHTTPHeaderField: "apikey")
+        request.setValue(Self.supabasePublishableKey, forHTTPHeaderField: "s-api-key")
 
         let body = ["refresh_token": currentRefreshToken]
         request.httpBody = try JSONEncoder().encode(body)

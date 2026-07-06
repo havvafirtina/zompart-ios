@@ -7,13 +7,38 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		067312D09DEF022B546CE834 /* DisplayCasedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07214BBC9B9F66A252275207 /* DisplayCasedTests.swift */; };
+		22ABDC0599D1F2C7D986C2CE /* ScanFeedbackEncodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392E312DFD061ED10D4560B4 /* ScanFeedbackEncodingTests.swift */; };
+		3548115BB97A4F298922D899 /* PartSummaryDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C35FF89A7CA5A6D5B048EC6A /* PartSummaryDecodingTests.swift */; };
 		6D838FF42FB91C1200B0F295 /* SBAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 6D838FF32FB91C1200B0F295 /* SBAnalytics */; };
 		6D838FF62FB91C1200B0F295 /* SBDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 6D838FF52FB91C1200B0F295 /* SBDesignSystem */; };
 		6DED93602FB7DD8C0061CBC0 /* SBNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 6DED93612FB7DD8C0061CBC0 /* SBNetworking */; };
+		773CC0D576C2EF5449108432 /* OfferDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26678B974B92B5C466FB1B3C /* OfferDecodingTests.swift */; };
+		86D4F86AD88E14871EEAB146 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F81A1ACD4B816F3C219769E1 /* Foundation.framework */; };
+		CAAD1BD2E61E09AF85DD4755 /* CatalogTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D45FB336F51CE9DAA628A3FB /* CatalogTreeTests.swift */; };
+		E2954702A000423F2FBE9DF3 /* APIErrorParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1601A67CF8B87969112DD3 /* APIErrorParserTests.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		1EF013962534ADE8C3080ED2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6DED93402FB7DD8A0061CBC0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6DED93472FB7DD8A0061CBC0;
+			remoteInfo = ZomPart;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		07214BBC9B9F66A252275207 /* DisplayCasedTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DisplayCasedTests.swift; sourceTree = "<group>"; };
+		26678B974B92B5C466FB1B3C /* OfferDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OfferDecodingTests.swift; sourceTree = "<group>"; };
+		392E312DFD061ED10D4560B4 /* ScanFeedbackEncodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScanFeedbackEncodingTests.swift; sourceTree = "<group>"; };
+		5E1601A67CF8B87969112DD3 /* APIErrorParserTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIErrorParserTests.swift; sourceTree = "<group>"; };
 		6DED93482FB7DD8A0061CBC0 /* ZomPart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZomPart.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		729B8B6E53DF6BD5218D2C13 /* ZomPartTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ZomPartTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C35FF89A7CA5A6D5B048EC6A /* PartSummaryDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PartSummaryDecodingTests.swift; sourceTree = "<group>"; };
+		D45FB336F51CE9DAA628A3FB /* CatalogTreeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CatalogTreeTests.swift; sourceTree = "<group>"; };
+		F81A1ACD4B816F3C219769E1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -49,12 +74,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		83E87B4E36002A3CC821D63A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86D4F86AD88E14871EEAB146 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		6D838FF22FB91C1200B0F295 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F2739438FE4B3FA7D9870193 /* iOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -65,6 +99,7 @@
 				6DED934A2FB7DD8A0061CBC0 /* ZomPart */,
 				6D838FF22FB91C1200B0F295 /* Frameworks */,
 				6DED93492FB7DD8A0061CBC0 /* Products */,
+				763174815FC1BB74E2F5AD64 /* ZomPartTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -72,13 +107,53 @@
 			isa = PBXGroup;
 			children = (
 				6DED93482FB7DD8A0061CBC0 /* ZomPart.app */,
+				729B8B6E53DF6BD5218D2C13 /* ZomPartTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		763174815FC1BB74E2F5AD64 /* ZomPartTests */ = {
+			isa = PBXGroup;
+			children = (
+				5E1601A67CF8B87969112DD3 /* APIErrorParserTests.swift */,
+				D45FB336F51CE9DAA628A3FB /* CatalogTreeTests.swift */,
+				07214BBC9B9F66A252275207 /* DisplayCasedTests.swift */,
+				26678B974B92B5C466FB1B3C /* OfferDecodingTests.swift */,
+				C35FF89A7CA5A6D5B048EC6A /* PartSummaryDecodingTests.swift */,
+				392E312DFD061ED10D4560B4 /* ScanFeedbackEncodingTests.swift */,
+			);
+			path = ZomPartTests;
+			sourceTree = "<group>";
+		};
+		F2739438FE4B3FA7D9870193 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				F81A1ACD4B816F3C219769E1 /* Foundation.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3D14162D35837D4D931F17B8 /* ZomPartTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D1EB2028C1C4FC117AF1489 /* Build configuration list for PBXNativeTarget "ZomPartTests" */;
+			buildPhases = (
+				90F35D1D0F9FA41916B6FF7B /* Sources */,
+				83E87B4E36002A3CC821D63A /* Frameworks */,
+				BCD2B9EDB4A9B9C392307AAE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E79381B9AB180F61D5FBB07E /* PBXTargetDependency */,
+			);
+			name = ZomPartTests;
+			productName = ZomPartTests;
+			productReference = 729B8B6E53DF6BD5218D2C13 /* ZomPartTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		6DED93472FB7DD8A0061CBC0 /* ZomPart */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6DED93532FB7DD8B0061CBC0 /* Build configuration list for PBXNativeTarget "ZomPart" */;
@@ -140,12 +215,20 @@
 			projectRoot = "";
 			targets = (
 				6DED93472FB7DD8A0061CBC0 /* ZomPart */,
+				3D14162D35837D4D931F17B8 /* ZomPartTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		6DED93462FB7DD8A0061CBC0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BCD2B9EDB4A9B9C392307AAE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -185,9 +268,48 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		90F35D1D0F9FA41916B6FF7B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2954702A000423F2FBE9DF3 /* APIErrorParserTests.swift in Sources */,
+				CAAD1BD2E61E09AF85DD4755 /* CatalogTreeTests.swift in Sources */,
+				067312D09DEF022B546CE834 /* DisplayCasedTests.swift in Sources */,
+				773CC0D576C2EF5449108432 /* OfferDecodingTests.swift in Sources */,
+				3548115BB97A4F298922D899 /* PartSummaryDecodingTests.swift in Sources */,
+				22ABDC0599D1F2C7D986C2CE /* ScanFeedbackEncodingTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		E79381B9AB180F61D5FBB07E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ZomPart;
+			target = 6DED93472FB7DD8A0061CBC0 /* ZomPart */;
+			targetProxy = 1EF013962534ADE8C3080ED2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		0CA29E11E3CA27152E0CB11A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sugestra.ZomPartTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ZomPart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ZomPart";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		6D8390392FB92D5B00B0F295 /* Local Device */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -581,9 +703,68 @@
 			};
 			name = Local;
 		};
+		A2046D02666426620ED8414B /* Local */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sugestra.ZomPartTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ZomPart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ZomPart";
+			};
+			name = Local;
+		};
+		AC0DEB8FFF4097BDEB75B7F5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sugestra.ZomPartTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ZomPart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ZomPart";
+			};
+			name = Debug;
+		};
+		AFCD56AE9BADD9CD23BF43FA /* Local Device */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sugestra.ZomPartTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ZomPart.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ZomPart";
+			};
+			name = "Local Device";
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2D1EB2028C1C4FC117AF1489 /* Build configuration list for PBXNativeTarget "ZomPartTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0CA29E11E3CA27152E0CB11A /* Release */,
+				AC0DEB8FFF4097BDEB75B7F5 /* Debug */,
+				A2046D02666426620ED8414B /* Local */,
+				AFCD56AE9BADD9CD23BF43FA /* Local Device */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		6DED93432FB7DD8A0061CBC0 /* Build configuration list for PBXProject "ZomPart" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -630,7 +811,7 @@
 			repositoryURL = "git@github.com:berberoglus/SBNetworking.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.0.6;
+				version = 1.0.7;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

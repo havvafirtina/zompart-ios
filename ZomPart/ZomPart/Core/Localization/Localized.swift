@@ -12,6 +12,8 @@ enum Localized {
         case done = "common.done"
         case delete = "common.delete"
         case confirm = "common.confirm"
+        // Contractual TecAlliance attribution — shown wherever TecDoc data is displayed.
+        case tecdocAttribution = "common.tecdocAttribution"
     }
 
     enum Tab: String, LocalizableContent, CaseIterable {
@@ -33,6 +35,9 @@ enum Localized {
         case photoLimitReached = "error.photoLimitReached"
         case photoUploadFailed = "error.photoUploadFailed"
         case aiTemporarilyUnavailable = "error.aiTemporarilyUnavailable"
+        // Format: %d = seconds until the rate limit window resets.
+        case rateLimitRetryIn = "error.rateLimitRetryIn"
+        case partLookupFailed = "error.partLookupFailed"
     }
 
     enum Onboarding: String, LocalizableContent, CaseIterable {
@@ -65,6 +70,10 @@ enum Localized {
         case errorInvalidPlate = "garage.error.invalidPlate"
         case errorInvalidCountry = "garage.error.invalidCountry"
         case errorProviderUnavailable = "garage.error.providerUnavailable"
+        // FI is licensed but disabled at the TecAlliance account level (open
+        // vendor ticket) — dedicated message instead of a generic outage.
+        case errorFinlandComingSoon = "garage.error.finlandComingSoon"
+        case country = "garage.country"
     }
 
     enum Auth: String, LocalizableContent, CaseIterable {
@@ -126,6 +135,12 @@ enum Localized {
         case cancelScanMessage = "scan.cancel.message"
         case compatibilityWarning = "scan.compatibilityWarning"
         case goHome = "scan.goHome"
+        case manualSearchTitle = "scan.manualSearch.title"
+        case manualSearchPlaceholder = "scan.manualSearch.placeholder"
+        case manualSearchAction = "scan.manualSearch.action"
+        case manualSearchNoneOfThese = "scan.manualSearch.noneOfThese"
+        case resultSpecifications = "scan.result.specifications"
+        case resultFitmentConfirmed = "scan.result.fitmentConfirmed"
     }
 
     enum History: String, LocalizableContent, CaseIterable {
@@ -176,5 +191,21 @@ enum Localized {
         case providerMock = "offers.provider.mock"
         case viaProvider = "offers.viaProvider"
         case errorOfferNotFound = "offers.error.offerNotFound"
+        // Affiliate disclosure (eBay EPN / Awin programme terms + App Store
+        // guidelines): per-offer badge + one-time list footer.
+        case affiliateBadge = "offers.affiliateBadge"
+        case affiliateFooter = "offers.affiliateFooter"
+        case errorServiceUnavailable = "offers.error.serviceUnavailable"
+    }
+
+    enum Catalog: String, LocalizableContent, CaseIterable {
+        case title = "catalog.title"
+        case browse = "catalog.browse"
+        case searchTitle = "catalog.search.title"
+        case searchPlaceholder = "catalog.search.placeholder"
+        case articlesCount = "catalog.articlesCount"
+        case empty = "catalog.empty"
+        case fits = "catalog.fits"
+        case errorNoCatalog = "catalog.error.noCatalog"
     }
 }

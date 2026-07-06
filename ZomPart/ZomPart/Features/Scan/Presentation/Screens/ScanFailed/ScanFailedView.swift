@@ -3,6 +3,7 @@ import SBDesignSystem
 
 struct ScanFailedView: View {
 
+    @Bindable var viewModel: ScanFailedViewModel
     let reason: String
     let onRetry: () -> Void
     let onTextSearch: () -> Void
@@ -33,6 +34,8 @@ struct ScanFailedView: View {
                     .multilineTextAlignment(.center)
                     .sbVerticalPadding(.small)
             }
+
+            manualSearchSection
 
             Spacer()
 
@@ -76,5 +79,53 @@ struct ScanFailedView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.sbSurfacePrimary)
         .navigationBarBackButtonHidden()
+        .disabled(viewModel.state == .loading)
+        .overlay {
+            if viewModel.state == .loading {
+                ProgressView()
+            }
+        }
+    }
+
+    // Backend answers FAILED with next_action MANUAL_SEARCH: resolving a
+    // typed part number on the same scan goes straight to offers.
+    private var manualSearchSection: some View {
+        VStack(alignment: .leading) {
+            Text(Localized.Scan.manualSearchTitle.localizedKey)
+                .font(.sbBodyRegularSmall)
+                .foregroundStyle(Color.sbTextSecondary)
+
+            HStack {
+                TextField(
+                    Localized.Scan.manualSearchPlaceholder.localized,
+                    text: $viewModel.manualQuery
+                )
+                .font(.sbBodyMediumDefault)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.characters)
+                .sbPadding(.medium)
+                .background(Color.sbSurfaceSecondary)
+                .sbCornerRadius(.medium)
+
+                Button {
+                    Task { await viewModel.manualSearch() }
+                } label: {
+                    Text(Localized.Scan.manualSearchAction.localizedKey)
+                        .font(.sbBodySemiboldDefault)
+                        .foregroundStyle(Color.sbAccentPrimary)
+                        .sbPadding(.medium)
+                        .background(Color.sbAccentSubtle)
+                        .sbCornerRadius(.medium)
+                }
+                .disabled(viewModel.manualQuery.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+
+            if case .error(let message) = viewModel.state {
+                Text(message)
+                    .font(.sbBodyRegularSmall)
+                    .foregroundStyle(Color.sbStatusError)
+            }
+        }
+        .sbVerticalPadding(.large)
     }
 }

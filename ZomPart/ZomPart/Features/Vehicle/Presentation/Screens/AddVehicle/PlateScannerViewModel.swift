@@ -2,17 +2,44 @@ import Foundation
 import UIKit
 import AVFoundation
 
+/// TecDoc VRM-capable plate markets. FI is licensed but currently rejected at
+/// the TecAlliance account level (open vendor ticket) — it stays selectable and
+/// starts working with no client change once the account is fixed; until then
+/// the backend answers 503 and the UI shows a "coming soon" message.
+enum PlateCountry: String, CaseIterable, Identifiable, Sendable {
+    case sweden = "SE"
+    case norway = "NO"
+    case denmark = "DK"
+    case finland = "FI"
+
+    var id: String { rawValue }
+
+    var flag: String {
+        switch self {
+        case .sweden: return "🇸🇪"
+        case .norway: return "🇳🇴"
+        case .denmark: return "🇩🇰"
+        case .finland: return "🇫🇮"
+        }
+    }
+}
+
 @MainActor
 @Observable
 final class PlateScannerViewModel {
 
     private(set) var state: ViewState<VehicleResolveResultDomain> = .idle
     var manualPlate = ""
+    var country: PlateCountry {
+        didSet { UserDefaults.standard.set(country.rawValue, forKey: Self.countryKey) }
+    }
 
     private let vehicleRepository: VehicleRepositoryProtocol
     private let ocrService: OCRServiceProtocol
     private let cameraPermission: CameraPermissionManager
     private let onVehicleAdded: (VehicleDomain) -> Void
+
+    private static let countryKey = "plate_country"
 
     init(
         vehicleRepository: VehicleRepositoryProtocol,
@@ -24,6 +51,8 @@ final class PlateScannerViewModel {
         self.ocrService = ocrService
         self.cameraPermission = cameraPermission
         self.onVehicleAdded = onVehicleAdded
+        let stored = UserDefaults.standard.string(forKey: Self.countryKey)
+        self.country = stored.flatMap(PlateCountry.init(rawValue:)) ?? .sweden
     }
 
     var cameraAuthorized: Bool {
@@ -58,12 +87,17 @@ final class PlateScannerViewModel {
     private func resolvePlate(_ plate: String) async {
         state = .loading
         do {
-            let result = try await vehicleRepository.resolveByPlate(plate, countryCode: "SE")
+            let result = try await vehicleRepository.resolveByPlate(plate, countryCode: country.rawValue)
             state = .loaded(result)
             try? await Task.sleep(for: .seconds(1.5))
             onVehicleAdded(result.vehicle)
         } catch let error as VehicleError {
-            state = .error(error.localizedMessage)
+            // FI 503 is a known TecAlliance account limitation, not an outage.
+            if error == .providerUnavailable, country == .finland {
+                state = .error(Localized.Garage.errorFinlandComingSoon.localized)
+            } else {
+                state = .error(error.localizedMessage)
+            }
         } catch {
             state = .error(Localized.Error.unknown.localized)
         }

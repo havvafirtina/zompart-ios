@@ -18,6 +18,7 @@ final class ViewModelCache {
     private var scanInputVMs: [String: ScanInputViewModel] = [:]
     private var scanProcessingVMs: [String: ScanProcessingViewModel] = [:]
     private var disambiguationVMs: [String: DisambiguationViewModel] = [:]
+    private var scanFailedVMs: [String: ScanFailedViewModel] = [:]
     private var scanHomeVMInstance: ScanHomeViewModel?
     private var garageListVMInstance: GarageListViewModel?
     private var profileMainVMInstance: ProfileMainViewModel?
@@ -102,6 +103,17 @@ final class ViewModelCache {
         return vm
     }
 
+    func scanFailedVM(
+        env: AppEnvironment,
+        scanId: String,
+        onResolved: @escaping (ScanFeedbackResultDomain) -> Void
+    ) -> ScanFailedViewModel {
+        if let existing = scanFailedVMs[scanId] { return existing }
+        let vm = ScanModule.makeScanFailedViewModel(env: env, scanId: scanId, onResolved: onResolved)
+        scanFailedVMs[scanId] = vm
+        return vm
+    }
+
     // MARK: - History / Offers destinations
 
     func historyListVM(env: AppEnvironment, vehicleId: String? = nil) -> HistoryListViewModel {
@@ -157,6 +169,7 @@ final class ViewModelCache {
         scanInputVMs.removeAll()
         scanProcessingVMs.removeAll()
         disambiguationVMs.removeAll()
+        scanFailedVMs.removeAll()
     }
 
     func invalidateScanProcessing() {

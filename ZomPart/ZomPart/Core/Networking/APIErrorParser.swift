@@ -40,6 +40,12 @@ enum APIErrorCode: String {
     case invalidPart = "INVALID_PART"
     case invalidAction = "INVALID_ACTION"
     case conflict = "CONFLICT"
+    case partLookupFailed = "PART_LOOKUP_FAILED"
+
+    // Catalog
+    case countryNotSupported = "COUNTRY_NOT_SUPPORTED"
+    case catalogLookupFailed = "CATALOG_LOOKUP_FAILED"
+    case tecdocLookupFailed = "TECDOC_LOOKUP_FAILED"
 
     // Shared
     case vehicleNotFound = "VEHICLE_NOT_FOUND"
@@ -70,5 +76,21 @@ enum APIErrorParser {
             return nil
         }
         return envelope.error.flatMap { APIErrorCode(rawValue: $0.code) }
+    }
+
+    private struct MetaEnvelope: Decodable {
+        let meta: MetaBody?
+        struct MetaBody: Decodable {
+            let retryAfter: Int?
+            private enum CodingKeys: String, CodingKey {
+                case retryAfter = "retry_after"
+            }
+        }
+    }
+
+    /// Rate-limited responses (429) carry the seconds-until-reset in
+    /// `meta.retry_after` on every endpoint (shared backend helper).
+    static func retryAfterSeconds(from data: Data) -> Int? {
+        (try? JSONDecoder().decode(MetaEnvelope.self, from: data))?.meta?.retryAfter
     }
 }

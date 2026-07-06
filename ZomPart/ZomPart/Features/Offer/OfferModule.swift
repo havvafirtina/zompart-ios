@@ -11,8 +11,11 @@ extension OfferError {
             return Localized.Offers.errorOfferNotFound.localized
         case .tokenExpired:
             return Localized.Error.tokenExpired.localized
-        case .rateLimitExceeded:
-            return Localized.Error.rateLimitExceeded.localized
+        case .rateLimitExceeded(let retryAfter):
+            return retryAfter.map { Localized.Error.rateLimitRetryIn.localized($0) }
+                ?? Localized.Error.rateLimitExceeded.localized
+        case .serviceUnavailable:
+            return Localized.Offers.errorServiceUnavailable.localized
         case .network:
             return Localized.Error.network.localized
         default:

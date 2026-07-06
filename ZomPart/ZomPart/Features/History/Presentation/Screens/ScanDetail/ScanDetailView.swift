@@ -39,6 +39,12 @@ struct ScanDetailView: View {
                 scanInfoSection(detail.scan)
                 artifactsSection(detail.artifacts)
                 partSection(detail.selectedPart, scanId: detail.scan.id, state: detail.scan.state)
+
+                // Selected-part data on this screen comes from the TecDoc catalog.
+                if detail.selectedPart != nil {
+                    TecDocAttributionFooter()
+                        .sbVerticalPadding(.medium)
+                }
             }
             .sbPadding(.large)
         }
@@ -51,7 +57,7 @@ struct ScanDetailView: View {
                 Image(systemName: "car.fill")
                     .foregroundStyle(Color.sbAccentPrimary)
 
-                Text("\(vehicle.year) \(vehicle.make) \(vehicle.model)")
+                Text("\(vehicle.year) \(vehicle.make.displayCased) \(vehicle.model.displayCased)")
                     .font(.sbBodySemiboldDefault)
                     .foregroundStyle(Color.sbTextPrimary)
 

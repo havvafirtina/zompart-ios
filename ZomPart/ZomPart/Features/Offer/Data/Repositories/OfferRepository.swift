@@ -53,12 +53,15 @@ actor OfferRepository: OfferRepositoryProtocol {
     private static func mapListError(_ e: HTTPClientError) -> OfferError {
         switch e {
         case .notFound: return .scanNotFound
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidUUID: return .invalidUUID
-            default: return .invalidUUID
+            // Unknown 4xx must not masquerade as a client-side id bug.
+            default: return .unknown
             }
+        case .serverError: return .serviceUnavailable
         case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
@@ -68,12 +71,15 @@ actor OfferRepository: OfferRepositoryProtocol {
     private static func mapClickError(_ e: HTTPClientError) -> OfferError {
         switch e {
         case .notFound: return .offerNotFound
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidUUID: return .invalidUUID
-            default: return .invalidUUID
+            // Unknown 4xx must not masquerade as a client-side id bug.
+            default: return .unknown
             }
+        case .serverError: return .serviceUnavailable
         case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown

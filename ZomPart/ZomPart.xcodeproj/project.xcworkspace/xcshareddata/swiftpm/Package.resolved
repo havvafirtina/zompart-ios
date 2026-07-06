@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:berberoglus/SBNetworking.git",
       "state" : {
-        "revision" : "e6f91f2273489d1412616bb0ba41a4e2190a4d56",
-        "version" : "1.0.6"
+        "revision" : "a734fb22a747702284398bc53bb6e2fbe52b9ded",
+        "version" : "1.0.7"
       }
     }
   ],

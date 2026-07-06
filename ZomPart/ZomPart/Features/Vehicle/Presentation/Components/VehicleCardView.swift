@@ -35,7 +35,8 @@ struct VehicleCardView: View {
 
     private var vehicleTitle: String {
         let year = vehicle.year.map { String($0) } ?? ""
-        return [year, vehicle.make, vehicle.model]
+        // Prod TecDoc data can arrive shouty ("FORD") — re-case for display.
+        return [year, vehicle.make.displayCased, vehicle.model.displayCased]
             .filter { !$0.isEmpty }
             .joined(separator: " ")
     }

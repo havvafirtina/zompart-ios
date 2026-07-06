@@ -3,7 +3,7 @@ import SBDesignSystem
 
 struct DisambiguationView: View {
 
-    let viewModel: DisambiguationViewModel
+    @Bindable var viewModel: DisambiguationViewModel
 
     var body: some View {
         ScrollView {
@@ -13,6 +13,13 @@ struct DisambiguationView: View {
                     questionsSection
                 }
                 alternativesList
+                if case .error(let message) = viewModel.state {
+                    Text(message)
+                        .font(.sbBodyRegularSmall)
+                        .foregroundStyle(Color.sbStatusError)
+                        .sbVerticalPadding(.small)
+                }
+                manualSearchSection
             }
             .sbPadding(.large)
         }
@@ -24,6 +31,41 @@ struct DisambiguationView: View {
                 ProgressView()
             }
         }
+    }
+
+    // Escape hatch when no alternative matches: MANUAL_SEARCH on the same scan.
+    private var manualSearchSection: some View {
+        VStack(alignment: .leading) {
+            Text(Localized.Scan.manualSearchNoneOfThese.localizedKey)
+                .font(.sbBodyRegularSmall)
+                .foregroundStyle(Color.sbTextSecondary)
+
+            HStack {
+                TextField(
+                    Localized.Scan.manualSearchPlaceholder.localized,
+                    text: $viewModel.manualQuery
+                )
+                .font(.sbBodyMediumDefault)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.characters)
+                .sbPadding(.medium)
+                .background(Color.sbSurfaceSecondary)
+                .sbCornerRadius(.medium)
+
+                Button {
+                    Task { await viewModel.manualSearch() }
+                } label: {
+                    Text(Localized.Scan.manualSearchAction.localizedKey)
+                        .font(.sbBodySemiboldDefault)
+                        .foregroundStyle(Color.sbAccentPrimary)
+                        .sbPadding(.medium)
+                        .background(Color.sbAccentSubtle)
+                        .sbCornerRadius(.medium)
+                }
+                .disabled(viewModel.manualQuery.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+        }
+        .sbVerticalPadding(.large)
     }
 
     private var headerSection: some View {

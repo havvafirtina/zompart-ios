@@ -10,6 +10,24 @@ import SBNetworking
 
 // MARK: - Shared part summary
 
+struct OfferArticleCriterionDTO: Decodable, Sendable {
+    /// TecDoc criterion id — nullable on the wire despite the contract table.
+    let criteriaId: Int?
+    let label: String
+    /// Always a string on the wire (`formattedValue ?? rawValue`).
+    let value: String
+    let unit: String?
+
+    private enum CodingKeys: String, CodingKey {
+        case criteriaId = "criteria_id"
+        case label, value, unit
+    }
+
+    func toModel() -> OfferArticleCriterionDomain {
+        OfferArticleCriterionDomain(criteriaId: criteriaId, label: label, value: value, unit: unit)
+    }
+}
+
 struct OfferPartSummaryDTO: Decodable, Sendable {
     let id: String
     let name: String
@@ -30,6 +48,11 @@ struct OfferPartSummaryDTO: Decodable, Sendable {
     let vehicleCompatible: Bool?
     let imageUrl: String?
     let confidenceScore: Double?
+    // TecDoc identification enrichment (additive 2026-07 — optional so rows
+    // predating the backend cutover keep decoding).
+    let genericArticleId: Int?
+    let articleCriteria: [OfferArticleCriterionDTO]?
+    let fitmentConfirmed: Bool?
 
     private enum CodingKeys: String, CodingKey {
         case id, name, brand, manufacturer, mpn, ean
@@ -43,6 +66,9 @@ struct OfferPartSummaryDTO: Decodable, Sendable {
         case vehicleCompatible = "vehicle_compatible"
         case imageUrl = "image_url"
         case confidenceScore = "confidence_score"
+        case genericArticleId = "generic_article_id"
+        case articleCriteria = "article_criteria"
+        case fitmentConfirmed = "fitment_confirmed"
     }
 
     func toModel() -> OfferPartSummaryDomain {
@@ -62,7 +88,10 @@ struct OfferPartSummaryDTO: Decodable, Sendable {
             categoryTecdoc: categoryTecdoc,
             vehicleCompatible: vehicleCompatible,
             imageUrl: imageUrl,
-            confidenceScore: confidenceScore
+            confidenceScore: confidenceScore,
+            genericArticleId: genericArticleId,
+            articleCriteria: (articleCriteria ?? []).map { $0.toModel() },
+            fitmentConfirmed: fitmentConfirmed ?? false
         )
     }
 }
@@ -109,6 +138,9 @@ struct OfferItemDTO: Decodable, Sendable {
     let deliveryLabel: String?
     let url: String
     let isSponsored: Bool
+    /// Disclosure flag — true when the outbound URL is commission-monetized
+    /// (eBay EPN, Awin). Optional: absent on offers stored before 2026-07-06.
+    let isAffiliate: Bool?
     let isAvailable: Bool
     let stockLabel: String?
     let rating: Double?
@@ -133,6 +165,7 @@ struct OfferItemDTO: Decodable, Sendable {
         case deliveryDays  = "delivery_days"
         case deliveryLabel = "delivery_label"
         case isSponsored   = "is_sponsored"
+        case isAffiliate   = "is_affiliate"
         case isAvailable   = "is_available"
         case stockLabel    = "stock_label"
         case ratingCount   = "rating_count"
@@ -155,6 +188,7 @@ struct OfferItemDTO: Decodable, Sendable {
             deliveryLabel: deliveryLabel,
             url: url,
             isSponsored: isSponsored,
+            isAffiliate: isAffiliate ?? false,
             isAvailable: isAvailable,
             stockLabel: stockLabel,
             rating: rating,

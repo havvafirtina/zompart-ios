@@ -59,12 +59,47 @@ struct ScanResultView: View {
                         .font(.sbBodyRegularSmall)
                         .foregroundStyle(Color.sbTextSecondary)
                 }
+
+                // Explicit TecDoc §8.4 fitment proof (safety-critical parts) —
+                // stronger signal than plain vehicleCompatible.
+                if part.fitmentConfirmed {
+                    Label {
+                        Text(Localized.Scan.resultFitmentConfirmed.localizedKey)
+                            .font(.sbBodyRegularSmall)
+                            .foregroundStyle(Color.sbTextPrimary)
+                    } icon: {
+                        Image(systemName: "checkmark.shield.fill")
+                            .foregroundStyle(Color.sbStatusSuccess)
+                    }
+                    .sbVerticalPadding(.small)
+                }
             }
             .sbPadding(.large)
             .frame(maxWidth: .infinity)
             .background(Color.sbSurfaceSecondary)
             .sbCornerRadius(.default)
             .sbShadow(.soft)
+
+            // Distinguishing TecDoc criteria of the matched article (fitting
+            // position, diameter, ...). Capped so the success layout stays put.
+            if !part.articleCriteria.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(Localized.Scan.resultSpecifications.localizedKey)
+                        .font(.sbBodySemiboldDefault)
+                        .foregroundStyle(Color.sbTextPrimary)
+
+                    ForEach(part.articleCriteria.prefix(4), id: \.self) { criterion in
+                        Text(criterion.displayText)
+                            .font(.sbBodyRegularSmall)
+                            .foregroundStyle(Color.sbTextSecondary)
+                    }
+                }
+                .sbPadding(.medium)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.sbSurfaceSecondary)
+                .sbCornerRadius(.default)
+                .sbVerticalPadding(.medium)
+            }
 
             if part.vehicleCompatible == false {
                 HStack(alignment: .top, spacing: 8) {
@@ -105,6 +140,8 @@ struct ScanResultView: View {
                         .frame(maxWidth: .infinity)
                         .sbControlHeight(.regular)
                 }
+
+                TecDocAttributionFooter()
             }
         }
         .sbPadding(.large)

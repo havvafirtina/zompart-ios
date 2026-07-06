@@ -14,7 +14,8 @@ enum HistoryError: Error, Equatable {
     case scanNotFound
     case invalidPagination
     case tokenExpired
-    case rateLimitExceeded
+    /// `retryAfter` = seconds until the window resets (backend `meta.retry_after`).
+    case rateLimitExceeded(retryAfter: Int?)
     case network
     case emptyResponse
     case unknown

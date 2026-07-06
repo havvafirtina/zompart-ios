@@ -128,7 +128,8 @@ actor AuthRepository: AuthRepositoryProtocol {
         switch error {
         case .clientError(statusCode: 409, _): return .emailAlreadyRegistered
         case .notFound: return .emailNotRegistered
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidIntent, .missingFields, .signupMetadataRequired: return .validationFailed
@@ -142,7 +143,8 @@ actor AuthRepository: AuthRepositoryProtocol {
 
     private static func mapVerifyError(_ error: HTTPClientError) -> AuthError {
         switch error {
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError: return .otpInvalid
         case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
@@ -153,7 +155,8 @@ actor AuthRepository: AuthRepositoryProtocol {
     private static func mapTokenError(_ error: HTTPClientError) -> AuthError {
         switch error {
         case .unauthorized: return .tokenExpired
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
         }
@@ -163,7 +166,8 @@ actor AuthRepository: AuthRepositoryProtocol {
         switch error {
         case .clientError(statusCode: 410, _): return .deletionRequestExpired
         case .serverError(statusCode: 500, _): return .deletionFailed
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .requestExpired: return .deletionRequestExpired

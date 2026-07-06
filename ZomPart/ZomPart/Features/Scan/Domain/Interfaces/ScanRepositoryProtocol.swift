@@ -37,7 +37,12 @@ protocol ScanRepositoryProtocol: Sendable {
     /// Runs AI processing on the scan. Returns one of three outcomes.
     func processScan(scanId: String) async throws -> ScanProcessResultDomain
 
-    /// Selects a part candidate from DISAMBIGUATION state.
-    /// Only `SELECT_PART` is production-ready; other feedback actions are backend stubs.
+    /// Selects a part candidate from DISAMBIGUATION state (`SELECT_PART`).
     func selectPart(scanId: String, partCandidateId: String) async throws -> ScanFeedbackResultDomain
+
+    /// Resolves a user-typed part/OE number on the same scan (`MANUAL_SEARCH`).
+    /// Allowed from any state except PROCESSING; on success the scan moves to
+    /// OFFERS_READY. Throws `ScanError.partLookupFailed` when the number
+    /// cannot be resolved (the scan keeps its previous state and can retry).
+    func manualSearch(scanId: String, query: String) async throws -> ScanFeedbackResultDomain
 }

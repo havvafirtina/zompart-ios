@@ -53,7 +53,8 @@ actor HistoryRepository: HistoryRepositoryProtocol {
     private static func mapSingleError(_ e: HTTPClientError) -> HistoryError {
         switch e {
         case .notFound: return .scanNotFound
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidUUID: return .invalidUUID
@@ -67,7 +68,8 @@ actor HistoryRepository: HistoryRepositoryProtocol {
 
     private static func mapHistoryError(_ e: HTTPClientError) -> HistoryError {
         switch e {
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidUUID: return .invalidUUID

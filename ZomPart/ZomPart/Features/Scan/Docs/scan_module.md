@@ -152,18 +152,19 @@ The app drives and reacts to the backend scan state machine through `scan-start`
 - If upload fails with `ScanError.photoLimitReached` (the resumed pending scan already holds the photo quota), it retries the whole flow once with `startOver: true` (`analyzeStartingOver`).
 - The text query (`inputText`, trimmed) is sent as `user_description` in both photo and text modes; in text mode it is the required input, in photo mode it is an optional clarifier.
 
-## Disambiguation / Feedback (SELECT_PART) Path
+## Disambiguation / Feedback (SELECT_PART / MANUAL_SEARCH) Path
 
-- `DisambiguationView` renders optional clarifying `questions` (read-only — question text plus bulleted options) and a list of `alternatives` (name + `confidence` shown as a percentage).
+- `DisambiguationView` renders optional clarifying `questions` (read-only — question text plus bulleted options; live TecDoc criteria questions, e.g. fitting position) and a list of `alternatives` (name + `confidence` shown as a percentage).
 - Tapping an alternative calls `DisambiguationViewModel.selectPart(partCandidateId:)`, which calls `scanRepository.selectPart(scanId:, partCandidateId:)`. The candidate id is the `ScanAlternativeDomain.id` (decoded from the wire `part_number`).
+- A "None of these? Search by part number" section at the bottom sends `MANUAL_SEARCH` (`DisambiguationViewModel.manualSearch()` → `scanRepository.manualSearch(scanId:query:)`). On `PART_LOOKUP_FAILED` the scan keeps its state and the inline error invites a retry.
 - The view disables interaction and shows a spinner while `.loading`; on success it forwards the `ScanFeedbackResultDomain` via `onResolved`.
-- Only `SELECT_PART` is exposed (`selectPart`). `ANSWER_QUESTION`, `WRONG_RESULT`, and `MANUAL_SEARCH` remain backend stubs and are not surfaced.
+- `SELECT_PART` and `MANUAL_SEARCH` are the only feedback actions — the backend removed `ANSWER_QUESTION` and `WRONG_RESULT` permanently (they return `400 INVALID_ACTION`); do not re-add them.
 
 ## ScanResult / ScanProcessing / ScanFailed screens
 
 - `ScanProcessingView`: indeterminate spinner, rotating tips (`processingTip1…4`, cycled every 3s while `.loading`). Shows a Cancel button while loading (leaving keeps the scan pending server-side, resumable later). On error it shows the message plus Retry (`startProcessing`) and Go home. `startProcessing` is idempotent — it no-ops if already `.loading` or `.loaded`.
-- `ScanResultView`: shows the canonical part image via `AsyncImage(part.displayImageUrl)` (falling back to a generic `checkmark.seal.fill` on empty/failure or when no URL), `part.localizedName`, `part.partNumber`, and a "manufacturer · brand" badge when both are present. When `part.vehicleCompatible == false` it shows a compatibility warning. Buttons: View offers → `offers`, Go home → `resetScanFlow`.
-- `ScanFailedView`: warning icon, title/subtitle, the raw `reason` (when non-empty), and Retry / Search by text / Go home buttons (wired in `MainTabView` as described above).
+- `ScanResultView`: shows the canonical part image via `AsyncImage(part.displayImageUrl)` (falling back to a generic `checkmark.seal.fill` on empty/failure or when no URL), `part.localizedName`, `part.partNumber`, and a "manufacturer · brand" badge when both are present. A "Fitment confirmed" badge appears when `part.fitmentConfirmed` (explicit TecDoc §8.4 proof, safety-critical parts) and a Specifications card lists up to 4 `articleCriteria` entries. When `part.vehicleCompatible == false` it shows a compatibility warning. The screen ends with the contractual `TecDocAttributionFooter`. Buttons: View offers → `offers`, Go home → `resetScanFlow`.
+- `ScanFailedView`: warning icon, title/subtitle, the raw `reason` (when non-empty), a part-number `MANUAL_SEARCH` field (`ScanFailedViewModel.manualSearch()` — the backend answers FAILED with `next_action: MANUAL_SEARCH`; success routes to offers), and Retry / Search by text / Go home buttons (wired in `MainTabView` as described above).
 
 ## Error Handling
 
@@ -183,9 +184,10 @@ Each repository method wraps its call in `do/catch` and maps `HTTPClientError` t
 | `.invalidPart` | `INVALID_PART` on feedback |
 | `.invalidAction` | `INVALID_ACTION` on feedback |
 | `.conflict` | 409 on process (concurrent processing) |
-| `.aiTemporarilyUnavailable` | 5xx (`.serverError`) on process — both AI providers (Gemini + OpenAI fallback) down |
+| `.aiTemporarilyUnavailable` | 5xx (`.serverError`) on start/upload/process/feedback — transient backend/provider outage |
+| `.partLookupFailed` | 404 on `manualSearch` (`PART_LOOKUP_FAILED` — number unresolvable; scan keeps its state) |
 | `.tokenExpired` | 401 (`.unauthorized`) after refresh failure |
-| `.rateLimitExceeded` | 429 (`clientError(statusCode: 429, _)`) on start/upload/process/feedback |
+| `.rateLimitExceeded(retryAfter:)` | 429; `retryAfter` decoded from the body's `meta.retry_after` (seconds) |
 | `.network` | `.notConnectedToInternet` / `.networkConnectionLost` (also caught directly in `uploadPhotos`) |
 | `.emptyResponse` | Nil envelope, `success: false`, or nil `data` |
 | `.unknown` | Any unmapped code (mapper `default:`) or any other error |
@@ -214,4 +216,4 @@ Each repository method wraps its call in `do/catch` and maps `HTTPClientError` t
 
 ## Open Questions / TODO
 
-- Expose additional feedback actions (`ANSWER_QUESTION`, `WRONG_RESULT`, `MANUAL_SEARCH`) once the backend ships them as production-ready.
+- Swap the text-only `TecDocAttributionFooter` for the official "TecDoc Inside" artwork (TecAlliance brand guide) before App Store submission.

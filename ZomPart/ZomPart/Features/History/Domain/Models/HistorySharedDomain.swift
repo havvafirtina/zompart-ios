@@ -39,6 +39,10 @@ struct HistoryPartSummaryDomain: Equatable, Sendable {
     let vehicleCompatible: Bool?
     let imageUrl: String?
     let confidenceScore: Double?
+    // TecDoc identification enrichment (additive 2026-07)
+    let genericArticleId: Int?
+    let articleCriteria: [HistoryArticleCriterionDomain]
+    let fitmentConfirmed: Bool
 
     var localizedName: String {
         let lang = Locale.current.language.languageCode?.identifier
@@ -52,4 +56,13 @@ struct HistoryPartSummaryDomain: Equatable, Sendable {
     var displayImageUrl: String? {
         imageUrl ?? thumbnailUrl
     }
+}
+
+/// TecDoc criterion of the selected article (e.g. fitting position, diameter).
+/// Mirrors the Scan/Offer criterion types — no cross-feature imports.
+struct HistoryArticleCriterionDomain: Equatable, Sendable {
+    let criteriaId: Int?
+    let label: String
+    let value: String
+    let unit: String?
 }

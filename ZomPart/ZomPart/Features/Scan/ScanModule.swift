@@ -9,8 +9,9 @@ extension ScanError {
             return Localized.Error.network.localized
         case .tokenExpired:
             return Localized.Error.tokenExpired.localized
-        case .rateLimitExceeded:
-            return Localized.Error.rateLimitExceeded.localized
+        case .rateLimitExceeded(let retryAfter):
+            return retryAfter.map { Localized.Error.rateLimitRetryIn.localized($0) }
+                ?? Localized.Error.rateLimitExceeded.localized
         case .scanNotFound:
             return Localized.Error.scanNotFound.localized
         case .vehicleNotFound:
@@ -27,6 +28,8 @@ extension ScanError {
             return Localized.Error.photoUploadFailed.localized
         case .aiTemporarilyUnavailable:
             return Localized.Error.aiTemporarilyUnavailable.localized
+        case .partLookupFailed:
+            return Localized.Error.partLookupFailed.localized
         default:
             return Localized.Error.unknown.localized
         }
@@ -89,6 +92,19 @@ enum ScanModule {
             scanId: scanId,
             alternatives: alternatives,
             questions: questions,
+            scanRepository: makeScanRepository(httpClient: env.httpClient),
+            onResolved: onResolved
+        )
+    }
+
+    @MainActor
+    static func makeScanFailedViewModel(
+        env: AppEnvironment,
+        scanId: String,
+        onResolved: @escaping (ScanFeedbackResultDomain) -> Void
+    ) -> ScanFailedViewModel {
+        ScanFailedViewModel(
+            scanId: scanId,
             scanRepository: makeScanRepository(httpClient: env.httpClient),
             onResolved: onResolved
         )

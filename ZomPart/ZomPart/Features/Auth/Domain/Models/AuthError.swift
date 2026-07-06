@@ -15,7 +15,8 @@ enum AuthError: Error, Equatable {
     case emailNotRegistered
     case otpInvalid
     case tokenExpired
-    case rateLimitExceeded
+    /// `retryAfter` = seconds until the window resets (backend `meta.retry_after`).
+    case rateLimitExceeded(retryAfter: Int?)
     case noPendingDeletionRequest
     case deletionRequestExpired
     case deletionFailed

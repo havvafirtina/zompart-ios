@@ -137,7 +137,7 @@ struct VINScannerView: View {
             HStack {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(Color.sbStatusSuccess)
-                Text("\(result.vehicle.make) \(result.vehicle.model)")
+                Text("\(result.vehicle.make.displayCased) \(result.vehicle.model.displayCased)")
                     .font(.sbBodySemiboldDefault)
                     .foregroundStyle(Color.sbTextPrimary)
             }

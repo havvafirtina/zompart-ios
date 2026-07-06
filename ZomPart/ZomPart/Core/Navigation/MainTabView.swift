@@ -144,8 +144,16 @@ struct MainTabView: View {
                 }
             )
 
-        case .scanFailed(_, let reason):
+        case .scanFailed(let scanId, let reason):
             ScanFailedView(
+                viewModel: vmCache.scanFailedVM(env: env, scanId: scanId) { feedback in
+                    // Manual search changes the scan's part and offers —
+                    // evict the cached detail/offers VMs so they reload.
+                    vmCache.invalidateScanDetail(scanId: scanId)
+                    if feedback.nextAction == .showOffers {
+                        router.scanPath.append(.offers(scanId: scanId))
+                    }
+                },
                 reason: reason,
                 onRetry: {
                     while let last = router.scanPath.last {
@@ -263,6 +271,7 @@ struct MainTabView: View {
         let garageVM = vmCache.garageListVM(env: env)
         if let vehicle = garageVM.vehicles.first(where: { $0.id == vehicleId }) {
             VehicleDetailView(
+                env: env,
                 vehicle: vehicle,
                 historyViewModel: vmCache.historyListVM(env: env, vehicleId: vehicleId),
                 onScanTap: { scanId in

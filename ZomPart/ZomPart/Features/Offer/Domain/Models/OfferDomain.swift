@@ -19,6 +19,10 @@ struct OfferDomain: Equatable, Sendable {
     let deliveryLabel: String?
     let url: String
     let isSponsored: Bool
+    /// Disclosure flag — true when the outbound URL is commission-monetized
+    /// (eBay EPN, Awin deep link). Separate concept from `isSponsored` (paid
+    /// placement / sort boost); drives the affiliate badge + list footer only.
+    let isAffiliate: Bool
     let isAvailable: Bool
     let stockLabel: String?
     let rating: Double?
@@ -65,6 +69,15 @@ struct AffiliateMetadataDomain: Equatable, Sendable {
     let awinFeedSyncedAt: String?
 }
 
+/// TecDoc criterion of the selected article (e.g. fitting position, diameter).
+/// Mirrors `ScanArticleCriterionDomain` deliberately — no cross-feature imports.
+struct OfferArticleCriterionDomain: Equatable, Sendable {
+    let criteriaId: Int?
+    let label: String
+    let value: String
+    let unit: String?
+}
+
 enum OfferSortDomain: String, Encodable, Sendable {
     case recommended
     case cheapest
@@ -92,6 +105,10 @@ struct OfferPartSummaryDomain: Equatable, Sendable {
     let vehicleCompatible: Bool?
     let imageUrl: String?
     let confidenceScore: Double?
+    // TecDoc identification enrichment (additive 2026-07)
+    let genericArticleId: Int?
+    let articleCriteria: [OfferArticleCriterionDomain]
+    let fitmentConfirmed: Bool
 
     var localizedName: String {
         let lang = Locale.current.language.languageCode?.identifier

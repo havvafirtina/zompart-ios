@@ -15,7 +15,8 @@ enum VehicleError: Error, Equatable {
     case invalidCountryCode
     case vehicleNotFound
     case tokenExpired
-    case rateLimitExceeded
+    /// `retryAfter` = seconds until the window resets (backend `meta.retry_after`).
+    case rateLimitExceeded(retryAfter: Int?)
     case providerUnavailable
     case network
     case emptyResponse

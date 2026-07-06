@@ -47,7 +47,12 @@
     - `POST /functions/v1/vehicle-resolve`
     - Body keys: `{ "resolve_type": "PLATE", "plate": <string>, "country_code": <string> }`
 - All three endpoints declare `ResponseType = APIEnvelope<VehicleResolveDataDTO>`.
-- The `country_code` value sent by both scanner view models is hard-coded to `"SE"`.
+- Plate resolve sends the user-selected `PlateCountry` (SE/NO/DK/FI picker in
+  `PlateScannerView`; last choice persisted under the `plate_country` UserDefaults key,
+  default SE). FI is licensed but currently rejected at the TecAlliance account level —
+  the backend answers `503 PROVIDER_UNAVAILABLE` and the VM shows the dedicated
+  `garage.error.finlandComingSoon` message (self-heals when the vendor ticket closes).
+  VIN resolve still hard-codes `"SE"` (the VIN flow is dormant/hidden).
 
 ### Response shape
 
@@ -284,8 +289,8 @@ View models surface errors via `VehicleError.localizedMessage` (defined in
 
 ## Open Questions / TODO
 
-- Integrate the real vehicle-data provider (backend `VEHICLE_PROVIDER` env var).
-- `country_code` is hard-coded to `"SE"` in both scanners; make it user-selectable when more
-  markets are supported.
-- The plate OCR/validation regex is Swedish-specific; generalize alongside country support.
+- The plate OCR hint regex is Swedish-specific; NO/DK/FI plates rely on manual entry
+  (generalize the pattern per country if OCR matters there).
+- Vehicle detail links into the Catalog feature ("Browse parts catalog" → `CatalogBrowseView`
+  sheet); make/model rendering uses `String.displayCased` (prod TecDoc data arrives shouty).
 - Soft-delete is local only; reconcile with a backend delete endpoint if/when one exists.

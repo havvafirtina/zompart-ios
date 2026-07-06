@@ -16,8 +16,9 @@ extension VehicleError {
             return Localized.Error.vehicleNotFound.localized
         case .tokenExpired:
             return Localized.Error.tokenExpired.localized
-        case .rateLimitExceeded:
-            return Localized.Error.rateLimitExceeded.localized
+        case .rateLimitExceeded(let retryAfter):
+            return retryAfter.map { Localized.Error.rateLimitRetryIn.localized($0) }
+                ?? Localized.Error.rateLimitExceeded.localized
         case .providerUnavailable:
             return Localized.Garage.errorProviderUnavailable.localized
         case .network:

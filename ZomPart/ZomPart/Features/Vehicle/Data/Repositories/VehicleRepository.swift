@@ -83,7 +83,8 @@ actor VehicleRepository: VehicleRepositoryProtocol {
         switch error {
         case .notFound: return .vehicleNotFound
         case .serverError: return .providerUnavailable
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidVIN: return .invalidVIN
@@ -101,7 +102,8 @@ actor VehicleRepository: VehicleRepositoryProtocol {
         switch error {
         case .notFound: return .vehicleNotFound
         case .serverError: return .providerUnavailable
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidVIN: return .invalidVIN

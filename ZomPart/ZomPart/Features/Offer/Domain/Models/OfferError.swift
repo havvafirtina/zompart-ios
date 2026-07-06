@@ -14,7 +14,10 @@ enum OfferError: Error, Equatable {
     case scanNotFound
     case offerNotFound
     case tokenExpired
-    case rateLimitExceeded
+    /// `retryAfter` = seconds until the window resets (backend `meta.retry_after`).
+    case rateLimitExceeded(retryAfter: Int?)
+    /// Offer backend/provider is down (5xx) — transient, retry later.
+    case serviceUnavailable
     case network
     case emptyResponse
     case unknown

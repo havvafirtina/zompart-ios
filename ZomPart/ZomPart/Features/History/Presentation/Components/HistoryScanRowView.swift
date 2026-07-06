@@ -24,7 +24,7 @@ struct HistoryScanRowView: View {
 
                     HStack {
                         if let vehicle = scan.vehicle {
-                            Text("\(vehicle.year) \(vehicle.make) \(vehicle.model)")
+                            Text("\(vehicle.year) \(vehicle.make.displayCased) \(vehicle.model.displayCased)")
                                 .font(.sbBodyRegularSmall)
                                 .foregroundStyle(Color.sbTextSecondary)
                         }

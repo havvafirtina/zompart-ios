@@ -153,17 +153,32 @@ actor ScanRepository: ScanRepositoryProtocol {
         } catch { throw ScanError.unknown }
     }
 
+    func manualSearch(scanId: String, query: String) async throws -> ScanFeedbackResultDomain {
+        do {
+            let request = ScanManualSearchRequest(scanId: scanId, query: query)
+            let envelope = try await client.submitRequest(request: request)
+            guard let envelope, envelope.success, envelope.data != nil else { throw ScanError.emptyResponse }
+            return envelope.toModel()
+        } catch is CancellationError { throw CancellationError()
+        } catch let e as URLError where e.code == .cancelled { throw CancellationError()
+        } catch let e as ScanError { throw e
+        } catch let e as HTTPClientError { throw Self.mapManualSearchError(e)
+        } catch { throw ScanError.unknown }
+    }
+
     // MARK: - Error mapping
 
     private static func mapStartError(_ e: HTTPClientError) -> ScanError {
         switch e {
         case .notFound: return .vehicleNotFound
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidUUID: return .invalidUUID
             default: return .unknown
             }
+        case .serverError: return .aiTemporarilyUnavailable
         case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
@@ -173,7 +188,8 @@ actor ScanRepository: ScanRepositoryProtocol {
     private static func mapUploadError(_ e: HTTPClientError) -> ScanError {
         switch e {
         case .notFound: return .scanNotFound
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidScanType: return .invalidScanType
@@ -182,6 +198,7 @@ actor ScanRepository: ScanRepositoryProtocol {
             case .invalidUUID: return .invalidUUID
             default: return .unknown
             }
+        case .serverError: return .aiTemporarilyUnavailable
         case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown
@@ -192,7 +209,8 @@ actor ScanRepository: ScanRepositoryProtocol {
         switch e {
         case .notFound: return .scanNotFound
         case .clientError(statusCode: 409, _): return .conflict
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidState: return .invalidState
@@ -212,10 +230,22 @@ actor ScanRepository: ScanRepositoryProtocol {
         }
     }
 
+    private static func mapManualSearchError(_ e: HTTPClientError) -> ScanError {
+        switch e {
+        // The transport collapses every 404 into `.notFound` without a body,
+        // so PART_LOOKUP_FAILED and SCAN_NOT_FOUND are indistinguishable here.
+        // On a manual search the overwhelmingly likely 404 is an unresolvable
+        // part number — surface that; a truly deleted scan fails the next call.
+        case .notFound: return .partLookupFailed
+        default: return mapFeedbackError(e)
+        }
+    }
+
     private static func mapFeedbackError(_ e: HTTPClientError) -> ScanError {
         switch e {
         case .notFound: return .scanNotFound
-        case .clientError(statusCode: 429, _): return .rateLimitExceeded
+        case .clientError(statusCode: 429, let data):
+            return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidPart: return .invalidPart
@@ -224,6 +254,7 @@ actor ScanRepository: ScanRepositoryProtocol {
             case .invalidUUID: return .invalidUUID
             default: return .unknown
             }
+        case .serverError: return .aiTemporarilyUnavailable
         case .unauthorized: return .tokenExpired
         case .notConnectedToInternet, .networkConnectionLost: return .network
         default: return .unknown

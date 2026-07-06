@@ -47,6 +47,13 @@ struct ScanPartSummaryDomain: Equatable, Hashable, Sendable {
     let imageUrl: String?
     /// AI's overall confidence (0..1) for the CONFIDENT branch.
     let confidenceScore: Double?
+    /// TecDoc part-type (GenArt) id; nil for rows predating the TecDoc cutover.
+    let genericArticleId: Int?
+    /// Distinguishing TecDoc attributes of the chosen article (max 12 server-side).
+    let articleCriteria: [ScanArticleCriterionDomain]
+    /// True when an explicit TecDoc §8.4 linkage proof was obtained
+    /// (safety-critical parts). Distinct from `vehicleCompatible`.
+    let fitmentConfirmed: Bool
 
     var localizedName: String {
         let lang = Locale.current.language.languageCode?.identifier
@@ -61,6 +68,19 @@ struct ScanPartSummaryDomain: Equatable, Hashable, Sendable {
     /// back to the legacy `thumbnailUrl` for older responses.
     var displayImageUrl: String? {
         imageUrl ?? thumbnailUrl
+    }
+}
+
+struct ScanArticleCriterionDomain: Equatable, Hashable, Sendable {
+    let criteriaId: Int?
+    let label: String
+    let value: String
+    let unit: String?
+
+    /// "Fitting Position: Front Axle" / "Diameter: 280 mm" style display line.
+    var displayText: String {
+        let valueWithUnit = unit.map { "\(value) \($0)" } ?? value
+        return "\(label): \(valueWithUnit)"
     }
 }
 

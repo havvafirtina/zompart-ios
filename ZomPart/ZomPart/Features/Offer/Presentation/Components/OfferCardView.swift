@@ -46,6 +46,14 @@ struct OfferCardView: View {
                         .font(.sbBodyRegularXSmall)
                         .foregroundStyle(Color.sbTextTertiary)
                 }
+
+                // Commission disclosure (eBay EPN / Awin terms + App Store
+                // guidelines). Separate concept from the sponsored badge.
+                if offer.isAffiliate {
+                    Text(Localized.Offers.affiliateBadge.localizedKey)
+                        .font(.sbBodyRegularXSmall)
+                        .foregroundStyle(Color.sbTextTertiary)
+                }
             }
             .sbPadding(.large)
             .background(Color.sbSurfaceSecondary)
