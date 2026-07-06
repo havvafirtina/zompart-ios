@@ -13,6 +13,11 @@
 > contract still defines PERSON, COMPANY and MANUAL resolve types, but they have no
 > endpoints, repository methods, domain flow, or UI in this app — the manual-entry wizard
 > and the PERSON/COMPANY paths were removed. Do not document them as available features.
+>
+> **VIN is hidden from the UI:** plate is the primary path, so `AddVehicleSheetView`
+> exposes only the Plate scanner button. The VIN flow (`VINScannerView`, its ViewModel,
+> and the `.vinScanner` route) stays implemented but dormant — re-adding the method
+> button is enough to re-enable it.
 
 ## Public Contracts
 
@@ -25,7 +30,8 @@
     - `makeGarageListViewModel(env:) -> GarageListViewModel`
     - `makeVINScannerViewModel(env:onVehicleAdded:) -> VINScannerViewModel`
     - `makePlateScannerViewModel(env:onVehicleAdded:) -> PlateScannerViewModel`
-    - `onVehicleAdded` is an `@escaping (String) -> Void` callback receiving the new vehicle id.
+    - `onVehicleAdded` is an `@escaping (VehicleDomain) -> Void` callback receiving the
+      resolved vehicle, so list screens can insert it optimistically without re-fetching.
     - The factory also defines `VehicleError.localizedMessage`, which maps each error case to a
       `Localized.*` string (used by the scanner view models for on-screen messages).
 
@@ -118,7 +124,9 @@ guards `envelope != nil && envelope.success && envelope.data != nil` before mapp
   delegates to `refresh()`. Cancellation mid-load resets a `loading` state back to `idle`.
 - `refresh()` — re-fetches; on error it preserves existing vehicles instead of showing an
   error (falls back to `.empty` or `.loaded`). Bound to `.refreshable`.
-- `onVehicleAdded(vehicleId:)` — resets state to `.idle` then reloads. If the id was
+- `onVehicleAdded(vehicle:)` — optimistically inserts the resolved vehicle at the top of
+  the list (state goes straight to `.loaded`, never back to a spinner), then reconciles
+  via `refresh()`; a failed reconcile keeps the optimistic data on screen. If the id was
   previously deleted, it is removed from the deleted-id set first so the vehicle reappears.
 - **Local soft-delete:** swipe-to-delete calls `deleteVehicle(id:)`, which adds the id to a
   `Set<String>` persisted in `UserDefaults` under key `deleted_vehicle_ids`. `loadVehicles()`
@@ -132,8 +140,11 @@ guards `envelope != nil && envelope.success && envelope.data != nil` before mapp
 
 - Presented as a sheet from `MainTabView` (triggered from both the Garage and Scan tabs).
 - Hosts its own `NavigationStack` with a local `Route` enum: `.vinScanner`, `.plateScanner`.
-- Shows exactly two method buttons (VIN scanner, Plate scanner) and a Cancel toolbar item.
-- On `onVehicleAdded(vehicleId)` it forwards the id and dismisses the sheet.
+- Shows a single method button (Plate scanner) and a Cancel toolbar item; the VIN entry
+  point is intentionally hidden (see scope note above).
+- On `onVehicleAdded(vehicle)` it forwards the resolved `VehicleDomain` and dismisses
+  the sheet; `MainTabView` fans the vehicle out to `GarageListViewModel` and
+  `ScanHomeViewModel`, which insert it optimistically.
 
 ### VIN scanner (`VINScannerView` + `VINScannerViewModel`)
 

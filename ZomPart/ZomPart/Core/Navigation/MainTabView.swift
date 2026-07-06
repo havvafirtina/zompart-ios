@@ -47,11 +47,9 @@ struct MainTabView: View {
         }
         .tint(Color.sbAccentPrimary)
         .sheet(isPresented: $showAddVehicle) {
-            AddVehicleSheetView(env: env) { vehicleId in
-                Task {
-                    await vmCache.garageListVM(env: env).onVehicleAdded(vehicleId: vehicleId)
-                    await vmCache.scanHomeVM(env: env).loadVehicles()
-                }
+            AddVehicleSheetView(env: env) { vehicle in
+                Task { await vmCache.garageListVM(env: env).onVehicleAdded(vehicle: vehicle) }
+                Task { await vmCache.scanHomeVM(env: env).onVehicleAdded(vehicle: vehicle) }
             }
         }
         .onChange(of: router.scanPath) { _, newValue in

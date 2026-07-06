@@ -45,7 +45,7 @@ final class GarageListViewModel {
             // cancelled mid-refresh — next appearance reloads via .task
         } catch {
             // refresh keeps existing data, but never leaves a transient
-            // state on screen (onVehicleAdded resets to .idle before this)
+            // state on screen
             state = vehicles.isEmpty ? .empty : .loaded(vehicles)
         }
     }
@@ -57,12 +57,18 @@ final class GarageListViewModel {
         state = vehicles.isEmpty ? .empty : .loaded(vehicles)
     }
 
-    func onVehicleAdded(vehicleId: String? = nil) async {
-        if let vehicleId, deletedIds.contains(vehicleId) {
-            deletedIds.remove(vehicleId)
+    /// Optimistically inserts the freshly resolved vehicle so the list shows it
+    /// immediately, then reconciles with the server in the background.
+    /// Never blanks the list back to a spinner: even if the reconcile request
+    /// fails silently, the new vehicle stays visible.
+    func onVehicleAdded(vehicle: VehicleDomain) async {
+        if deletedIds.contains(vehicle.id) {
+            deletedIds.remove(vehicle.id)
             UserDefaults.standard.set(Array(deletedIds), forKey: Self.deletedIdsKey)
         }
-        state = .idle
-        await loadVehicles()
+        vehicles.removeAll { $0.id == vehicle.id }
+        vehicles.insert(vehicle, at: 0)
+        state = .loaded(vehicles)
+        await refresh()
     }
 }

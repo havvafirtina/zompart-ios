@@ -9,21 +9,16 @@ struct AddVehicleSheetView: View {
     }
 
     let env: AppEnvironment
-    let onVehicleAdded: (String) -> Void
+    let onVehicleAdded: (VehicleDomain) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var path: [Route] = []
 
     var body: some View {
         NavigationStack(path: $path) {
             VStack {
-                methodButton(
-                    icon: "barcode.viewfinder",
-                    title: Localized.Garage.scanVIN.localized,
-                    subtitle: Localized.Garage.scanVINSubtitle.localized
-                ) {
-                    path.append(.vinScanner)
-                }
-
+                // VIN recognition is intentionally hidden from the UI (plate is the
+                // primary path). The vinScanner route below stays dormant so the
+                // flow can be re-enabled by re-adding this entry point.
                 methodButton(
                     icon: "car.rear.and.tire.marks",
                     title: Localized.Garage.scanPlate.localized,
@@ -47,15 +42,15 @@ struct AddVehicleSheetView: View {
                 switch route {
                 case .vinScanner:
                     VINScannerView(
-                        viewModel: VehicleModule.makeVINScannerViewModel(env: env) { vehicleId in
-                            onVehicleAdded(vehicleId)
+                        viewModel: VehicleModule.makeVINScannerViewModel(env: env) { vehicle in
+                            onVehicleAdded(vehicle)
                             dismiss()
                         }
                     )
                 case .plateScanner:
                     PlateScannerView(
-                        viewModel: VehicleModule.makePlateScannerViewModel(env: env) { vehicleId in
-                            onVehicleAdded(vehicleId)
+                        viewModel: VehicleModule.makePlateScannerViewModel(env: env) { vehicle in
+                            onVehicleAdded(vehicle)
                             dismiss()
                         }
                     )

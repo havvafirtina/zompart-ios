@@ -12,13 +12,13 @@ final class VINScannerViewModel {
     private let vehicleRepository: VehicleRepositoryProtocol
     private let ocrService: OCRServiceProtocol
     private let cameraPermission: CameraPermissionManager
-    private let onVehicleAdded: (String) -> Void
+    private let onVehicleAdded: (VehicleDomain) -> Void
 
     init(
         vehicleRepository: VehicleRepositoryProtocol,
         ocrService: OCRServiceProtocol,
         cameraPermission: CameraPermissionManager,
-        onVehicleAdded: @escaping (String) -> Void
+        onVehicleAdded: @escaping (VehicleDomain) -> Void
     ) {
         self.vehicleRepository = vehicleRepository
         self.ocrService = ocrService
@@ -65,7 +65,7 @@ final class VINScannerViewModel {
             let result = try await vehicleRepository.resolveByVIN(vin, countryCode: "SE")
             state = .loaded(result)
             try? await Task.sleep(for: .seconds(1.5))
-            onVehicleAdded(result.vehicle.id)
+            onVehicleAdded(result.vehicle)
         } catch let error as VehicleError {
             state = .error(error.localizedMessage)
         } catch {
