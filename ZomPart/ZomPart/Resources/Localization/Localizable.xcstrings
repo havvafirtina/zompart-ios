@@ -2875,6 +2875,94 @@
         }
       }
     },
+    "scan.mismatch.continueOption" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue with the scanned part"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortsätt med den skannade delen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taranan parçayla devam et"
+          }
+        }
+      }
+    },
+    "scan.mismatch.fitOption" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show the part that fits my car"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa delen som passar min bil"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aracıma uyan parçayı göster"
+          }
+        }
+      }
+    },
+    "scan.mismatch.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The scanned part doesn't appear to fit your vehicle. How would you like to continue?"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den skannade delen verkar inte passa ditt fordon. Hur vill du fortsätta?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taranan parça aracınıza uygun görünmüyor. Nasıl devam etmek istersiniz?"
+          }
+        }
+      }
+    },
+    "scan.mismatch.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Part doesn't match"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delen passar inte"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parça uyumsuz"
+          }
+        }
+      }
+    },
     "scan.ocr.metadata" : {
       "extractionState" : "stale",
       "localizations" : {

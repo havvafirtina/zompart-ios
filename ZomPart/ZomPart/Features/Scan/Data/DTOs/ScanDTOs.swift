@@ -164,14 +164,19 @@ struct ScanAlternativeDTO: Decodable, Sendable {
     /// a coordinated change to send `id` instead.
     let id: String
     let confidence: Double
+    /// Present on VEHICLE_MISMATCH alternatives: `true` = the equivalent part
+    /// that fits the user's vehicle, `false` = the scanned (incompatible)
+    /// part. Absent on criteria/AI alternatives.
+    let vehicleCompatible: Bool?
 
     private enum CodingKeys: String, CodingKey {
         case name, confidence
         case id = "part_number"
+        case vehicleCompatible = "vehicle_compatible"
     }
 
     func toModel() -> ScanAlternativeDomain {
-        ScanAlternativeDomain(name: name, id: id, confidence: confidence)
+        ScanAlternativeDomain(name: name, id: id, confidence: confidence, vehicleCompatible: vehicleCompatible)
     }
 }
 
@@ -212,11 +217,15 @@ struct ScanProcessDataDTO: ResponseProtocol {
     let alternatives: [ScanAlternativeDTO]?
     let questions: [ScanQuestionDTO]?
     let reason: String?
+    /// `"CRITERIA"` (TecDoc variant split) or `"VEHICLE_MISMATCH"` (the
+    /// identified part does not fit the vehicle). Absent on older payloads.
+    let disambiguationType: String?
 
     private enum CodingKeys: String, CodingKey {
-        case scanId      = "scan_id"
+        case scanId             = "scan_id"
         case state
-        case nextAction  = "next_action"
+        case nextAction         = "next_action"
+        case disambiguationType = "disambiguation_type"
         case part, alternatives, questions, reason
     }
 
@@ -228,6 +237,8 @@ struct ScanProcessDataDTO: ResponseProtocol {
         case ScanStateDomain.disambiguation.rawValue:
             return .disambiguation(
                 scanId: scanId,
+                kind: DisambiguationKindDomain(wireValue: disambiguationType),
+                reason: reason,
                 alternatives: (alternatives ?? []).map { $0.toModel() },
                 questions: (questions ?? []).map { $0.toModel() }
             )

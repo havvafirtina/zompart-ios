@@ -246,6 +246,11 @@ actor ScanRepository: ScanRepositoryProtocol {
         case .notFound: return .scanNotFound
         case .clientError(statusCode: 429, let data):
             return .rateLimitExceeded(retryAfter: APIErrorParser.retryAfterSeconds(from: data))
+        // Concurrent SELECT_PART/MANUAL_SEARCH on the same scan → backend 409
+        // CONFLICT; surface the localized "already being processed" message
+        // instead of the generic error (mirrors mapProcessError).
+        case .clientError(statusCode: 409, _):
+            return .conflict
         case .clientError(_, let data):
             switch APIErrorParser.code(from: data) {
             case .invalidPart: return .invalidPart

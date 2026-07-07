@@ -14,7 +14,7 @@ final class AppRouter {
         case scanInputPhoto(vehicleId: String)
         case scanInputText(vehicleId: String)
         case scanProcessing(scanId: String)
-        case disambiguation(scanId: String, alternatives: [ScanAlternativeDomain], questions: [ScanQuestionDomain])
+        case disambiguation(scanId: String, kind: DisambiguationKindDomain, reason: String?, alternatives: [ScanAlternativeDomain], questions: [ScanQuestionDomain])
         case scanResult(scanId: String, part: ScanPartSummaryDomain)
         case scanFailed(scanId: String, reason: String)
         case offers(scanId: String)

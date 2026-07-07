@@ -14,10 +14,34 @@ enum ScanNextActionDomain: String, Equatable, Sendable {
     case processScan     = "PROCESS_SCAN"
 }
 
+/// Why the scan needs the user to choose between candidates.
+/// Backend sends `disambiguation_type`; older payloads omit it, and any
+/// unknown value degrades to `.criteria` (the generic chooser UI).
+enum DisambiguationKindDomain: Equatable, Hashable, Sendable {
+    /// TecDoc variant split (e.g. front vs rear axle) or AI alternatives.
+    case criteria
+    /// The identified part does not fit the selected vehicle; alternatives
+    /// carry `vehicleCompatible` so the UI can offer "fits my car" vs
+    /// "continue with the scanned part".
+    case vehicleMismatch
+
+    init(wireValue: String?) {
+        self = wireValue == "VEHICLE_MISMATCH" ? .vehicleMismatch : .criteria
+    }
+}
+
 /// Result returned by `processScan()`. Shape varies by AI outcome.
 enum ScanProcessResultDomain: Equatable, Sendable {
     case offersReady(scanId: String, part: ScanPartSummaryDomain)
-    case disambiguation(scanId: String, alternatives: [ScanAlternativeDomain], questions: [ScanQuestionDomain])
+    case disambiguation(
+        scanId: String,
+        kind: DisambiguationKindDomain,
+        /// English mismatch explanation from the AI (backend sends it only
+        /// for VEHICLE_MISMATCH today). Displayed as-is — not localized.
+        reason: String?,
+        alternatives: [ScanAlternativeDomain],
+        questions: [ScanQuestionDomain]
+    )
     case failed(scanId: String, reason: String)
 }
 
@@ -91,6 +115,16 @@ struct ScanAlternativeDomain: Equatable, Hashable, Sendable {
     /// `ScanAlternativeDTO` for the decode mapping.
     let id: String
     let confidence: Double
+    /// VEHICLE_MISMATCH only: `true` = equivalent part that fits the user's
+    /// vehicle, `false` = the scanned (incompatible) part; nil otherwise.
+    let vehicleCompatible: Bool?
+
+    init(name: String, id: String, confidence: Double, vehicleCompatible: Bool? = nil) {
+        self.name = name
+        self.id = id
+        self.confidence = confidence
+        self.vehicleCompatible = vehicleCompatible
+    }
 }
 
 struct ScanQuestionDomain: Equatable, Hashable, Sendable {

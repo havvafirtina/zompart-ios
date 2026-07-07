@@ -14,6 +14,7 @@
 		6D838FF62FB91C1200B0F295 /* SBDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 6D838FF52FB91C1200B0F295 /* SBDesignSystem */; };
 		6DED93602FB7DD8C0061CBC0 /* SBNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 6DED93612FB7DD8C0061CBC0 /* SBNetworking */; };
 		773CC0D576C2EF5449108432 /* OfferDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26678B974B92B5C466FB1B3C /* OfferDecodingTests.swift */; };
+		FBB1B6ABE2578857FC00E91E /* ScanProcessDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9792B0E0B9B071DC3B82073 /* ScanProcessDecodingTests.swift */; };
 		86D4F86AD88E14871EEAB146 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F81A1ACD4B816F3C219769E1 /* Foundation.framework */; };
 		CAAD1BD2E61E09AF85DD4755 /* CatalogTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D45FB336F51CE9DAA628A3FB /* CatalogTreeTests.swift */; };
 		E2954702A000423F2FBE9DF3 /* APIErrorParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1601A67CF8B87969112DD3 /* APIErrorParserTests.swift */; };
@@ -33,6 +34,7 @@
 		07214BBC9B9F66A252275207 /* DisplayCasedTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DisplayCasedTests.swift; sourceTree = "<group>"; };
 		26678B974B92B5C466FB1B3C /* OfferDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OfferDecodingTests.swift; sourceTree = "<group>"; };
 		392E312DFD061ED10D4560B4 /* ScanFeedbackEncodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScanFeedbackEncodingTests.swift; sourceTree = "<group>"; };
+		A9792B0E0B9B071DC3B82073 /* ScanProcessDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScanProcessDecodingTests.swift; sourceTree = "<group>"; };
 		5E1601A67CF8B87969112DD3 /* APIErrorParserTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIErrorParserTests.swift; sourceTree = "<group>"; };
 		6DED93482FB7DD8A0061CBC0 /* ZomPart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZomPart.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		729B8B6E53DF6BD5218D2C13 /* ZomPartTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ZomPartTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -121,6 +123,7 @@
 				26678B974B92B5C466FB1B3C /* OfferDecodingTests.swift */,
 				C35FF89A7CA5A6D5B048EC6A /* PartSummaryDecodingTests.swift */,
 				392E312DFD061ED10D4560B4 /* ScanFeedbackEncodingTests.swift */,
+				A9792B0E0B9B071DC3B82073 /* ScanProcessDecodingTests.swift */,
 			);
 			path = ZomPartTests;
 			sourceTree = "<group>";
@@ -278,6 +281,7 @@
 				773CC0D576C2EF5449108432 /* OfferDecodingTests.swift in Sources */,
 				3548115BB97A4F298922D899 /* PartSummaryDecodingTests.swift in Sources */,
 				22ABDC0599D1F2C7D986C2CE /* ScanFeedbackEncodingTests.swift in Sources */,
+				FBB1B6ABE2578857FC00E91E /* ScanProcessDecodingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

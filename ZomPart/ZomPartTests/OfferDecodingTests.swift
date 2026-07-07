@@ -50,4 +50,31 @@ struct OfferDecodingTests {
         let dto = try JSONDecoder().decode(OfferItemDTO.self, from: Self.offerJSON())
         #expect(dto.toModel().isAffiliate == false)
     }
+
+    /// `affiliate_metadata.ebay_title` (2026-07-07 backend) carries the
+    /// marketplace listing title — rendered as the offer-card subtitle.
+    /// Older payloads without it must keep decoding (nil title).
+    @Test func ebayTitleDecodesFromAffiliateMetadata() throws {
+        // The base fixture carries `"affiliate_metadata": null`; swap in an
+        // object variant with the listing title.
+        let json = String(data: Self.offerJSON(), encoding: .utf8)!
+            .replacingOccurrences(
+                of: "\"affiliate_metadata\": null",
+                with: """
+                "affiliate_metadata": { "ebay_item_id": "v1|1|0", "ebay_marketplace": "EBAY_DE", "ebay_title": "Anlasser Starter 2,2 KW für KIA Sorento I JC 2.5 CRDi" }
+                """
+            )
+        let dto = try JSONDecoder().decode(OfferItemDTO.self, from: Data(json.utf8))
+        #expect(dto.toModel().affiliateMetadata?.ebayTitle == "Anlasser Starter 2,2 KW für KIA Sorento I JC 2.5 CRDi")
+    }
+
+    @Test func ebayTitleNilWhenMetadataOmitsIt() throws {
+        let json = String(data: Self.offerJSON(), encoding: .utf8)!
+            .replacingOccurrences(
+                of: "\"affiliate_metadata\": null",
+                with: "\"affiliate_metadata\": { \"ebay_item_id\": \"v1|1|0\" }"
+            )
+        let dto = try JSONDecoder().decode(OfferItemDTO.self, from: Data(json.utf8))
+        #expect(dto.toModel().affiliateMetadata?.ebayTitle == nil)
+    }
 }

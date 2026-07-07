@@ -84,12 +84,16 @@ enum ScanModule {
     static func makeDisambiguationViewModel(
         env: AppEnvironment,
         scanId: String,
+        kind: DisambiguationKindDomain = .criteria,
+        reason: String? = nil,
         alternatives: [ScanAlternativeDomain],
         questions: [ScanQuestionDomain] = [],
         onResolved: @escaping (ScanFeedbackResultDomain) -> Void
     ) -> DisambiguationViewModel {
         DisambiguationViewModel(
             scanId: scanId,
+            kind: kind,
+            reason: reason,
             alternatives: alternatives,
             questions: questions,
             scanRepository: makeScanRepository(httpClient: env.httpClient),

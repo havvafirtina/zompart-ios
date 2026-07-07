@@ -87,6 +87,8 @@ final class ViewModelCache {
     func disambiguationVM(
         env: AppEnvironment,
         scanId: String,
+        kind: DisambiguationKindDomain,
+        reason: String?,
         alternatives: [ScanAlternativeDomain],
         questions: [ScanQuestionDomain],
         onResolved: @escaping (ScanFeedbackResultDomain) -> Void
@@ -95,6 +97,8 @@ final class ViewModelCache {
         let vm = ScanModule.makeDisambiguationViewModel(
             env: env,
             scanId: scanId,
+            kind: kind,
+            reason: reason,
             alternatives: alternatives,
             questions: questions,
             onResolved: onResolved

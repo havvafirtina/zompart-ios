@@ -65,6 +65,8 @@ struct OfferDomain: Equatable, Sendable {
 struct AffiliateMetadataDomain: Equatable, Sendable {
     let ebayItemId: String?
     let ebayMarketplace: String?
+    /// Marketplace listing title — rendered as the offer-card subtitle.
+    let ebayTitle: String?
     let awinMerchantId: String?
     let awinFeedSyncedAt: String?
 }

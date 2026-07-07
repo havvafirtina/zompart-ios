@@ -104,12 +104,17 @@ struct OfferPartSummaryDTO: Decodable, Sendable {
 struct AffiliateMetadataDTO: Decodable, Sendable, Equatable {
     let ebayItemId: String?
     let ebayMarketplace: String?
+    /// Marketplace listing title — shown as the offer subtitle so the user
+    /// sees what the listing actually is (incl. generation, e.g. "Sorento I")
+    /// before tapping out.
+    let ebayTitle: String?
     let awinMerchantId: String?
     let awinFeedSyncedAt: String?
 
     private enum CodingKeys: String, CodingKey {
         case ebayItemId       = "ebay_item_id"
         case ebayMarketplace  = "ebay_marketplace"
+        case ebayTitle        = "ebay_title"
         case awinMerchantId   = "awin_merchant_id"
         case awinFeedSyncedAt = "awin_feed_synced_at"
     }
@@ -118,6 +123,7 @@ struct AffiliateMetadataDTO: Decodable, Sendable, Equatable {
         AffiliateMetadataDomain(
             ebayItemId: ebayItemId,
             ebayMarketplace: ebayMarketplace,
+            ebayTitle: ebayTitle,
             awinMerchantId: awinMerchantId,
             awinFeedSyncedAt: awinFeedSyncedAt
         )

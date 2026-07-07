@@ -87,6 +87,16 @@ struct OfferCardView: View {
                     }
                 }
 
+                // Marketplace listing title: lets the user see WHAT the
+                // listing is (incl. vehicle generation, e.g. "Sorento I")
+                // before tapping out to the vendor page.
+                if let listingTitle = offer.affiliateMetadata?.ebayTitle, !listingTitle.isEmpty {
+                    Text(listingTitle)
+                        .font(.sbBodyRegularXSmall)
+                        .foregroundStyle(Color.sbTextSecondary)
+                        .lineLimit(2)
+                }
+
                 if let stockLabel = offer.stockLabel {
                     Text(stockLabel)
                         .font(.sbBodyRegularXSmall)

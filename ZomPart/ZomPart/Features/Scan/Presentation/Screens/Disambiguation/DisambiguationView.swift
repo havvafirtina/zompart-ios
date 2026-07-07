@@ -5,11 +5,17 @@ struct DisambiguationView: View {
 
     @Bindable var viewModel: DisambiguationViewModel
 
+    private var isMismatch: Bool { viewModel.kind == .vehicleMismatch }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
                 headerSection
-                if !viewModel.questions.isEmpty {
+                if isMismatch {
+                    // The mismatch banner carries the explanation; the
+                    // backend's synthetic question would just repeat it.
+                    mismatchBanner
+                } else if !viewModel.questions.isEmpty {
                     questionsSection
                 }
                 alternativesList
@@ -24,7 +30,9 @@ struct DisambiguationView: View {
             .sbPadding(.large)
         }
         .background(Color.sbSurfacePrimary)
-        .navigationTitle(Localized.Scan.disambiguationTitle.localized)
+        .navigationTitle(
+            (isMismatch ? Localized.Scan.mismatchTitle : Localized.Scan.disambiguationTitle).localized
+        )
         .disabled(viewModel.state == .loading)
         .overlay {
             if viewModel.state == .loading {
@@ -70,15 +78,43 @@ struct DisambiguationView: View {
 
     private var headerSection: some View {
         VStack(alignment: .leading) {
-            Text(Localized.Scan.disambiguationTitle.localizedKey)
+            Text((isMismatch ? Localized.Scan.mismatchTitle : Localized.Scan.disambiguationTitle).localizedKey)
                 .font(.sbTitleSemiboldLarge)
                 .foregroundStyle(Color.sbTextPrimary)
 
-            Text(Localized.Scan.disambiguationSubtitle.localizedKey)
+            Text((isMismatch ? Localized.Scan.mismatchSubtitle : Localized.Scan.disambiguationSubtitle).localizedKey)
                 .font(.sbBodyRegularDefault)
                 .foregroundStyle(Color.sbTextSecondary)
         }
         .sbVerticalPadding(.medium)
+    }
+
+    // Warning banner for VEHICLE_MISMATCH: the identified part does not fit
+    // the selected vehicle. `reason` is the AI's English explanation and is
+    // shown as-is (backend does not localize it).
+    private var mismatchBanner: some View {
+        HStack(alignment: .top) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(Color.sbStatusWarning)
+
+            VStack(alignment: .leading) {
+                Text(Localized.Scan.compatibilityWarning.localizedKey)
+                    .font(.sbBodySemiboldDefault)
+                    .foregroundStyle(Color.sbTextPrimary)
+
+                if let reason = viewModel.reason, !reason.isEmpty {
+                    Text(reason)
+                        .font(.sbBodyRegularSmall)
+                        .foregroundStyle(Color.sbTextSecondary)
+                }
+            }
+        }
+        .sbPadding(.medium)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.sbStatusWarningSubtle)
+        .sbCornerRadius(.medium)
+        .sbVerticalPadding(.small)
+        .accessibilityElement(children: .combine)
     }
 
     private var questionsSection: some View {
@@ -110,28 +146,46 @@ struct DisambiguationView: View {
                 Button {
                     Task { await viewModel.selectPart(partCandidateId: alt.id) }
                 } label: {
-                    HStack {
-                        Text(alt.name)
-                            .font(.sbBodySemiboldDefault)
-                            .foregroundStyle(Color.sbTextPrimary)
-
-                        Spacer()
-
-                        Text("\(Int(alt.confidence * 100))%")
-                            .font(.sbBodyMediumSmall)
-                            .foregroundStyle(Color.sbAccentPrimary)
-
-                        Image(systemName: "chevron.right")
-                            .font(.sbBodyRegularXSmall)
-                            .foregroundStyle(Color.sbTextTertiary)
-                    }
-                    .sbPadding(.large)
-                    .background(Color.sbSurfaceSecondary)
-                    .sbCornerRadius(.default)
-                    .sbShadow(.soft)
+                    alternativeLabel(alt)
                 }
                 .buttonStyle(.plain)
             }
         }
+    }
+
+    private func alternativeLabel(_ alt: ScanAlternativeDomain) -> some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(alt.name)
+                    .font(.sbBodySemiboldDefault)
+                    .foregroundStyle(Color.sbTextPrimary)
+
+                // Mismatch choice caption: which action this candidate stands
+                // for. `vehicleCompatible` drives it — true is the equivalent
+                // part FOR the user's car, false is the scanned part itself.
+                if isMismatch, let compatible = alt.vehicleCompatible {
+                    Text((compatible ? Localized.Scan.mismatchFitOption : Localized.Scan.mismatchContinueOption).localizedKey)
+                        .font(.sbBodyRegularSmall)
+                        .foregroundStyle(compatible ? Color.sbStatusSuccess : Color.sbTextSecondary)
+                }
+            }
+
+            Spacer()
+
+            // Confidence is meaningless for the mismatch choice — hide it.
+            if !isMismatch {
+                Text("\(Int(alt.confidence * 100))%")
+                    .font(.sbBodyMediumSmall)
+                    .foregroundStyle(Color.sbAccentPrimary)
+            }
+
+            Image(systemName: "chevron.right")
+                .font(.sbBodyRegularXSmall)
+                .foregroundStyle(Color.sbTextTertiary)
+        }
+        .sbPadding(.large)
+        .background(Color.sbSurfaceSecondary)
+        .sbCornerRadius(.default)
+        .sbShadow(.soft)
     }
 }

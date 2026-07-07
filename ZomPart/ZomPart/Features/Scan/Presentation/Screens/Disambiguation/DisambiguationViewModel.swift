@@ -5,6 +5,9 @@ import Foundation
 final class DisambiguationViewModel {
 
     private(set) var state: ViewState<ScanFeedbackResultDomain> = .idle
+    let kind: DisambiguationKindDomain
+    /// English mismatch explanation from the backend (VEHICLE_MISMATCH only).
+    let reason: String?
     let alternatives: [ScanAlternativeDomain]
     let questions: [ScanQuestionDomain]
 
@@ -14,12 +17,16 @@ final class DisambiguationViewModel {
 
     init(
         scanId: String,
+        kind: DisambiguationKindDomain = .criteria,
+        reason: String? = nil,
         alternatives: [ScanAlternativeDomain],
         questions: [ScanQuestionDomain] = [],
         scanRepository: ScanRepositoryProtocol,
         onResolved: @escaping (ScanFeedbackResultDomain) -> Void
     ) {
         self.scanId = scanId
+        self.kind = kind
+        self.reason = reason
         self.alternatives = alternatives
         self.questions = questions
         self.scanRepository = scanRepository
@@ -37,6 +44,8 @@ final class DisambiguationViewModel {
             )
             state = .loaded(result)
             onResolved(result)
+        } catch is CancellationError {
+            if case .loading = state { state = .idle }
         } catch let error as ScanError {
             state = .error(error.localizedMessage)
         } catch {
@@ -56,6 +65,8 @@ final class DisambiguationViewModel {
             let result = try await scanRepository.manualSearch(scanId: scanId, query: query)
             state = .loaded(result)
             onResolved(result)
+        } catch is CancellationError {
+            if case .loading = state { state = .idle }
         } catch let error as ScanError {
             state = .error(error.localizedMessage)
         } catch {
