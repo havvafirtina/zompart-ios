@@ -14,10 +14,10 @@
 		6D838FF62FB91C1200B0F295 /* SBDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 6D838FF52FB91C1200B0F295 /* SBDesignSystem */; };
 		6DED93602FB7DD8C0061CBC0 /* SBNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 6DED93612FB7DD8C0061CBC0 /* SBNetworking */; };
 		773CC0D576C2EF5449108432 /* OfferDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26678B974B92B5C466FB1B3C /* OfferDecodingTests.swift */; };
-		FBB1B6ABE2578857FC00E91E /* ScanProcessDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9792B0E0B9B071DC3B82073 /* ScanProcessDecodingTests.swift */; };
 		86D4F86AD88E14871EEAB146 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F81A1ACD4B816F3C219769E1 /* Foundation.framework */; };
 		CAAD1BD2E61E09AF85DD4755 /* CatalogTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D45FB336F51CE9DAA628A3FB /* CatalogTreeTests.swift */; };
 		E2954702A000423F2FBE9DF3 /* APIErrorParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1601A67CF8B87969112DD3 /* APIErrorParserTests.swift */; };
+		FBB1B6ABE2578857FC00E91E /* ScanProcessDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9792B0E0B9B071DC3B82073 /* ScanProcessDecodingTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,10 +34,10 @@
 		07214BBC9B9F66A252275207 /* DisplayCasedTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DisplayCasedTests.swift; sourceTree = "<group>"; };
 		26678B974B92B5C466FB1B3C /* OfferDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OfferDecodingTests.swift; sourceTree = "<group>"; };
 		392E312DFD061ED10D4560B4 /* ScanFeedbackEncodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScanFeedbackEncodingTests.swift; sourceTree = "<group>"; };
-		A9792B0E0B9B071DC3B82073 /* ScanProcessDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScanProcessDecodingTests.swift; sourceTree = "<group>"; };
 		5E1601A67CF8B87969112DD3 /* APIErrorParserTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIErrorParserTests.swift; sourceTree = "<group>"; };
 		6DED93482FB7DD8A0061CBC0 /* ZomPart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZomPart.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		729B8B6E53DF6BD5218D2C13 /* ZomPartTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ZomPartTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9792B0E0B9B071DC3B82073 /* ScanProcessDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScanProcessDecodingTests.swift; sourceTree = "<group>"; };
 		C35FF89A7CA5A6D5B048EC6A /* PartSummaryDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PartSummaryDecodingTests.swift; sourceTree = "<group>"; };
 		D45FB336F51CE9DAA628A3FB /* CatalogTreeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CatalogTreeTests.swift; sourceTree = "<group>"; };
 		F81A1ACD4B816F3C219769E1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -48,6 +48,12 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Features/Auth/Docs/auth_module.md,
+				SupportingFiles/Configs/Base.xcconfig,
+				SupportingFiles/Configs/Debug.xcconfig,
+				SupportingFiles/Configs/Local.xcconfig,
+				SupportingFiles/Configs/LocalDevice.xcconfig,
+				SupportingFiles/Configs/LocalIP.xcconfig,
+				SupportingFiles/Configs/Release.xcconfig,
 				"SupportingFiles/ZomPart-Info.plist",
 			);
 			target = 6DED93472FB7DD8A0061CBC0 /* ZomPart */;
@@ -191,7 +197,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2650;
-				LastUpgradeCheck = 2650;
+				LastUpgradeCheck = 2660;
 				TargetAttributes = {
 					6DED93472FB7DD8A0061CBC0 = {
 						CreatedOnToolsVersion = 26.5;
@@ -372,6 +378,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -472,6 +479,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -528,6 +536,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -665,6 +674,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
