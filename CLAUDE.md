@@ -8,13 +8,20 @@ The project lives in `ZomPart/ZomPart.xcodeproj` (no workspace). Build and run v
 
 ```bash
 # Build (Debug, iPhone simulator)
-xcodebuild -project ZomPart/ZomPart.xcodeproj -scheme ZomPart -sdk iphonesimulator -configuration Debug build
+xcodebuild -project ZomPart/ZomPart.xcodeproj -scheme "ZomPart - Debug" -sdk iphonesimulator -configuration Debug build
 
 # Lint
 swiftlint lint --config .swiftlint.yml --path ZomPart/ZomPart/
 ```
 
-No test targets exist yet. The project uses `ENABLE_TESTABILITY = YES` so internal symbols are accessible when tests are added.
+Unit tests live in the `ZomPartTests` target (decoding, error-parsing, and catalog-tree helpers). Run them with:
+
+```bash
+xcodebuild test -project ZomPart/ZomPart.xcodeproj -scheme "ZomPart - Debug" \
+  -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16'
+```
+
+`ENABLE_TESTABILITY = YES` keeps internal symbols visible to the test target. The available schemes are `ZomPart - Debug`, `ZomPart - Local`, `ZomPart - Local Device`, and `ZomPart - Release`.
 
 ## Build Configuration
 
@@ -26,6 +33,8 @@ Environment is injected through xcconfig files in `ZomPart/ZomPart/SupportingFil
 - **Release.xcconfig** — production
 
 Values are read at runtime via `PlistReader` from Info.plist: `SUPABASE_URL`, `SUPABASE_API_SCHEME`, `SUPABASE_PUBLISHABLE_KEY`, `APP_ENV`.
+
+Both the app and test targets build in **Swift 6 language mode** (`SWIFT_VERSION = 6.0`) with **complete strict concurrency** enforced at compile time (`SWIFT_STRICT_CONCURRENCY = complete`, `SWIFT_APPROACHABLE_CONCURRENCY = YES`, `SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated`). New code must be data-race safe: repositories are `actor`s, ViewModels are `@MainActor @Observable`, and any type crossing an isolation boundary must be `Sendable`.
 
 ## Architecture
 

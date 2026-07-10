@@ -7,7 +7,7 @@
       "location" : "git@github.com:sametberberoglu01/SBAnalytics.git",
       "state" : {
         "branch" : "main",
-        "revision" : "2b07d484c2aca128c374df8fab9e95fa07803a0b"
+        "revision" : "fc2178ce488fcf32380c718d281d324942db3caf"
       }
     },
     {
@@ -16,7 +16,7 @@
       "location" : "git@github.com:sametberberoglu01/SBDesignSystem.git",
       "state" : {
         "branch" : "main",
-        "revision" : "b3bf1eca1fe2922d6f86af0711133c4b93d8215d"
+        "revision" : "8cad1101b8f42084346c37ce5b78524c6f5de245"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:berberoglus/SBNetworking.git",
       "state" : {
-        "revision" : "a734fb22a747702284398bc53bb6e2fbe52b9ded",
-        "version" : "1.0.7"
+        "revision" : "0ca2d6ae79c16fdfde2166e0743e4c5330255300",
+        "version" : "1.0.8"
       }
     }
   ],
