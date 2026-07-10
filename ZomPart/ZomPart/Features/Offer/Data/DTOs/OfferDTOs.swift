@@ -211,20 +211,14 @@ struct OfferItemDTO: Decodable, Sendable {
     /// Supabase timestamptz usually carries fractional seconds, but emits
     /// none when they are exactly zero — try both formats.
     private static func parseDate(_ string: String) -> Date? {
-        iso8601.date(from: string) ?? iso8601NoFraction.date(from: string)
+        (try? iso8601.parse(string)) ?? (try? iso8601NoFraction.parse(string))
     }
 
-    private static let iso8601: ISO8601DateFormatter = {
-        let f = ISO8601DateFormatter()
-        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return f
-    }()
-
-    private static let iso8601NoFraction: ISO8601DateFormatter = {
-        let f = ISO8601DateFormatter()
-        f.formatOptions = [.withInternetDateTime]
-        return f
-    }()
+    // `Date.ISO8601FormatStyle` is a Sendable value type, so these statics are
+    // concurrency-safe under strict checking (unlike the reference-type
+    // `ISO8601DateFormatter`).
+    private static let iso8601 = Date.ISO8601FormatStyle(includingFractionalSeconds: true)
+    private static let iso8601NoFraction = Date.ISO8601FormatStyle(includingFractionalSeconds: false)
 }
 
 // MARK: - scan-offers data DTO

@@ -148,24 +148,20 @@ struct ScanInputView: View {
                 Button {
                     showCamera = true
                 } label: {
-                    Label(Localized.Scan.takePhoto.localized, systemImage: "camera.fill")
-                        .font(.sbBodySemiboldDefault)
-                        .foregroundStyle(Color.sbAccentPrimary)
-                        .sbPadding(.medium)
-                        .background(Color.sbAccentSubtle)
-                        .sbCornerRadius(.medium)
+                    PhotoActionLabel(
+                        title: Localized.Scan.takePhoto.localized,
+                        systemImage: "camera.fill"
+                    )
                 }
 
                 PhotosPicker(
                     selection: $selectedPhotoItem,
                     matching: .images
                 ) {
-                    Label(Localized.Scan.chooseFromGallery.localized, systemImage: "photo.on.rectangle")
-                        .font(.sbBodySemiboldDefault)
-                        .foregroundStyle(Color.sbAccentPrimary)
-                        .sbPadding(.medium)
-                        .background(Color.sbAccentSubtle)
-                        .sbCornerRadius(.medium)
+                    PhotoActionLabel(
+                        title: Localized.Scan.chooseFromGallery.localized,
+                        systemImage: "photo.on.rectangle"
+                    )
                 }
             }
             .disabled(viewModel.photos.count >= 8)
@@ -281,4 +277,22 @@ struct ScanInputView: View {
 struct IdentifiableImage: Identifiable {
     let id = UUID()
     let image: UIImage
+}
+
+/// Shared styling for the "take photo" / "choose from gallery" buttons.
+/// Extracted into its own `View` so the design-system tokens are touched in
+/// `body` (main-actor context) rather than inside `PhotosPicker`'s `@Sendable`
+/// label closure, which cannot reference main-actor-isolated state.
+private struct PhotoActionLabel: View {
+    let title: String
+    let systemImage: String
+
+    var body: some View {
+        Label(title, systemImage: systemImage)
+            .font(.sbBodySemiboldDefault)
+            .foregroundStyle(Color.sbAccentPrimary)
+            .sbPadding(.medium)
+            .background(Color.sbAccentSubtle)
+            .sbCornerRadius(.medium)
+    }
 }
