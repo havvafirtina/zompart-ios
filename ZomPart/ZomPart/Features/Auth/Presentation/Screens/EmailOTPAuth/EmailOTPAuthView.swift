@@ -27,9 +27,8 @@ struct EmailOTPAuthView: View {
 
     private var header: some View {
         VStack {
-            Image(systemName: "key.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(Color.sbAccentPrimary)
+            LogoSubtitleView()
+                .frame(width: 220)
 
             Text(Localized.Auth.title.localizedKey)
                 .font(.sbTitleSemiboldXLarge)

@@ -7,6 +7,10 @@ struct OnboardingView: View {
 
     var body: some View {
         VStack {
+            LogoSubtitleView()
+                .frame(width: 220)
+                .sbVerticalPadding(.xLarge)
+
             TabView(selection: $viewModel.currentPage) {
                 ForEach(Array(viewModel.pages.enumerated()), id: \.offset) { index, page in
                     OnboardingPageView(page: page)

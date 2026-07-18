@@ -36,7 +36,13 @@ struct ScanHomeView: View {
         }
         .background(Color.sbSurfacePrimary)
         .navigationTitle(Localized.Tab.scan.localized)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                LogoSubtitleView()
+                    .frame(height: 26)
+            }
+
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     onHistory()
